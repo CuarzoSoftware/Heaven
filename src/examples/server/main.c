@@ -16,11 +16,17 @@ void client_set_app_name_request(struct hv_client *client, const char *app_name)
     printf("Client app name: %s\n", app_name);
 }
 
+void client_create_menu_bar_request(struct hv_client *client, struct hv_menu_bar *menu_bar)
+{
+    printf("New menu bar with ID: %d\n", hv_menu_bar_get_id(menu_bar));
+}
+
 struct hv_server_requests_interface events_interface =
 {
     .client_connected_request = &client_connected_request,
     .client_disconnected_request = &client_disconnected_request,
-    .client_set_app_name_request = &client_set_app_name_request
+    .client_set_app_name_request = &client_set_app_name_request,
+    .client_create_menu_bar_request = &client_create_menu_bar_request
 };
 
 int main()

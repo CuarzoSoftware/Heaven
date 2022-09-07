@@ -6,14 +6,13 @@
 #define HV_MAX_CLIENTS 128
 
 struct hv_server;
-struct hv_compositor;
-struct hv_client;
 
 struct hv_server_requests_interface
 {
     void (*client_connected_request)(struct hv_client *);
     void (*client_disconnected_request)(struct hv_client *);
-    void (*client_set_app_name_request)(struct hv_client *, const char *app_name);
+    void (*client_set_app_name_request)(struct hv_client *, const char *);
+    void (*client_create_menu_bar_request)(struct hv_client *, struct hv_menu_bar *);
 };
 
 struct hv_server *hv_create_server(const char *socket, struct hv_server_requests_interface *events_interface);

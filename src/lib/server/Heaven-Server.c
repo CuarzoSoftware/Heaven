@@ -12,17 +12,26 @@ struct hv_server
     struct hv_client *clients[HV_MAX_CLIENTS];
 };
 
-struct hv_compositor
-{
-    int a;
-};
-
 struct hv_client
 {
     int fds_i;
     void *user_data;
     struct hv_server *server;
     struct hv_array *menu_bars;
+};
+
+struct hv_compositor
+{
+    int a;
+};
+
+struct hv_menu_bar
+{
+    int id;
+    void *user_data;
+    struct hv_client *client;
+    struct hv_node *link;
+    struct hv_array *menus;
 };
 
 struct hv_server *hv_create_server(const char *socket_name, struct hv_server_requests_interface *requests_interface)
@@ -116,6 +125,22 @@ void hv_client_set_app_name_handler(struct hv_client *client)
     client->server->requests_interface->client_set_app_name_request(client, app_name);
 }
 
+void hv_client_create_menu_bar_handler(struct hv_client *client)
+{
+    UInt32 menu_bar_id;
+
+    if(hv_client_read(client, &menu_bar_id, sizeof(UInt32)))
+        return;
+
+    struct hv_menu_bar *menu_bar = malloc(sizeof(struct hv_menu_bar));
+    menu_bar->menus = hv_array_create();
+    menu_bar->client = client;
+    menu_bar->id = menu_bar_id;
+    menu_bar->link = hv_array_push_back(client->menu_bars, menu_bar);
+
+    client->server->requests_interface->client_create_menu_bar_request(client, menu_bar);
+}
+
 void hv_client_handle_request(struct hv_client *client, u_int32_t msg_id)
 {
     switch(msg_id)
@@ -123,6 +148,10 @@ void hv_client_handle_request(struct hv_client *client, u_int32_t msg_id)
         case HV_CLIENT_SET_APP_NAME_ID:
         {
             hv_client_set_app_name_handler(client);
+        }break;
+        case HV_CLIENT_CREATE_MENU_BAR_ID:
+        {
+            hv_client_create_menu_bar_handler(client);
         }break;
     }
 }
@@ -209,3 +238,19 @@ void hv_client_destroy(struct hv_client *client)
     client->server->fds[client->fds_i].fd = -1;
     free(client);
 }
+
+
+
+
+
+/* MENU BAR */
+
+
+
+
+
+UInt32 hv_menu_bar_get_id(struct hv_menu_bar *menu_bar)
+{
+    return menu_bar->id;
+}
+

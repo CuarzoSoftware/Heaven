@@ -23,7 +23,11 @@ int main()
 
     printf("Client created!\n");
 
-    sleep(10);
+    for(int i = 0; i < 100; i++)
+    {
+        hv_client_create_menu_bar(client, NULL);
+        sleep(1);
+    }
 
     return 0;
 }

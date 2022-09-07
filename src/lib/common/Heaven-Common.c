@@ -49,3 +49,23 @@ int hv_array_empty(struct hv_array *array)
         return 0;
     return 1;
 }
+
+struct hv_node *hv_array_push_back(struct hv_array *array, void *data)
+{
+    struct hv_node *node = malloc(sizeof(struct hv_node));
+    node->data = data;
+    node->next = NULL;
+
+    if(hv_array_empty(array))
+    {
+        node->prev = NULL;
+        array->begin = node;
+        array->end = node;
+        return node;
+    }
+
+    node->prev = array->end;
+    array->end->next = node;
+    array->end = node;
+    return node;
+}
