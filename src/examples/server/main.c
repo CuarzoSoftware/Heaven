@@ -1,38 +1,61 @@
 #include "../../lib/server/Heaven-Server.h"
 #include <poll.h>
 
-void client_connected_request(struct hv_client *client)
+static void client_connected(struct hv_client *client)
 {
-    printf("Client connected.\n");
+    printf("+ CLIENT\n");
 }
 
-void client_disconnected_request(struct hv_client *client)
+static void client_disconnected(struct hv_client *client)
 {
-    printf("Client disconnected.\n");
+    printf("- CLIENT.\n");
 }
 
-void client_set_app_name_request(struct hv_client *client, const char *app_name)
+static void client_set_app_name_request(struct hv_client *client, const char *app_name)
 {
-    printf("Client app name: %s\n", app_name);
+    printf("APP NAME: %s\n", app_name);
 }
 
-void client_create_menu_bar_request(struct hv_client *client, struct hv_menu_bar *menu_bar)
+static void menu_bar_create_request(struct hv_menu_bar *menu_bar)
 {
-    printf("New menu bar with ID: %d\n", hv_menu_bar_get_id(menu_bar));
+    printf("+ MENU BAR %d\n", hv_object_get_id((struct hv_object*)menu_bar));
 }
 
-struct hv_server_requests_interface events_interface =
+static void menu_bar_destroy_request(struct hv_menu_bar *menu_bar)
 {
-    .client_connected_request = &client_connected_request,
-    .client_disconnected_request = &client_disconnected_request,
+    printf("- MENU BAR %d\n", hv_object_get_id((struct hv_object*)menu_bar));
+}
+
+static void menu_create_request(struct hv_menu *menu)
+{
+    printf("+ MENU %d\n", hv_object_get_id((struct hv_object*)menu));
+}
+
+static void menu_set_title_request(struct hv_menu *menu, const char *title)
+{
+    printf("MENU %d TITLE: %s\n", hv_object_get_id((struct hv_object*)menu), title);
+}
+
+static void menu_destroy_request(struct hv_menu *menu)
+{
+    printf("- MENU %d\n", hv_object_get_id((struct hv_object*)menu));
+}
+static struct hv_server_requests_interface requests_interface =
+{
+    .client_connected = &client_connected,
+    .client_disconnected = &client_disconnected,
     .client_set_app_name_request = &client_set_app_name_request,
-    .client_create_menu_bar_request = &client_create_menu_bar_request
+    .menu_bar_create_request = &menu_bar_create_request,
+    .menu_bar_destroy_request = &menu_bar_destroy_request,
+    .menu_create_request = &menu_create_request,
+    .menu_set_title_request = &menu_set_title_request,
+    .menu_destroy_request = &menu_destroy_request
 };
 
 int main()
 {
 
-    struct hv_server *server = hv_create_server(NULL, &events_interface);
+    struct hv_server *server = hv_server_create(NULL, &requests_interface);
 
     if(!server)
     {
