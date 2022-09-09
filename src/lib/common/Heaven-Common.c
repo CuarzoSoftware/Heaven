@@ -1,20 +1,25 @@
 #include "Heaven-Common.h"
 
-struct hv_object
+struct hv_object_struct
 {
     UInt32 type;
     UInt32 id;
 };
 
-struct hv_array *hv_array_create()
+union hv_object_union
 {
-    struct hv_array *array = malloc(sizeof(struct hv_array));
+    struct hv_object_struct object;
+};
+
+hv_array *hv_array_create()
+{
+    hv_array *array = malloc(sizeof(hv_array));
     array->begin = NULL;
     array->end = NULL;
     return array;
 }
 
-void hv_array_destroy(struct hv_array *array)
+void hv_array_destroy(hv_array *array)
 {
     if(hv_array_empty(array))
     {
@@ -28,7 +33,7 @@ void hv_array_destroy(struct hv_array *array)
     free(array);
 }
 
-void hv_array_pop_front(struct hv_array *array)
+void hv_array_pop_front(hv_array *array)
 {
     if(hv_array_empty(array))
         return;
@@ -42,13 +47,13 @@ void hv_array_pop_front(struct hv_array *array)
         return;
     }
 
-    struct hv_node *next = array->begin->next;
+    hv_node *next = array->begin->next;
     next->prev = NULL;
     free(array->begin);
     array->begin = next;
 }
 
-void hv_array_pop_back(struct hv_array *array)
+void hv_array_pop_back(hv_array *array)
 {
     if(hv_array_empty(array))
         return;
@@ -62,22 +67,22 @@ void hv_array_pop_back(struct hv_array *array)
         return;
     }
 
-    struct hv_node *prev = array->end->prev;
+    hv_node *prev = array->end->prev;
     prev->next = NULL;
     free(array->end);
     array->end = prev;
 }
 
-int hv_array_empty(struct hv_array *array)
+int hv_array_empty(hv_array *array)
 {
     if(array->end != NULL)
         return 0;
     return 1;
 }
 
-struct hv_node *hv_array_push_back(struct hv_array *array, void *data)
+hv_node *hv_array_push_back(hv_array *array, void *data)
 {
-    struct hv_node *node = malloc(sizeof(struct hv_node));
+    hv_node *node = malloc(sizeof(hv_node));
     node->data = data;
     node->next = NULL;
 
@@ -95,7 +100,40 @@ struct hv_node *hv_array_push_back(struct hv_array *array, void *data)
     return node;
 }
 
-void hv_array_erase(struct hv_array *array, struct hv_node *node)
+hv_node *hv_array_push_front(hv_array *array, void *data)
+{
+    hv_node *node = malloc(sizeof(hv_node));
+    node->data = data;
+    node->prev = NULL;
+
+    if(hv_array_empty(array))
+    {
+        node->next = NULL;
+        array->begin = node;
+        array->end = node;
+        return node;
+    }
+
+    node->next = array->begin;
+    array->begin->prev = node;
+    array->begin = node;
+    return node;
+}
+
+hv_node *hv_array_insert_before(hv_array *array, hv_node *before, void *data)
+{
+    if(hv_array_empty(array) || array->begin == before)
+        return hv_array_push_front(array, data);
+
+    hv_node *node = malloc(sizeof(hv_node));
+    node->data = data;
+    node->prev = before->prev;
+    node->next = before;
+    before->prev = node;
+    return node;
+}
+
+void hv_array_erase(hv_array *array, hv_node *node)
 {
     if(hv_array_empty(array))
         return;
@@ -118,7 +156,12 @@ void hv_array_erase(struct hv_array *array, struct hv_node *node)
 }
 
 
-UInt32 hv_object_get_id(struct hv_object *object)
+UInt32 hv_object_get_id(hv_object *object)
 {
-    return object->id;
+    struct hv_object_struct *obj = (struct hv_object_struct *)object;
+    return obj->id;
 }
+
+
+
+

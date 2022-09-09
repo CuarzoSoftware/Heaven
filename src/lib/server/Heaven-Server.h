@@ -5,28 +5,42 @@
 
 #define HV_MAX_CLIENTS 128
 
-struct hv_server;
+typedef struct hv_server_struct hv_server;
 
-struct hv_server_requests_interface
+typedef struct  hv_server_requests_interface_struct  hv_server_requests_interface;
+
+struct hv_server_requests_interface_struct
 {
-    void (*client_connected)(struct hv_client *);
-    void (*client_disconnected)(struct hv_client *);
-    void (*client_set_app_name_request)(struct hv_client *, const char *);
+    void (*client_connected)(hv_client *);
+    void (*client_set_app_name)(hv_client *, const char *);
+    void (*client_disconnected)(hv_client *);
 
-    void (*menu_bar_create_request)(struct hv_menu_bar *);
-    void (*menu_bar_destroy_request)(struct hv_menu_bar *);
+    void (*object_create)(hv_object *object);
+    void (*object_remove_from_parent)(hv_object *object);
+    void (*object_destroy)(hv_object *object);
 
-    void (*menu_create_request)(struct hv_menu *);
-    void (*menu_set_title_request)(struct hv_menu *, const char *);
-    void (*menu_destroy_request)(struct hv_menu *);
+    void (*top_bar_set_active)(hv_top_bar *);
+
+    void (*menu_set_title)(hv_menu *, const char *);
+    void (*menu_add_to_top_bar)(hv_menu *, hv_top_bar *, hv_menu *);
+    void (*menu_add_to_action)(hv_menu *, hv_action *);
+
+    void (*action_set_icon)(hv_action *, const unsigned char *, UInt32, UInt32);
+    void (*action_set_text)(hv_action *, const char *);
+    void (*action_set_shortcuts)(hv_action *, const char *);
+
+    void (*separator_set_text)(hv_separator *, const char *);
+
+    void (*item_add_to_menu)(hv_item *, hv_menu *, hv_item *);
+
 };
 
-struct hv_server *hv_server_create(const char *socket, struct hv_server_requests_interface *events_interface);
+hv_server *hv_server_create(const char *socket, hv_server_requests_interface *events_interface);
 
-int hv_server_get_fd(struct hv_server *server);
+int hv_server_get_fd(hv_server *server);
 
-int hv_server_handle_requests(struct hv_server *server, int timeout);
+int hv_server_handle_requests(hv_server *server, int timeout);
 
-void hv_client_destroy(struct hv_client *client);
+void hv_client_destroy(hv_client *client);
 
 #endif // HEAVENSERVER_H
