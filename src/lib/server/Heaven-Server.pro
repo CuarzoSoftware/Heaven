@@ -26,11 +26,9 @@ unix {
 
 HEADERS += \
     ../common/Heaven-Common.h \
-    Heaven-Server-Private.h \
     Heaven-Server.h
 
 SOURCES += \
     ../common/Heaven-Common.c \
-    Heaven-Server-Private.c \
     Heaven-Server.c
 

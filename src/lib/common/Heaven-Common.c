@@ -2,13 +2,10 @@
 
 struct hv_object_struct
 {
-    UInt32 type;
-    UInt32 id;
-};
-
-union hv_object_union
-{
-    struct hv_object_struct object;
+    hv_object_type type;
+    hv_object_id id;
+    hv_client *client;
+    hv_object *parent;
 };
 
 hv_array *hv_array_create()
@@ -156,12 +153,26 @@ void hv_array_erase(hv_array *array, hv_node *node)
 }
 
 
-UInt32 hv_object_get_id(hv_object *object)
+hv_object_id hv_object_get_id(hv_object *object)
 {
     struct hv_object_struct *obj = (struct hv_object_struct *)object;
     return obj->id;
 }
 
+hv_object_type hv_object_get_type(hv_object *object)
+{
+    struct hv_object_struct *obj = (struct hv_object_struct *)object;
+    return obj->type;
+}
 
+hv_object *hv_object_get_parent(hv_object *object)
+{
+    struct hv_object_struct *obj = (struct hv_object_struct *)object;
+    return obj->parent;
+}
 
-
+hv_client *hv_object_get_client(hv_object *object)
+{
+    struct hv_object_struct *obj = (struct hv_object_struct *)object;
+    return obj->client;
+}

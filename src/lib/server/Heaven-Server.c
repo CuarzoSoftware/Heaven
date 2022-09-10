@@ -1,5 +1,5 @@
-#include "Heaven-Server-Private.h"
 #include "Heaven-Server.h"
+#include <asm-generic/socket.h>
 #include <poll.h>
 #include <sys/epoll.h>
 #include <sys/select.h>
@@ -13,6 +13,13 @@ struct hv_server_struct
     hv_client *clients[HV_MAX_CLIENTS];
 };
 
+struct hv_creds
+{
+    pid_t pid;    /* process ID of the sending process */
+    uid_t uid;    /* user ID of the sending process */
+    gid_t gid;    /* group ID of the sending process */
+};
+
 struct hv_client_struct
 {
     int fds_i;
@@ -21,6 +28,7 @@ struct hv_client_struct
     hv_array *top_bars;
     hv_array *objects;
     hv_top_bar *active_top_bar;
+    struct hv_creds creds;
 };
 
 struct hv_compositor_struct
@@ -32,11 +40,11 @@ struct hv_compositor_struct
 
 struct hv_object_struct
 {
-    UInt32 type;
-    UInt32 id;
+    hv_object_type type;
+    hv_object_id id;
     hv_client *client;
-    hv_node *link;
     struct hv_object_struct *parent;
+    hv_node *link;
     hv_node *parent_link;
     hv_array *children;
     void *user_data;
@@ -55,7 +63,15 @@ struct hv_menu_struct
 struct hv_action_struct
 {
     struct hv_object_struct object;
+    hv_action_state state;
 };
+
+struct hv_separator_struct
+{
+    struct hv_object_struct object;
+};
+
+/* UTILS */
 
 hv_server *hv_server_create(const char *socket_name, hv_server_requests_interface *requests_interface)
 {
@@ -113,6 +129,20 @@ hv_server *hv_server_create(const char *socket_name, hv_server_requests_interfac
     return server;
 }
 
+int hv_fds_add_fd(struct pollfd *fds, int fd)
+{
+    for(int i = 2; i < HV_MAX_CLIENTS+2; i++)
+    {
+        if(fds[i].fd == -1)
+        {
+            fds[i].fd = fd;
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 int hv_server_get_fd(hv_server *server)
 {
     return server->epoll_fd;
@@ -131,21 +161,21 @@ int hv_client_read(hv_client *client, void *dst, size_t bytes)
     if(select(client->server->fds[client->fds_i].fd + 1, &set, NULL, NULL, &timeout) <= 0)
     {
         printf("Error: Client read timeout.\n");
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return 1;
     }
 
     if(read(client->server->fds[client->fds_i].fd, dst, bytes) != (ssize_t)bytes)
     {
         printf("Error: Client read failed.\n");
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return 1;
     }
 
     return 0;
 }
 
-hv_object *hv_client_object_get_by_id(hv_client *client, UInt32 id)
+hv_object *hv_client_object_get_by_id(hv_client *client, hv_object_id id)
 {
     hv_node *node = client->objects->begin;
 
@@ -162,11 +192,11 @@ hv_object *hv_client_object_get_by_id(hv_client *client, UInt32 id)
     return NULL;
 }
 
-hv_object *hv_client_object_create(hv_client *client, UInt32 type, UInt32 size)
+hv_object *hv_client_object_create(hv_client *client, hv_object_type type, u_int32_t size)
 {
-    UInt32 id;
+    hv_object_id id;
 
-    if(hv_client_read(client, &id, sizeof(UInt32)))
+    if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return NULL;
 
     struct hv_object_struct *object = malloc(size);
@@ -182,13 +212,29 @@ hv_object *hv_client_object_create(hv_client *client, UInt32 type, UInt32 size)
     return (hv_object*)object;
 }
 
-/* CLIENT REQUESTS HANDLERS */
+void hv_object_remove_from_parent(struct hv_object_struct *object)
+{
+    if(!object)
+        return;
+
+    if(!object->parent)
+        return;
+
+    object->client->server->requests_interface->client_object_remove_from_parent(hv_object_get_client(object), object);
+
+    hv_array_erase(object->parent->children, object->parent_link);
+
+    object->parent_link = NULL;
+    object->parent = NULL;
+}
+
+/* CLIENT */
 
 void hv_client_set_app_name_handler(hv_client *client)
 {
-    UInt32 app_name_len;
+    hv_string_length app_name_len;
 
-    if(hv_client_read(client, &app_name_len, sizeof(UInt32)))
+    if(hv_client_read(client, &app_name_len, sizeof(hv_string_length)))
         return;
 
     char app_name[app_name_len+1];
@@ -201,37 +247,39 @@ void hv_client_set_app_name_handler(hv_client *client)
     client->server->requests_interface->client_set_app_name(client, app_name);
 }
 
+/* TOP BAR */
+
 void hv_top_bar_create_handler(hv_client *client)
 {
     hv_top_bar *top_bar = (hv_top_bar *)hv_client_object_create(client, HV_OBJECT_TYPE_TOP_BAR, sizeof(hv_top_bar));
     if(!top_bar) return;
     top_bar->object.parent_link = hv_array_push_back(client->top_bars, top_bar);
-    client->server->requests_interface->object_create(top_bar);
+    client->server->requests_interface->client_object_create(client, top_bar);
     if(client->active_top_bar == NULL)
     {
         client->active_top_bar = top_bar;
-        client->server->requests_interface->top_bar_set_active(top_bar);
+        client->server->requests_interface->client_top_bar_set_active(client, top_bar);
     }
 }
 
 void hv_top_bar_set_active_handler(hv_client *client)
 {
-    UInt32 top_bar_id;
+    hv_object_id top_bar_id;
 
-    if(hv_client_read(client, &top_bar_id, sizeof(UInt32)))
+    if(hv_client_read(client, &top_bar_id, sizeof(hv_object_id)))
         return;
 
     hv_top_bar *top_bar = (hv_top_bar *)hv_client_object_get_by_id(client, top_bar_id);
 
     if(!top_bar)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
     if(top_bar->object.type != HV_OBJECT_TYPE_TOP_BAR)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
@@ -239,13 +287,13 @@ void hv_top_bar_set_active_handler(hv_client *client)
         return;
 
     client->active_top_bar = top_bar;
-    client->server->requests_interface->top_bar_set_active(top_bar);
+    client->server->requests_interface->client_top_bar_set_active(client, top_bar);
 
 }
 
-void hv_top_bar_destroy(hv_top_bar *top_bar)
+void hv_top_bar_before_destroy(hv_top_bar *top_bar)
 {
-    top_bar->object.client->server->requests_interface->object_destroy(top_bar);
+    hv_client *client = hv_object_get_client(top_bar);
     hv_array_erase(top_bar->object.client->top_bars, top_bar->object.parent_link);
 
     if(top_bar->object.client->active_top_bar == top_bar)
@@ -253,56 +301,53 @@ void hv_top_bar_destroy(hv_top_bar *top_bar)
         if(!hv_array_empty(top_bar->object.client->top_bars))
         {
             top_bar->object.client->active_top_bar = top_bar->object.client->top_bars->end->data;
-            top_bar->object.client->server->requests_interface->top_bar_set_active(top_bar->object.client->active_top_bar);
+            top_bar->object.client->server->requests_interface->client_top_bar_set_active(client, top_bar->object.client->active_top_bar);
         }
         else
         {
             top_bar->object.client->active_top_bar = NULL;
-            top_bar->object.client->server->requests_interface->top_bar_set_active(NULL);
+            top_bar->object.client->server->requests_interface->client_top_bar_set_active(client, NULL);
         }
     }
 }
+
+/* MENU */
 
 void hv_menu_create_handler(hv_client *client)
 {
     hv_menu *object = (hv_menu *)hv_client_object_create(client, HV_OBJECT_TYPE_MENU, sizeof(hv_menu));
     if(!object) return;
-    client->server->requests_interface->object_create(object);
-}
-
-void hv_menu_destroy(hv_menu *menu)
-{
-    menu->object.client->server->requests_interface->object_destroy(menu);
+    client->server->requests_interface->client_object_create(client, object);
 }
 
 void hv_menu_set_title_handler(hv_client *client)
 {
-    UInt32 id;
+    hv_object_id id;
 
-    if(hv_client_read(client, &id, sizeof(UInt32)))
+    if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return;
 
     hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, id);
 
     if(!menu)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
     if(menu->object.type != HV_OBJECT_TYPE_MENU)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
-    UInt32 title_len;
+    hv_string_length title_len;
 
-    if(hv_client_read(client, &title_len, sizeof(UInt32)))
+    if(hv_client_read(client, &title_len, sizeof(hv_string_length)))
         return;
 
     if(title_len == 0)
-        client->server->requests_interface->menu_set_title(menu, NULL);
+        client->server->requests_interface->client_menu_set_title(client, menu, NULL);
     else
     {
         char title[title_len+1];
@@ -312,53 +357,53 @@ void hv_menu_set_title_handler(hv_client *client)
 
         title[title_len] = '\0';
 
-        client->server->requests_interface->menu_set_title(menu, title);
+        client->server->requests_interface->client_menu_set_title(client, menu, title);
     }
 }
 
 void hv_menu_add_to_top_bar_handler(hv_client *client)
 {
-    UInt32 menu_id;
+    hv_object_id menu_id;
 
-    if(hv_client_read(client, &menu_id, sizeof(UInt32)))
+    if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
         return;
 
     hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
 
     if(!menu)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
     if(menu->object.type != HV_OBJECT_TYPE_MENU)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
-    UInt32 top_bar_id;
+    hv_object_id top_bar_id;
 
-    if(hv_client_read(client, &top_bar_id, sizeof(UInt32)))
+    if(hv_client_read(client, &top_bar_id, sizeof(hv_object_id)))
         return;
 
     hv_top_bar *top_bar = (hv_top_bar *)hv_client_object_get_by_id(client, top_bar_id);
 
     if(!top_bar)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
     if(top_bar->object.type != HV_OBJECT_TYPE_TOP_BAR)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
-    UInt32 before_id;
+    hv_object_id before_id;
 
-    if(hv_client_read(client, &before_id, sizeof(UInt32)))
+    if(hv_client_read(client, &before_id, sizeof(hv_object_id)))
         return;
 
     hv_menu *before = NULL;
@@ -366,8 +411,7 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
     if(before_id == 0)
     {
         // Remove from current parent
-        if(menu->object.parent)
-            hv_array_erase(menu->object.parent->children, menu->object.parent_link);
+        hv_object_remove_from_parent(&menu->object);
 
         // Set parent
         menu->object.parent = (struct hv_object_struct *)top_bar;
@@ -382,25 +426,24 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
 
         if(!before)
         {
-            hv_client_destroy(client);
+            hv_server_client_destroy(client);
             return;
         }
 
         if(before->object.type != HV_OBJECT_TYPE_MENU)
         {
-            hv_client_destroy(client);
+            hv_server_client_destroy(client);
             return;
         }
 
         if(before->object.parent != (struct hv_object_struct *)top_bar)
         {
-            hv_client_destroy(client);
+            hv_server_client_destroy(client);
             return;
         }
 
         // Remove from current parent
-        if(menu->object.parent)
-            hv_array_erase(menu->object.parent->children, menu->object.parent_link);
+        hv_object_remove_from_parent(&menu->object);
 
         // Set parent
         menu->object.parent = (struct hv_object_struct *)top_bar;
@@ -410,40 +453,98 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
 
     }
 
-    client->server->requests_interface->menu_add_to_top_bar(menu, top_bar, before);
-
+    client->server->requests_interface->client_menu_add_to_top_bar(client, menu, top_bar, before);
 }
+
+void hv_menu_add_to_action_handler(hv_client *client)
+{
+    hv_object_id menu_id;
+
+    if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
+        return;
+
+    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
+
+    if(!menu)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(menu->object.type != HV_OBJECT_TYPE_MENU)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_object_id action_id;
+
+    if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
+        return;
+
+    hv_action *action = (hv_action *)hv_client_object_get_by_id(client, action_id);
+
+    if(!action)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(action->object.type != HV_OBJECT_TYPE_ACTION)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_object_remove_from_parent(&menu->object);
+
+    if(!hv_array_empty(action->object.children))
+        hv_object_remove_from_parent(action->object.children->end->data);
+
+    menu->object.parent = (struct hv_object_struct*)action;
+    menu->object.parent_link = hv_array_push_back(action->object.children, menu);
+
+    client->server->requests_interface->client_menu_add_to_action(client, menu, action);
+}
+
+void hv_menu_before_destroy(hv_menu *menu)
+{
+    HV_UNUSED(menu);
+}
+
+/* ACTION */
 
 void hv_action_create_handler(hv_client *client)
 {
     hv_action *action = (hv_action *)hv_client_object_create(client, HV_OBJECT_TYPE_ACTION, sizeof(hv_action));
+    action->state = HV_ACTION_STATE_ENABLED;
     if(!action) return;
-    client->server->requests_interface->object_create(action);
+    client->server->requests_interface->client_object_create(client, action);
 }
 
 void hv_action_set_text_handler(hv_client *client)
 {
-    UInt32 action_id;
+    hv_object_id action_id;
 
-    if(hv_client_read(client, &action_id, sizeof(UInt32)))
+    if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
     hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
 
     if(!action)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
-    UInt32 text_len;
+    hv_string_length text_len;
 
-    if(hv_client_read(client, &text_len, sizeof(UInt32)))
+    if(hv_client_read(client, &text_len, sizeof(hv_string_length)))
         return;
 
     if(text_len == 0)
     {
-        client->server->requests_interface->action_set_text(action, NULL);
+        client->server->requests_interface->client_action_set_text(client, action, NULL);
         return;
     }
 
@@ -454,15 +555,271 @@ void hv_action_set_text_handler(hv_client *client)
 
     text[text_len] = '\0';
 
-    client->server->requests_interface->action_set_text(action, text);
-
+    client->server->requests_interface->client_action_set_text(client, action, text);
 }
+
+void hv_action_set_icon_handler(hv_client *client)
+{
+    hv_object_id action_id;
+
+    if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
+        return;
+
+    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+
+    if(!action)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    u_int32_t width;
+
+    if(hv_client_read(client, &width, sizeof(u_int32_t)))
+        return;
+
+    if(width == 0)
+    {
+        client->server->requests_interface->client_action_set_icon(client, action, NULL, 0, 0);
+        return;
+    }
+
+    u_int32_t height;
+
+    if(hv_client_read(client, &height, sizeof(u_int32_t)))
+        return;
+
+    if(height == 0)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    u_int32_t total_pixels = width*height;
+
+    hv_pixel pixels[total_pixels];
+
+    if(hv_client_read(client, pixels, total_pixels))
+        return;
+
+    client->server->requests_interface->client_action_set_icon(client, action, pixels, width, height);
+}
+
+void hv_action_set_shortcuts_handler(hv_client *client)
+{
+    hv_object_id action_id;
+
+    if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
+        return;
+
+    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+
+    if(!action)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_string_length shortcuts_len;
+
+    if(hv_client_read(client, &shortcuts_len, sizeof(hv_string_length)))
+        return;
+
+    if(shortcuts_len == 0)
+    {
+        client->server->requests_interface->client_action_set_shortcuts(client, action, NULL);
+        return;
+    }
+
+    char shortcuts[shortcuts_len+1];
+
+    if(hv_client_read(client, shortcuts, shortcuts_len))
+        return;
+
+    shortcuts[shortcuts_len] = '\0';
+
+    client->server->requests_interface->client_action_set_shortcuts(client, action, shortcuts);
+}
+
+void hv_action_set_state_handler(hv_client *client)
+{
+    hv_object_id action_id;
+
+    if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
+        return;
+
+    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+
+    if(!action)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_action_state state;
+
+    if(hv_client_read(client, &state, sizeof(hv_action_state)))
+        return;
+
+    if(state != HV_ACTION_STATE_ENABLED && state != HV_ACTION_STATE_DISABLED)
+        return;
+
+    if(state == action->state)
+        return;
+
+    client->server->requests_interface->client_action_set_state(client, action, state);
+}
+
+void hv_action_before_destroy(hv_action *action)
+{
+    HV_UNUSED(action);
+}
+
+/* SEPARATOR */
+
+void hv_separator_create_handler(hv_client *client)
+{
+    hv_separator *separator = (hv_separator *)hv_client_object_create(client, HV_OBJECT_TYPE_SEPARATOR, sizeof(hv_separator));
+    if(!separator) return;
+    client->server->requests_interface->client_object_create(client, separator);
+}
+
+void hv_separator_set_text_handler(hv_client *client)
+{
+    hv_object_id separator_id;
+
+    if(hv_client_read(client, &separator_id, sizeof(hv_object_id)))
+        return;
+
+    hv_separator *separator = (hv_separator*)hv_client_object_get_by_id(client, separator_id);
+
+    if(!separator)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_string_length text_len;
+
+    if(hv_client_read(client, &text_len, sizeof(hv_string_length)))
+        return;
+
+    if(text_len == 0)
+    {
+        client->server->requests_interface->client_separator_set_text(client, separator, NULL);
+        return;
+    }
+
+    char text[text_len + 1];
+
+    if(hv_client_read(client, &text, text_len))
+        return;
+
+    text[text_len] = '\0';
+
+    client->server->requests_interface->client_separator_set_text(client, separator, text);
+}
+
+void hv_separator_before_destroy(hv_separator *separator)
+{
+    HV_UNUSED(separator);
+}
+
+/* ITEM */
+
+void hv_item_add_to_menu_handler(hv_client *client)
+{
+    hv_object_id item_id;
+
+    if(hv_client_read(client, &item_id, sizeof(hv_object_id)))
+        return;
+
+    struct hv_object_struct *item = (struct hv_object_struct *)hv_client_object_get_by_id(client, item_id);
+
+    if(!item)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(item->type != HV_OBJECT_TYPE_ACTION && item->type != HV_OBJECT_TYPE_SEPARATOR)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_object_id menu_id;
+
+    if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
+        return;
+
+    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
+
+    if(!menu)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(menu->object.type != HV_OBJECT_TYPE_MENU)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(menu->object.parent == item)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_object_id before_id;
+
+    if(hv_client_read(client, &before_id, sizeof(hv_object_id)))
+        return;
+
+    if(before_id == 0)
+    {
+        hv_object_remove_from_parent(item);
+        item->parent = (hv_object*)menu;
+        item->parent_link = hv_array_push_back(menu->object.children, item);
+        item->client->server->requests_interface->client_item_add_to_menu(client, item, menu, NULL);
+        return;
+    }
+
+    struct hv_object_struct *before = (struct hv_object_struct *)hv_client_object_get_by_id(client, before_id);
+
+    if(!before)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(before->type != HV_OBJECT_TYPE_ACTION && before->type != HV_OBJECT_TYPE_SEPARATOR)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    if(before->parent != (hv_object*)menu)
+    {
+        hv_server_client_destroy(client);
+        return;
+    }
+
+    hv_object_remove_from_parent(item);
+    item->parent = (hv_object*)menu;
+    item->parent_link = hv_array_insert_before(menu->object.children, before->parent_link ,item);
+    item->client->server->requests_interface->client_item_add_to_menu(client, item, menu, NULL);
+}
+
+/* OBJECT */
 
 void hv_object_create_handler(hv_client *client)
 {
-    UInt32 type;
+    hv_object_type type;
 
-    if(hv_client_read(client, &type, sizeof(UInt32)))
+    if(hv_client_read(client, &type, sizeof(hv_object_type)))
         return;
 
     switch(type)
@@ -484,11 +841,24 @@ void hv_object_create_handler(hv_client *client)
         }break;
         case HV_OBJECT_TYPE_SEPARATOR:
         {
-
+            hv_separator_create_handler(client);
+            return;
         }break;
     }
 
-    hv_client_destroy(client);
+    hv_server_client_destroy(client);
+}
+
+void hv_object_remove_from_parent_handler(hv_client *client)
+{
+    hv_object_id id;
+
+    if(hv_client_read(client, &id, sizeof(hv_object_id)))
+        return;
+
+    struct hv_object_struct *object = hv_client_object_get_by_id(client, id);
+
+    hv_object_remove_from_parent(object);
 }
 
 void hv_object_destroy(hv_object *obj)
@@ -499,34 +869,33 @@ void hv_object_destroy(hv_object *obj)
     {
         case HV_OBJECT_TYPE_TOP_BAR:
         {
-            hv_top_bar_destroy((hv_top_bar*) object);
+            hv_top_bar_before_destroy((hv_top_bar*) object);
         }break;
         case HV_OBJECT_TYPE_MENU:
         {
-            hv_menu_destroy((hv_menu*) object);
+            hv_menu_before_destroy((hv_menu*) object);
         }break;
         case HV_OBJECT_TYPE_ACTION:
         {
-
+            hv_action_before_destroy((hv_action*)object);
         }break;
         case HV_OBJECT_TYPE_SEPARATOR:
         {
-
+            hv_separator_before_destroy((hv_separator*)object);
         }break;
     }
 
     hv_array_erase(object->client->objects, object->link);
 
-    if(object->parent)
-        hv_array_erase(object->parent->children, object->parent_link);
+    hv_object_remove_from_parent(object);
 
     while(!hv_array_empty(object->children))
     {
         struct hv_object_struct *child = object->children->end->data;
-        child->parent = NULL;
-        child->parent_link = NULL;
-        hv_array_pop_back(object->children);
+        hv_object_remove_from_parent(child);
     }
+
+    object->client->server->requests_interface->client_object_destroy(object->client, object);
 
     hv_array_destroy(object->children);
 
@@ -535,23 +904,24 @@ void hv_object_destroy(hv_object *obj)
 
 void hv_object_destroy_handler(hv_client *client)
 {
-    UInt32 id;
+    hv_object_id id;
 
-    if(hv_client_read(client, &id, sizeof(UInt32)))
+    if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return;
 
     hv_object *object = hv_client_object_get_by_id(client, id);
 
     if(!object)
     {
-        hv_client_destroy(client);
+        hv_server_client_destroy(client);
         return;
     }
 
     hv_object_destroy(object);
 }
 
-void hv_client_handle_request(hv_client *client, UInt32 msg_id)
+
+void hv_client_handle_request(hv_client *client, hv_message_id msg_id)
 {
     switch(msg_id)
     {
@@ -571,6 +941,10 @@ void hv_client_handle_request(hv_client *client, UInt32 msg_id)
         {
             hv_object_destroy_handler(client);
         }break;
+        case HV_OBJECT_REMOVE_FROM_PARENT_ID:
+        {
+            hv_object_remove_from_parent_handler(client);
+        }break;
         case HV_MENU_SET_TITLE_ID:
         {
             hv_menu_set_title_handler(client);
@@ -579,9 +953,33 @@ void hv_client_handle_request(hv_client *client, UInt32 msg_id)
         {
             hv_menu_add_to_top_bar_handler(client);
         }break;
+        case HV_MENU_ADD_TO_ACTION_ID:
+        {
+            hv_menu_add_to_action_handler(client);
+        }break;
         case HV_ACTION_SET_TEXT_ID:
         {
             hv_action_set_text_handler(client);
+        }break;
+        case HV_ACTION_SET_ICON_ID:
+        {
+            hv_action_set_icon_handler(client);
+        }break;
+        case HV_ACTION_SET_SHORTCUTS_ID:
+        {
+            hv_action_set_shortcuts_handler(client);
+        }break;
+        case HV_ACTION_SET_STATE_ID:
+        {
+            hv_action_set_state_handler(client);
+        }break;
+        case HV_SEPARATOR_SET_TEXT_ID:
+        {
+            hv_separator_set_text_handler(client);
+        }break;
+        case HV_ITEM_ADD_TO_MENU_ID:
+        {
+            hv_item_add_to_menu_handler(client);
         }break;
     }
 }
@@ -593,7 +991,7 @@ int hv_server_accept_connection(hv_server *server)
     if(connection_fd == -1)
         return -1;
 
-    UInt32 type;
+    hv_object_type type;
 
     struct timeval timeout;
     timeout.tv_sec = 0;
@@ -609,7 +1007,7 @@ int hv_server_accept_connection(hv_server *server)
         return -2;
     }
 
-    if(read(connection_fd, &type, sizeof(UInt32)) != sizeof(UInt32))
+    if(read(connection_fd, &type, sizeof(hv_object_type)) != sizeof(hv_object_type))
     {
         close(connection_fd);
         return -2;
@@ -640,7 +1038,12 @@ int hv_server_accept_connection(hv_server *server)
         client->objects = hv_array_create();
         client->active_top_bar = NULL;
 
+        socklen_t len = sizeof(client->creds);
+
+        getsockopt(client->server->fds[client->fds_i].fd, SOL_SOCKET, SO_PEERCRED, &client->creds, &len);
+
         server->requests_interface->client_connected(client);
+
         return 0;
     }
     else
@@ -651,7 +1054,7 @@ int hv_server_accept_connection(hv_server *server)
 
 }
 
-int hv_server_handle_requests(hv_server *server, int timeout)
+int hv_server_dispatch_requests(hv_server *server, int timeout)
 {
     int ret = poll(server->fds, HV_MAX_CLIENTS+2, timeout);
 
@@ -674,16 +1077,16 @@ int hv_server_handle_requests(hv_server *server, int timeout)
                 // Client disconnected
                 if(server->fds[i].revents & POLLHUP)
                 {
-                    hv_client_destroy(client);
+                    hv_server_client_destroy(client);
                     continue;
                 }
 
                 // Client request
                 if(server->fds[i].revents & POLLIN)
                 {
-                    u_int32_t msg_id;
+                    hv_message_id msg_id;
 
-                    if(hv_client_read(client, &msg_id, sizeof(UInt32)))
+                    if(hv_client_read(client, &msg_id, sizeof(hv_message_id)))
                         continue;
 
                     hv_client_handle_request(client, msg_id);
@@ -695,12 +1098,12 @@ int hv_server_handle_requests(hv_server *server, int timeout)
     return 0;
 }
 
-void hv_client_destroy(hv_client *client)
+void hv_server_client_destroy(hv_client *client)
 {
     if(client->active_top_bar)
     {
         client->active_top_bar = NULL;
-        client->server->requests_interface->top_bar_set_active(NULL);
+        client->server->requests_interface->client_top_bar_set_active(client, NULL);
     }
 
     epoll_ctl(client->server->epoll_fd, EPOLL_CTL_DEL, client->server->fds[client->fds_i].fd, NULL);
@@ -719,3 +1122,17 @@ void hv_client_destroy(hv_client *client)
     free(client);
 }
 
+void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid)
+{
+    if(pid)
+        *pid = client->creds.pid;
+    if(uid)
+        *uid = client->creds.uid;
+    if(gid)
+        *gid = client->creds.gid;
+}
+
+hv_client_id hv_client_get_id(hv_client *client)
+{
+    return client->fds_i-1;
+}
