@@ -1,20 +1,25 @@
 #ifndef HEAVENCLIENT_H
 #define HEAVENCLIENT_H
 
-#include "../common/Heaven-Common.h"
+#include "Heaven-Common.h"
 
 typedef struct hv_client_events_interface_struct hv_client_events_interface;
 
 struct hv_client_events_interface_struct
 {
     void (*disconnected_from_server)(hv_client *);
+    void (*object_destroy)(hv_object *);
+    void (*server_action_invoke)(hv_action *);
+    void (*server_send_custom_event)(hv_client *, void *, u_int32_t size);
 };
 
 /* CLIENT */
-hv_client *hv_client_create(const char *socket_name, const char *app_name, hv_client_events_interface *events_interface);
+hv_client *hv_client_create(const char *socket_name, const char *app_name, void *user_data, hv_client_events_interface *events_interface);
+int hv_client_dispatch_events(hv_client *client, int timeout);
 void hv_client_destroy(hv_client *client);
 int hv_client_set_app_name(hv_client * client, const char *app_name);
 int hv_client_get_fd(hv_client *client);
+int hv_client_send_custom_request(hv_client *client, void *data, u_int32_t size);
 
 /* Object */
 hv_object *hv_object_create(hv_client * client, hv_object_type type,  void *user_data);

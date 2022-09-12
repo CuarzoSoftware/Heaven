@@ -1,4 +1,4 @@
-#include "../../lib/server/Heaven-Server.h"
+#include "../../lib/Heaven-Server.h"
 #include <poll.h>
 
 const char *object_type_to_string(hv_object_type object_type)
@@ -22,7 +22,6 @@ const char *object_type_to_string(hv_object_type object_type)
     return NULL;
 }
 
-
 static void client_connected(hv_client *client)
 {
     pid_t pid;
@@ -33,6 +32,16 @@ static void client_connected(hv_client *client)
 static void client_set_app_name(hv_client *client, const char *app_name)
 {
     printf("- CLIENT (%d) SET APP NAME = \"%s\"\n", hv_client_get_id(client), app_name);
+}
+
+static void client_send_custom_request(hv_client *client, void *data, u_int32_t size)
+{
+    char *msg = data;
+    msg[size] = '\0';
+    printf("- CLIENT (%d) SENT A CUSTOM MESSAGE = \"%s\"\n", hv_client_get_id(client), msg);
+
+    char *reply = "Hello my dear client! <3";
+    hv_server_send_custom_event(client, reply, strlen(reply) + 1);
 }
 
 static void client_disconnected(hv_client *client)
@@ -48,6 +57,10 @@ static void object_create(hv_client *client, hv_object *object)
     hv_object_id object_id = hv_object_get_id(object);
     hv_object_type object_type = hv_object_get_type(object);
     printf("- CLIENT (%d) CREATED %s (%d)\n", client_id, object_type_to_string(object_type), object_id);
+
+    /* Send a "fake" action invokation */
+    if(object_type == HV_OBJECT_TYPE_ACTION)
+        hv_action_invoke(object);
 }
 
 static void object_remove_from_parent(hv_client *client, hv_object *object)
@@ -193,6 +206,7 @@ static hv_server_requests_interface requests_interface =
 {
     &client_connected,
     &client_set_app_name,
+    &client_send_custom_request,
     &client_disconnected,
 
     &object_create,
@@ -218,7 +232,7 @@ static hv_server_requests_interface requests_interface =
 int main()
 {
 
-    hv_server *server = hv_server_create(NULL, &requests_interface);
+    hv_server *server = hv_server_create(NULL, NULL, &requests_interface);
 
     if(!server)
     {

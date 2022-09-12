@@ -1,8 +1,9 @@
 #include "Heaven-Server.h"
 #include <asm-generic/socket.h>
-#include <poll.h>
+#include <sys/poll.h>
 #include <sys/epoll.h>
 #include <sys/select.h>
+#include <pthread.h>
 
 struct hv_server_struct
 {
@@ -11,6 +12,8 @@ struct hv_server_struct
     struct sockaddr_un name;
     hv_server_requests_interface *requests_interface;
     hv_client *clients[HV_MAX_CLIENTS];
+    void *user_data;
+    pthread_mutex_t mutex;
 };
 
 struct hv_creds
@@ -22,11 +25,11 @@ struct hv_creds
 
 struct hv_client_struct
 {
+    hv_array *objects;
     int fds_i;
     void *user_data;
     hv_server *server;
     hv_array *top_bars;
-    hv_array *objects;
     hv_top_bar *active_top_bar;
     struct hv_creds creds;
 };
@@ -73,19 +76,109 @@ struct hv_separator_struct
 
 /* UTILS */
 
-hv_server *hv_server_create(const char *socket_name, hv_server_requests_interface *requests_interface)
+int hv_fds_add_fd(struct pollfd *fds, int fd)
+{
+    for(int i = 2; i < HV_MAX_CLIENTS+2; i++)
+    {
+        if(fds[i].fd == -1)
+        {
+            fds[i].fd = fd;
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int hv_client_read(hv_client *client, void *dst, ssize_t bytes)
+{
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 500000;
+
+    fd_set set;
+    FD_ZERO(&set);
+    FD_SET(client->server->fds[client->fds_i].fd, &set);
+
+    if(select(client->server->fds[client->fds_i].fd + 1, &set, NULL, NULL, &timeout) <= 0)
+    {
+        printf("Error: Client read timeout.\n");
+        hv_server_client_destroy(client);
+        return 1;
+    }
+
+    u_int8_t *data = dst;
+
+    ssize_t readBytes = read(client->server->fds[client->fds_i].fd, data, bytes);
+
+    if(readBytes < 1)
+    {
+        printf("Error: Client read failed.\n");
+        hv_server_client_destroy(client);
+        return 1;
+    }
+
+    else if(readBytes < bytes)
+        return hv_client_read(client, &data[readBytes], bytes - readBytes);
+
+    return 0;
+}
+
+int hv_client_write(hv_client *client, void *src, ssize_t bytes)
+{
+    u_int8_t *data = src;
+
+    ssize_t writtenBytes = write(client->server->fds[client->fds_i].fd, data, bytes);
+
+    if(writtenBytes < 1)
+    {
+        hv_server_client_destroy(client);
+        return 1;
+    }
+    else if(writtenBytes < bytes)
+        return hv_client_write(client, &data[writtenBytes], bytes - writtenBytes);
+
+    return 0;
+}
+
+/* SERVER */
+
+hv_server *hv_server_create(const char *socket_name, void *user_data, hv_server_requests_interface *requests_interface)
 {
     const char *sock_name;
 
     if(socket_name)
+    {
+        if(socket_name[0] == '/')
+        {
+            printf("Error: Invalid socket name \"%s\". Can not start with \"/\".\n", socket_name);
+            return NULL;
+        }
         sock_name = socket_name;
+    }
     else
         sock_name = HV_DEFAULT_SOCKET;
+
+    char *xdg_runtime_dir = getenv("XDG_RUNTIME_DIR");
+
+    if(!xdg_runtime_dir)
+    {
+        printf("Error: XDG_RUNTIME_DIR env not set.\n");
+        return NULL;
+    }
 
     hv_server *server = malloc(sizeof(hv_server));
     server->requests_interface = requests_interface;
     server->fds[0].events = POLLIN;
     server->fds[0].revents = 0;
+    server->user_data = user_data;
+
+    if(pthread_mutex_init(&server->mutex, NULL) != 0)
+    {
+        printf("Error: Could not create mutex.\n");
+        free(server);
+        return NULL;
+    }
 
     for(int i = 1; i < HV_MAX_CLIENTS+2; i++)
     {
@@ -94,8 +187,6 @@ hv_server *hv_server_create(const char *socket_name, hv_server_requests_interfac
         server->fds[i].revents = 0;
     }
 
-    unlink(sock_name);
-
     if( (server->fds[0].fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
         printf("Error: Could not create socket.\n");
@@ -103,9 +194,21 @@ hv_server *hv_server_create(const char *socket_name, hv_server_requests_interfac
         return NULL;
     }
 
+    int xdg_runtime_dir_len = strlen(xdg_runtime_dir);
+
     memset(&server->name.sun_path, 0, 108);
     server->name.sun_family = AF_UNIX;
-    strncpy(server->name.sun_path, sock_name, 107);
+    memcpy(server->name.sun_path, xdg_runtime_dir, xdg_runtime_dir_len);
+
+    if(xdg_runtime_dir[xdg_runtime_dir_len-1] != '/')
+    {
+        server->name.sun_path[xdg_runtime_dir_len] = '/';
+        xdg_runtime_dir_len++;
+    }
+
+    strncpy(&server->name.sun_path[xdg_runtime_dir_len], sock_name, 107 - xdg_runtime_dir_len);
+
+    unlink(server->name.sun_path);
 
     if(bind(server->fds[0].fd, (const struct sockaddr*)&server->name, sizeof(struct sockaddr_un)) == -1)
     {
@@ -129,67 +232,36 @@ hv_server *hv_server_create(const char *socket_name, hv_server_requests_interfac
     return server;
 }
 
-int hv_fds_add_fd(struct pollfd *fds, int fd)
-{
-    for(int i = 2; i < HV_MAX_CLIENTS+2; i++)
-    {
-        if(fds[i].fd == -1)
-        {
-            fds[i].fd = fd;
-            return i;
-        }
-    }
-
-    return -1;
-}
-
 int hv_server_get_fd(hv_server *server)
 {
     return server->epoll_fd;
 }
 
-int hv_client_read(hv_client *client, void *dst, size_t bytes)
+void *hv_server_get_user_data(hv_server *server)
 {
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 500000;
-
-    fd_set set;
-    FD_ZERO(&set);
-    FD_SET(client->server->fds[client->fds_i].fd, &set);
-
-    if(select(client->server->fds[client->fds_i].fd + 1, &set, NULL, NULL, &timeout) <= 0)
-    {
-        printf("Error: Client read timeout.\n");
-        hv_server_client_destroy(client);
-        return 1;
-    }
-
-    if(read(client->server->fds[client->fds_i].fd, dst, bytes) != (ssize_t)bytes)
-    {
-        printf("Error: Client read failed.\n");
-        hv_server_client_destroy(client);
-        return 1;
-    }
-
-    return 0;
+    return server->user_data;
 }
 
-hv_object *hv_client_object_get_by_id(hv_client *client, hv_object_id id)
+void hv_server_set_user_data(hv_server *server, void *user_data)
 {
-    hv_node *node = client->objects->begin;
+    server->user_data = user_data;
+}
 
-    while(node)
-    {
-        struct hv_object_struct *object = node->data;
+/* CLIENT */
 
-        if(object->id == id)
-            return object;
+void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid)
+{
+    if(pid)
+        *pid = client->creds.pid;
+    if(uid)
+        *uid = client->creds.uid;
+    if(gid)
+        *gid = client->creds.gid;
+}
 
-        node = node->next;
-    }
-
-    return NULL;
+hv_client_id hv_client_get_id(hv_client *client)
+{
+    return client->fds_i-1;
 }
 
 hv_object *hv_client_object_create(hv_client *client, hv_object_type type, u_int32_t size)
@@ -220,15 +292,13 @@ void hv_object_remove_from_parent(struct hv_object_struct *object)
     if(!object->parent)
         return;
 
-    object->client->server->requests_interface->client_object_remove_from_parent(hv_object_get_client(object), object);
+    object->client->server->requests_interface->client_object_remove_from_parent(object->client, object);
 
     hv_array_erase(object->parent->children, object->parent_link);
 
     object->parent_link = NULL;
     object->parent = NULL;
 }
-
-/* CLIENT */
 
 void hv_client_set_app_name_handler(hv_client *client)
 {
@@ -245,6 +315,24 @@ void hv_client_set_app_name_handler(hv_client *client)
     app_name[app_name_len] = '\0';
 
     client->server->requests_interface->client_set_app_name(client, app_name);
+}
+
+void hv_client_send_custom_request_handler(hv_client *client)
+{
+    hv_string_length data_len;
+
+    if(hv_client_read(client, &data_len, sizeof(u_int32_t)))
+        return;
+
+    if(data_len == 0)
+        return;
+
+    u_int8_t data[data_len];
+
+    if(hv_client_read(client, data, data_len))
+        return;
+
+    client->server->requests_interface->client_send_custom_request(client, data, data_len);
 }
 
 /* TOP BAR */
@@ -269,7 +357,7 @@ void hv_top_bar_set_active_handler(hv_client *client)
     if(hv_client_read(client, &top_bar_id, sizeof(hv_object_id)))
         return;
 
-    hv_top_bar *top_bar = (hv_top_bar *)hv_client_object_get_by_id(client, top_bar_id);
+    hv_top_bar *top_bar = (hv_top_bar *)hv_object_get_by_id(client, top_bar_id);
 
     if(!top_bar)
     {
@@ -327,7 +415,7 @@ void hv_menu_set_title_handler(hv_client *client)
     if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return;
 
-    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, id);
+    hv_menu *menu = (hv_menu *)hv_object_get_by_id(client, id);
 
     if(!menu)
     {
@@ -368,7 +456,7 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
     if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
         return;
 
-    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
+    hv_menu *menu = (hv_menu *)hv_object_get_by_id(client, menu_id);
 
     if(!menu)
     {
@@ -387,7 +475,7 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
     if(hv_client_read(client, &top_bar_id, sizeof(hv_object_id)))
         return;
 
-    hv_top_bar *top_bar = (hv_top_bar *)hv_client_object_get_by_id(client, top_bar_id);
+    hv_top_bar *top_bar = (hv_top_bar *)hv_object_get_by_id(client, top_bar_id);
 
     if(!top_bar)
     {
@@ -422,7 +510,7 @@ void hv_menu_add_to_top_bar_handler(hv_client *client)
     }
     else
     {
-        before = (hv_menu *)hv_client_object_get_by_id(client, before_id);
+        before = (hv_menu *)hv_object_get_by_id(client, before_id);
 
         if(!before)
         {
@@ -463,7 +551,7 @@ void hv_menu_add_to_action_handler(hv_client *client)
     if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
         return;
 
-    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
+    hv_menu *menu = (hv_menu *)hv_object_get_by_id(client, menu_id);
 
     if(!menu)
     {
@@ -482,7 +570,7 @@ void hv_menu_add_to_action_handler(hv_client *client)
     if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
-    hv_action *action = (hv_action *)hv_client_object_get_by_id(client, action_id);
+    hv_action *action = (hv_action *)hv_object_get_by_id(client, action_id);
 
     if(!action)
     {
@@ -529,7 +617,7 @@ void hv_action_set_text_handler(hv_client *client)
     if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
-    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+    hv_action *action = (hv_action*)hv_object_get_by_id(client, action_id);
 
     if(!action)
     {
@@ -565,7 +653,7 @@ void hv_action_set_icon_handler(hv_client *client)
     if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
-    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+    hv_action *action = (hv_action*)hv_object_get_by_id(client, action_id);
 
     if(!action)
     {
@@ -612,7 +700,7 @@ void hv_action_set_shortcuts_handler(hv_client *client)
     if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
-    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+    hv_action *action = (hv_action*)hv_object_get_by_id(client, action_id);
 
     if(!action)
     {
@@ -648,7 +736,7 @@ void hv_action_set_state_handler(hv_client *client)
     if(hv_client_read(client, &action_id, sizeof(hv_object_id)))
         return;
 
-    hv_action *action = (hv_action*)hv_client_object_get_by_id(client, action_id);
+    hv_action *action = (hv_action*)hv_object_get_by_id(client, action_id);
 
     if(!action)
     {
@@ -691,7 +779,7 @@ void hv_separator_set_text_handler(hv_client *client)
     if(hv_client_read(client, &separator_id, sizeof(hv_object_id)))
         return;
 
-    hv_separator *separator = (hv_separator*)hv_client_object_get_by_id(client, separator_id);
+    hv_separator *separator = (hv_separator*)hv_object_get_by_id(client, separator_id);
 
     if(!separator)
     {
@@ -734,7 +822,7 @@ void hv_item_add_to_menu_handler(hv_client *client)
     if(hv_client_read(client, &item_id, sizeof(hv_object_id)))
         return;
 
-    struct hv_object_struct *item = (struct hv_object_struct *)hv_client_object_get_by_id(client, item_id);
+    struct hv_object_struct *item = (struct hv_object_struct *)hv_object_get_by_id(client, item_id);
 
     if(!item)
     {
@@ -753,7 +841,7 @@ void hv_item_add_to_menu_handler(hv_client *client)
     if(hv_client_read(client, &menu_id, sizeof(hv_object_id)))
         return;
 
-    hv_menu *menu = (hv_menu *)hv_client_object_get_by_id(client, menu_id);
+    hv_menu *menu = (hv_menu *)hv_object_get_by_id(client, menu_id);
 
     if(!menu)
     {
@@ -787,7 +875,7 @@ void hv_item_add_to_menu_handler(hv_client *client)
         return;
     }
 
-    struct hv_object_struct *before = (struct hv_object_struct *)hv_client_object_get_by_id(client, before_id);
+    struct hv_object_struct *before = (struct hv_object_struct *)hv_object_get_by_id(client, before_id);
 
     if(!before)
     {
@@ -814,6 +902,18 @@ void hv_item_add_to_menu_handler(hv_client *client)
 }
 
 /* OBJECT */
+
+hv_object *hv_object_get_user_data(hv_object *object)
+{
+    struct hv_object_struct *obj = object;
+    return obj->user_data;
+}
+
+void hv_object_set_user_data(hv_object *object, void *user_data)
+{
+    struct hv_object_struct *obj = object;
+    obj->user_data = user_data;
+}
 
 void hv_object_create_handler(hv_client *client)
 {
@@ -856,7 +956,7 @@ void hv_object_remove_from_parent_handler(hv_client *client)
     if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return;
 
-    struct hv_object_struct *object = hv_client_object_get_by_id(client, id);
+    struct hv_object_struct *object = hv_object_get_by_id(client, id);
 
     hv_object_remove_from_parent(object);
 }
@@ -909,7 +1009,7 @@ void hv_object_destroy_handler(hv_client *client)
     if(hv_client_read(client, &id, sizeof(hv_object_id)))
         return;
 
-    hv_object *object = hv_client_object_get_by_id(client, id);
+    hv_object *object = hv_object_get_by_id(client, id);
 
     if(!object)
     {
@@ -920,6 +1020,7 @@ void hv_object_destroy_handler(hv_client *client)
     hv_object_destroy(object);
 }
 
+/* CONNECTION */
 
 void hv_client_handle_request(hv_client *client, hv_message_id msg_id)
 {
@@ -928,6 +1029,10 @@ void hv_client_handle_request(hv_client *client, hv_message_id msg_id)
         case HV_CLIENT_SET_APP_NAME_ID:
         {
             hv_client_set_app_name_handler(client);
+        }break;
+        case HV_CLIENT_SEND_CUSTOM_REQUEST_ID:
+        {
+            hv_client_send_custom_request_handler(client);
         }break;
         case HV_TOP_BAR_SET_ACTIVE_ID:
         {
@@ -1122,17 +1227,81 @@ void hv_server_client_destroy(hv_client *client)
     free(client);
 }
 
-void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid)
+
+int hv_action_invoke(hv_action *action)
 {
-    if(pid)
-        *pid = client->creds.pid;
-    if(uid)
-        *uid = client->creds.uid;
-    if(gid)
-        *gid = client->creds.gid;
+    if(!action)
+        return HV_ERROR;
+
+    if(hv_object_get_type(action) != HV_OBJECT_TYPE_ACTION)
+        return HV_ERROR;
+
+    if(action->state == HV_ACTION_STATE_DISABLED)
+        return HV_ERROR;
+
+    hv_message_id msg_id = HV_ACTION_INVOKE_ID;
+    hv_server *server = action->object.client->server;
+
+    pthread_mutex_lock(&server->mutex);
+
+    if(hv_client_write(action->object.client, &msg_id, sizeof(hv_message_id)))
+    {
+        pthread_mutex_unlock(&server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    if(hv_client_write(action->object.client, &action->object.id, sizeof(hv_object_id)))
+    {
+        pthread_mutex_unlock(&server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    pthread_mutex_unlock(&server->mutex);
+
+    return HV_SUCCESS;
 }
 
-hv_client_id hv_client_get_id(hv_client *client)
+int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size)
 {
-    return client->fds_i-1;
+    if(!client)
+        return HV_ERROR;
+
+    if(size == 0)
+        return HV_SUCCESS;
+
+    if(!data)
+        return HV_ERROR;
+
+    // Memory access test
+    u_int8_t *test = data;
+    test = &test[size-1];
+    HV_UNUSED(test);
+
+    hv_message_id msg_id = HV_SERVER_TO_CLIENT_SEND_CUSTOM_EVENT_ID;
+
+    hv_server *server = client->server;
+
+    pthread_mutex_lock(&server->mutex);
+
+    if(hv_client_write(client, &msg_id, sizeof(hv_message_id)))
+    {
+        pthread_mutex_unlock(&server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    if(hv_client_write(client, &size, sizeof(u_int32_t)))
+    {
+        pthread_mutex_unlock(&server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    if(hv_client_write(client, data, size))
+    {
+        pthread_mutex_unlock(&server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    pthread_mutex_unlock(&server->mutex);
+
+    return HV_SUCCESS;
 }

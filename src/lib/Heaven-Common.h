@@ -8,7 +8,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define HV_DEFAULT_SOCKET "/tmp/heaven-0"
+#define HV_DEFAULT_SOCKET "heaven-0"
 
 #define HV_UNUSED(variable)(void)variable;
 
@@ -55,6 +55,7 @@ enum HV_CLIENT_REQUEST
     HV_OBJECT_DESTROY_ID,
     HV_OBJECT_REMOVE_FROM_PARENT_ID,
     HV_CLIENT_SET_APP_NAME_ID,
+    HV_CLIENT_SEND_CUSTOM_REQUEST_ID,
     HV_TOP_BAR_SET_ACTIVE_ID,
     HV_MENU_SET_TITLE_ID,
     HV_MENU_ADD_TO_TOP_BAR_ID,
@@ -67,10 +68,19 @@ enum HV_CLIENT_REQUEST
     HV_ITEM_ADD_TO_MENU_ID,
 };
 
+/* SERVER EVENTS */
+
+enum HV_SERVER_TO_CLIENT_EVENTS
+{
+    HV_ACTION_INVOKE_ID,
+    HV_SERVER_TO_CLIENT_SEND_CUSTOM_EVENT_ID,
+};
+
 /* RETURN CODES */
 
 #define HV_SUCCESS 1
 #define HV_ERROR 0
+#define HV_CONNECTION_LOST -1
 
 struct hv_client_struct;
 typedef struct hv_client_struct hv_client;
@@ -122,10 +132,15 @@ hv_node *hv_array_push_back(hv_array *array, void *data);
 hv_node *hv_array_push_front(hv_array *array, void *data);
 hv_node *hv_array_insert_before(hv_array *array, hv_node *before, void *data);
 
+void *hv_client_get_user_data(hv_client *client);
+void hv_client_set_user_data(hv_client *client, void *user_data);
+hv_object *hv_object_get_by_id(hv_client *client, hv_object_id id);
 hv_object_id hv_object_get_id(hv_object *object);
 hv_object_type hv_object_get_type(hv_object *object);
 hv_client *hv_object_get_client(hv_object *object);
 hv_object *hv_object_get_parent(hv_object *object);
+hv_object *hv_object_get_user_data(hv_object *object);
+void hv_object_set_user_data(hv_object *object, void *user_data);
 
 
 #endif // HEAVENCOMMON_H

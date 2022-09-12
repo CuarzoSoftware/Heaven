@@ -14,7 +14,7 @@ LIBS += -L$$PWD/../../../build -lHeaven-Server
 
 QMAKE_LFLAGS += -Wl,-rpath=.
 
-TARGET = Client
+TARGET = Server
 
 SOURCES += \
     main.c

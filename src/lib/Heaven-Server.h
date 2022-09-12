@@ -1,7 +1,11 @@
 #ifndef HEAVENSERVER_H
 #define HEAVENSERVER_H
 
-#include "../common/Heaven-Common.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "Heaven-Common.h"
 
 #define HV_MAX_CLIENTS 256
 
@@ -13,6 +17,7 @@ struct hv_server_requests_interface_struct
 {
     void (*client_connected)(hv_client *);
     void (*client_set_app_name)(hv_client *, const char *);
+    void (*client_send_custom_request)(hv_client *, void *, u_int32_t);
     void (*client_disconnected)(hv_client *);
 
     void (*client_object_create)(hv_client *, hv_object *object);
@@ -36,7 +41,11 @@ struct hv_server_requests_interface_struct
 
 };
 
-hv_server *hv_server_create(const char *socket, hv_server_requests_interface *events_interface);
+hv_server *hv_server_create(const char *socket, void *user_data, hv_server_requests_interface *events_interface);
+
+void hv_server_set_user_data(hv_server *server, void *user_data);
+
+void *hv_server_get_user_data(hv_server *server);
 
 int hv_server_get_fd(hv_server *server);
 
@@ -45,6 +54,14 @@ int hv_server_dispatch_requests(hv_server *server, int timeout);
 void hv_server_client_destroy(hv_client *client);
 
 hv_client_id hv_client_get_id(hv_client *client);
+
 void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid);
 
+int hv_action_invoke(hv_action *action);
+int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size);
+
 #endif // HEAVENSERVER_H
+
+#ifdef __cplusplus
+}
+#endif
