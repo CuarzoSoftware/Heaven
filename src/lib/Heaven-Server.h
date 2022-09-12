@@ -5,7 +5,16 @@
 extern "C" {
 #endif
 
-#include "Heaven-Common.h"
+/** @defgroup Heaven-Server Heaven Server API
+ *
+ * @brief API used by global menu processes to receive and display clients menus and notify action events.
+ *
+ * @addtogroup Heaven-Server
+ * @{
+ */
+
+#include "Heaven-Server-Client-Common.h"
+#include "Heaven-Server-Compositor-Common.h"
 
 #define HV_MAX_CLIENTS 256
 
@@ -59,6 +68,8 @@ void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t 
 
 int hv_action_invoke(hv_action *action);
 int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size);
+
+/*! @}*/
 
 #endif // HEAVENSERVER_H
 
