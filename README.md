@@ -8,7 +8,7 @@ C library for allowing global menu bars in Wayland and X11 sessions.
 
 #### Heaven-Server
 
-API for the global menu (process in charge of rendering the global menu bar). Accepts menus from clients and choose which one to display with help from the Wayland or X11 compositor.
+API for the global menu (process in charge of rendering the global menu bar). Accepts menus from clients and choose which one to display with help of the Wayland or X11 compositor.
 
 #### Heaven-Client
 
@@ -38,12 +38,12 @@ All objects except **hv_top_bar** can be child of other objects and only one obj
 
 ## Use case
 
-The Wayland or X11 compositor starts.
-The global menu process starts, gets displayed by the compositor and creates the global menu service using the **Heaven-Server** library.
-The compositor connects to the global menu service using the **Heaven-Compositor** library (only one compositor can be connected at a time), identifies the global menu process by its pid and adds it to a keyboard events whitelist.
-A client app starts and the compositor identifyes it by its pid.
-The client app connects to the global menu service and sends its menus using the **Heaven-Client**  library.
-The global menu process identifies the client by its pid.
-The compositor sends the pid of the current active client using its own policy (e.g. when the user clicks on a window). 
-The global menu service shows the menu of the active client.
+1. The Wayland or X11 compositor starts.
+2. The global menu process starts, gets displayed by the compositor and creates the global menu service using the **Heaven-Server** library.
+3. The compositor connects to the global menu service using the **Heaven-Compositor** library (only one compositor can be connected at a time), identifies the global menu process by its pid and adds it to a keyboard events whitelist.
+4. A client app starts and the compositor identifies it by its pid.
+5. The client app connects to the global menu service and sends its menus using the **Heaven-Client**  library.
+6. The global menu process identifies the client by its pid.
+7. The compositor sends the pid of the current active client using its own policy (e.g. when the user clicks on a window). 
+8. The global menu service shows the menu of the active client.
 
