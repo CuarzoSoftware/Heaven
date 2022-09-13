@@ -65,7 +65,11 @@ $(function() {
 
 <div class="header">
   <div class="summary">
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Common</div>  </div>
 </div><!--header-->
@@ -74,8 +78,43 @@ $(function() {
 <p>Shared members.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:structhv__node__struct"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___common.html#structhv__node__struct">hv_node</a></td></tr>
+<tr class="separator:structhv__node__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:structhv__array__struct"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___common.html#structhv__array__struct">hv_array</a></td></tr>
+<tr class="separator:structhv__array__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga60ba06021e53e6fb28ef60f998ed7f39"><td class="memItemLeft" align="right" valign="top"><a id="ga60ba06021e53e6fb28ef60f998ed7f39"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HV_DEFAULT_SOCKET</b>&#160;&#160;&#160;&quot;heaven-0&quot;</td></tr>
+<tr class="separator:ga60ba06021e53e6fb28ef60f998ed7f39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab8ebfed905894cd8d783d7bf437fba45"><td class="memItemLeft" align="right" valign="top"><a id="gab8ebfed905894cd8d783d7bf437fba45"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HV_UNUSED</b>(variable)&#160;&#160;&#160;(void)variable;</td></tr>
+<tr class="separator:gab8ebfed905894cd8d783d7bf437fba45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:ga8df6d534ae95758aff0ff9f4347c19bd"><td class="memItemLeft" align="right" valign="top"><a id="ga8df6d534ae95758aff0ff9f4347c19bd"></a>
+typedef u_int8_t&#160;</td><td class="memItemRight" valign="bottom"><b>hv_connection_type</b></td></tr>
+<tr class="separator:ga8df6d534ae95758aff0ff9f4347c19bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadce4a82cce37c7af4bd20c6508d97aad"><td class="memItemLeft" align="right" valign="top"><a id="gadce4a82cce37c7af4bd20c6508d97aad"></a>
+typedef u_int8_t&#160;</td><td class="memItemRight" valign="bottom"><b>hv_message_id</b></td></tr>
+<tr class="separator:gadce4a82cce37c7af4bd20c6508d97aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2ada283e1f205baaeff10ff60d3f2a09"><td class="memItemLeft" align="right" valign="top"><a id="ga2ada283e1f205baaeff10ff60d3f2a09"></a>
+typedef u_int8_t&#160;</td><td class="memItemRight" valign="bottom"><b>hv_string_length</b></td></tr>
+<tr class="separator:ga2ada283e1f205baaeff10ff60d3f2a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:gac7fa14e611f918c921c039a09002f526"><td class="memItemLeft" align="right" valign="top"><a id="gac7fa14e611f918c921c039a09002f526"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_CONNECTION_TYPE</b> { <br />
+&#160;&#160;<b>HV_CONNECTION_TYPE_COMPOSITOR</b> = 1
+, <br />
+&#160;&#160;<b>HV_CONNECTION_TYPE_CLIENT</b> = 2
+<br />
+ }</td></tr>
+<tr class="separator:gac7fa14e611f918c921c039a09002f526"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6d484ac87abb968f098063c0fc133d5e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___common.html#ga6d484ac87abb968f098063c0fc133d5e">HV_RETURN_CODE</a> { <br />
 &#160;&#160;<a class="el" href="group___common.html#gga6d484ac87abb968f098063c0fc133d5ea3b42feed258392d156011cfeeb3f75fe">HV_SUCCESS</a> = 1
 , <br />
@@ -86,9 +125,104 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga6d484ac87abb968f098063c0fc133d5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Method return values.  <a href="group___common.html#ga6d484ac87abb968f098063c0fc133d5e">More...</a><br /></td></tr>
 <tr class="separator:ga6d484ac87abb968f098063c0fc133d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:gafb7af2625c3ca570c81d4b07a4dee3f3"><td class="memItemLeft" align="right" valign="top"><a id="gafb7af2625c3ca570c81d4b07a4dee3f3"></a>
+hv_array *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_create</b> ()</td></tr>
+<tr class="separator:gafb7af2625c3ca570c81d4b07a4dee3f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabaafe439099c4fe0d5410d85dacaf1ea"><td class="memItemLeft" align="right" valign="top"><a id="gabaafe439099c4fe0d5410d85dacaf1ea"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_destroy</b> (hv_array *array)</td></tr>
+<tr class="separator:gabaafe439099c4fe0d5410d85dacaf1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7b3d4ab1167331e1331e5e757a1304d6"><td class="memItemLeft" align="right" valign="top"><a id="ga7b3d4ab1167331e1331e5e757a1304d6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_pop_front</b> (hv_array *array)</td></tr>
+<tr class="separator:ga7b3d4ab1167331e1331e5e757a1304d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3dd4f69f72fed13d28a2b9f805178eb6"><td class="memItemLeft" align="right" valign="top"><a id="ga3dd4f69f72fed13d28a2b9f805178eb6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_pop_back</b> (hv_array *array)</td></tr>
+<tr class="separator:ga3dd4f69f72fed13d28a2b9f805178eb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac85eb8b58b374850131c725f1abe76ee"><td class="memItemLeft" align="right" valign="top"><a id="gac85eb8b58b374850131c725f1abe76ee"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_empty</b> (hv_array *array)</td></tr>
+<tr class="separator:gac85eb8b58b374850131c725f1abe76ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1a95a4ccc9f2dacf100735505e61f6b4"><td class="memItemLeft" align="right" valign="top"><a id="ga1a95a4ccc9f2dacf100735505e61f6b4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_erase</b> (hv_array *array, hv_node *node)</td></tr>
+<tr class="separator:ga1a95a4ccc9f2dacf100735505e61f6b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6feb3e67268cc1a8092071b9ad27d48a"><td class="memItemLeft" align="right" valign="top"><a id="ga6feb3e67268cc1a8092071b9ad27d48a"></a>
+hv_node *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_push_back</b> (hv_array *array, void *data)</td></tr>
+<tr class="separator:ga6feb3e67268cc1a8092071b9ad27d48a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafe99627a49a0764c9d680484af87a1eb"><td class="memItemLeft" align="right" valign="top"><a id="gafe99627a49a0764c9d680484af87a1eb"></a>
+hv_node *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_push_front</b> (hv_array *array, void *data)</td></tr>
+<tr class="separator:gafe99627a49a0764c9d680484af87a1eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cfdc829e22abff3059ded54dcc79162"><td class="memItemLeft" align="right" valign="top"><a id="ga0cfdc829e22abff3059ded54dcc79162"></a>
+hv_node *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_array_insert_before</b> (hv_array *array, hv_node *before, void *data)</td></tr>
+<tr class="separator:ga0cfdc829e22abff3059ded54dcc79162"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Shared members. </p>
+<hr/><h2 class="groupheader">Data Structure Documentation</h2>
+<a name="structhv__node__struct" id="structhv__node__struct"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structhv__node__struct">&#9670;&nbsp;</a></span>hv_node_struct</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct hv_node_struct</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"></div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a735984d41155bc1032e09bece8f8d66d"></a>void *</td>
+<td class="fieldname">
+data</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="af73812012fca03e98cd8f6ef02217d35"></a>hv_node *</td>
+<td class="fieldname">
+next</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="a64288d61564fed441d4994646eb63256"></a>hv_node *</td>
+<td class="fieldname">
+prev</td>
+<td class="fielddoc">
+</td></tr>
+</table>
+
+</div>
+</div>
+<a name="structhv__array__struct" id="structhv__array__struct"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#structhv__array__struct">&#9670;&nbsp;</a></span>hv_array_struct</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct hv_array_struct</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<div class="textblock"></div><table class="fieldtable">
+<tr><th colspan="3">Data Fields</th></tr>
+<tr><td class="fieldtype">
+<a id="a8f9afde2060c25160f475f3e800efdd1"></a>hv_node *</td>
+<td class="fieldname">
+begin</td>
+<td class="fielddoc">
+</td></tr>
+<tr><td class="fieldtype">
+<a id="a284435c5e36cd5737deeee1d32c8c0eb"></a>hv_node *</td>
+<td class="fieldname">
+end</td>
+<td class="fielddoc">
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga6d484ac87abb968f098063c0fc133d5e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6d484ac87abb968f098063c0fc133d5e">&#9670;&nbsp;</a></span>HV_RETURN_CODE</h2>

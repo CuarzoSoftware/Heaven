@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Heaven: Data Structures</title>
+<title>Heaven: hv_client_events_interface Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -48,7 +48,6 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
-</div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -63,23 +62,33 @@ $(function() {
 </iframe>
 </div>
 
+</div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">Data Structures</div>  </div>
+<div class="title">hv_client_events_interface Struct Reference<div class="ingroups"><a class="el" href="group___heaven-_client.html">Heaven Client API</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock">Here are the data structures with brief descriptions:</div><div class="directory">
-<table class="directory">
-<tr id="row_0_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="group___common.html#structhv__array__struct" target="_self">hv_array</a></td><td class="desc"></td></tr>
-<tr id="row_1_"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="group___server-_client-_common.html#structhv__client" target="_self">hv_client</a></td><td class="desc">Representation of a client connected to the global menu server </td></tr>
-<tr id="row_2_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structhv__client__events__interface__struct.html" target="_self">hv_client_events_interface</a></td><td class="desc"></td></tr>
-<tr id="row_3_"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="group___server-_compositor-_common.html#structhv__compositor" target="_self">hv_compositor</a></td><td class="desc">Representation of a compositor connected to the global menu server </td></tr>
-<tr id="row_4_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structhv__compositor__events__interface__struct.html" target="_self">hv_compositor_events_interface</a></td><td class="desc"></td></tr>
-<tr id="row_5_"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="group___common.html#structhv__node__struct" target="_self">hv_node</a></td><td class="desc"></td></tr>
-<tr id="row_6_" class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="structhv__server__requests__interface__struct.html" target="_self">hv_server_requests_interface</a></td><td class="desc"></td></tr>
-<tr id="row_7_"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span><span class="icona"><span class="icon">C</span></span><a class="el" href="group___server-_client-_common.html#structhv__top__bar" target="_self">hv_top_bar</a></td><td class="desc">A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top of the screen. Can be interpreted as a hv_object and have multiple hv_menu childs but no parent </td></tr>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:a7497fcfebfa48651d0e286d857d60028"><td class="memItemLeft" align="right" valign="top"><a id="a7497fcfebfa48651d0e286d857d60028"></a>
+void(*&#160;</td><td class="memItemRight" valign="bottom"><b>disconnected_from_server</b> )(<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *)</td></tr>
+<tr class="separator:a7497fcfebfa48651d0e286d857d60028"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9acce69ede2a77c5e4d2a63ead2b894"><td class="memItemLeft" align="right" valign="top"><a id="ae9acce69ede2a77c5e4d2a63ead2b894"></a>
+void(*&#160;</td><td class="memItemRight" valign="bottom"><b>object_destroy</b> )(hv_object *)</td></tr>
+<tr class="separator:ae9acce69ede2a77c5e4d2a63ead2b894"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a317c0b44ec87b8c4d69f86746b605f27"><td class="memItemLeft" align="right" valign="top"><a id="a317c0b44ec87b8c4d69f86746b605f27"></a>
+void(*&#160;</td><td class="memItemRight" valign="bottom"><b>server_action_invoke</b> )(hv_action *)</td></tr>
+<tr class="separator:a317c0b44ec87b8c4d69f86746b605f27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa12900bae8d52bb7c7dc2f6704ac121"><td class="memItemLeft" align="right" valign="top"><a id="aaa12900bae8d52bb7c7dc2f6704ac121"></a>
+void(*&#160;</td><td class="memItemRight" valign="bottom"><b>server_send_custom_event</b> )(<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *, void *, u_int32_t size)</td></tr>
+<tr class="separator:aaa12900bae8d52bb7c7dc2f6704ac121"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-</div><!-- directory -->
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li>/home/eduardo/Desktop/Cuarzo/Heaven/src/lib/<a class="el" href="_heaven-_client_8h_source.html">Heaven-Client.h</a></li>
+</ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

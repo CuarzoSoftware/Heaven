@@ -86,9 +86,9 @@ $(function() {
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>hv_server_struct hv_server;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct  </span>hv_server_requests_interface_struct  hv_server_requests_interface;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct  </span><a class="code" href="structhv__server__requests__interface__struct.html">hv_server_requests_interface_struct</a>  hv_server_requests_interface;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">struct </span>hv_server_requests_interface_struct</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="structhv__server__requests__interface__struct.html">   25</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structhv__server__requests__interface__struct.html">hv_server_requests_interface_struct</a></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;{</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    void (*client_connected)(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *);</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    void (*client_set_app_name)(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *, <span class="keyword">const</span> <span class="keywordtype">char</span> *);</div>
@@ -114,37 +114,51 @@ $(function() {
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    void (*client_item_add_to_menu)(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *, hv_item *, hv_menu *, hv_item *);</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;};</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;hv_server *hv_server_create(<span class="keyword">const</span> <span class="keywordtype">char</span> *socket, <span class="keywordtype">void</span> *user_data, hv_server_requests_interface *events_interface);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">void</span> hv_server_set_user_data(hv_server *server, <span class="keywordtype">void</span> *user_data);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keywordtype">void</span> *hv_server_get_user_data(hv_server *server);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keywordtype">int</span> hv_server_get_fd(hv_server *server);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">int</span> hv_server_dispatch_requests(hv_server *server, <span class="keywordtype">int</span> timeout);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">void</span> hv_server_client_destroy(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<a class="code" href="group___server-_client-_common.html#ga6fab0799e0814a624a0bd6d277a45f30">hv_client_id</a> hv_client_get_id(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">void</span> hv_client_get_credentials(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, pid_t *pid, uid_t *uid, gid_t *gid);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">int</span> hv_action_invoke(hv_action *action);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keywordtype">int</span> hv_server_send_custom_event(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, <span class="keywordtype">void</span> *data, u_int32_t size);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// HEAVENSERVER_H</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    void (*compositor_connected)(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    void (*compositor_set_active_client)(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a>*, <a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a>*, <a class="code" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a>);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    void (*compositor_send_custom_request)(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a>*, <span class="keywordtype">void</span>*, u_int32_t);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    void (*compositor_disconnected)(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;hv_server *hv_server_create(<span class="keyword">const</span> <span class="keywordtype">char</span> *socket, <span class="keywordtype">void</span> *user_data, hv_server_requests_interface *events_interface);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">void</span> hv_server_set_user_data(hv_server *server, <span class="keywordtype">void</span> *user_data);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">void</span> *hv_server_get_user_data(hv_server *server);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> hv_server_get_fd(hv_server *server);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keywordtype">int</span> hv_server_dispatch_requests(hv_server *server, <span class="keywordtype">int</span> timeout);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keywordtype">void</span> hv_server_compositor_destroy(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">void</span> hv_server_client_destroy(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<a class="code" href="group___server-_client-_common.html#ga6fab0799e0814a624a0bd6d277a45f30">hv_client_id</a> hv_client_get_id(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;hv_server *hv_compositor_get_server(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *hv_server_get_compositor(hv_server *server);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *hv_client_get_by_pid(hv_server *server, <a class="code" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a> pid);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keywordtype">void</span> hv_client_get_credentials(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, pid_t *pid, uid_t *uid, gid_t *gid);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;hv_server *hv_client_get_server(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keywordtype">int</span> hv_action_invoke(hv_action *action);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keywordtype">int</span> hv_server_send_custom_event_to_client(<a class="code" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, <span class="keywordtype">void</span> *data, u_int32_t size);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">int</span> hv_server_send_custom_event_to_compositor(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor, <span class="keywordtype">void</span> *data, u_int32_t size);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// HEAVENSERVER_H</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="agroup___server-_client-_common_html_ga6fab0799e0814a624a0bd6d277a45f30"><div class="ttname"><a href="group___server-_client-_common.html#ga6fab0799e0814a624a0bd6d277a45f30">hv_client_id</a></div><div class="ttdeci">u_int16_t hv_client_id</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Client-Common.h:16</div></div>
 <div class="ttc" id="agroup___server-_client-_common_html_ga907d7fdae195465a114ab21df31b9bce"><div class="ttname"><a href="group___server-_client-_common.html#ga907d7fdae195465a114ab21df31b9bce">hv_action_state</a></div><div class="ttdeci">u_int8_t hv_action_state</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Client-Common.h:28</div></div>
 <div class="ttc" id="agroup___server-_client-_common_html_gaecad00ac0d8ca15c3a214067c9aa2dcd"><div class="ttname"><a href="group___server-_client-_common.html#gaecad00ac0d8ca15c3a214067c9aa2dcd">hv_pixel</a></div><div class="ttdeci">u_int8_t hv_pixel</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Client-Common.h:25</div></div>
 <div class="ttc" id="agroup___server-_client-_common_html_structhv__client"><div class="ttname"><a href="group___server-_client-_common.html#structhv__client">hv_client</a></div><div class="ttdoc">Representation of a client connected to the global menu server.</div></div>
 <div class="ttc" id="agroup___server-_client-_common_html_structhv__top__bar"><div class="ttname"><a href="group___server-_client-_common.html#structhv__top__bar">hv_top_bar</a></div><div class="ttdoc">A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Client-Common.h:96</div></div>
+<div class="ttc" id="agroup___server-_compositor-_common_html_gaf965129c99ecfe02d268e15ad5c4f544"><div class="ttname"><a href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a></div><div class="ttdeci">pid_t hv_client_pid</div><div class="ttdoc">The process id of a client.</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Compositor-Common.h:18</div></div>
+<div class="ttc" id="agroup___server-_compositor-_common_html_structhv__compositor"><div class="ttname"><a href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a></div><div class="ttdoc">Representation of a compositor connected to the global menu server.</div></div>
+<div class="ttc" id="astructhv__server__requests__interface__struct_html"><div class="ttname"><a href="structhv__server__requests__interface__struct.html">hv_server_requests_interface_struct</a></div><div class="ttdef"><b>Definition:</b> Heaven-Server.h:26</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

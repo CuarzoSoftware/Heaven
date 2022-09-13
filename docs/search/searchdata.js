@@ -1,13 +1,13 @@
 var indexSectionsWithContent =
 {
-  0: "chs",
+  0: "chs☁",
   1: "h",
   2: "h",
   3: "h",
   4: "h",
   5: "h",
   6: "chs",
-  7: "h"
+  7: "☁"
 };
 
 var indexSectionNames =

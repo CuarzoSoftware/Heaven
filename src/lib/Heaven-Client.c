@@ -15,6 +15,7 @@ struct hv_client_struct
     pthread_mutex_t mutex;
     hv_top_bar *active_top_bar;
     int destroyed;
+    int initialized;
 };
 
 struct hv_object_struct
@@ -65,7 +66,7 @@ int hv_server_read(hv_client *client, void *dst, ssize_t bytes)
 
     if(select(client->fd.fd + 1, &set, NULL, NULL, &timeout) <= 0)
     {
-        printf("Error: Client read timeout.\n");
+        printf("Error: Server read timeout.\n");
         hv_client_destroy(client);
         return 1;
     }
@@ -77,7 +78,7 @@ int hv_server_read(hv_client *client, void *dst, ssize_t bytes)
 
     if(readBytes < 1)
     {
-        printf("Error: Client read failed. read() call returned %zd\n", readBytes);
+        printf("Error: Server read failed. read() call returned %zd\n", readBytes);
         hv_client_destroy(client);
         return 1;
     }
@@ -137,6 +138,7 @@ hv_client *hv_client_create(const char *socket_name, const char *app_name, void 
     client->active_top_bar = NULL;
     client->user_data = user_data;
     client->destroyed = 0;
+    client->initialized = 0;
 
     if(pthread_mutex_init(&client->mutex, NULL) != 0)
     {
@@ -177,28 +179,39 @@ hv_client *hv_client_create(const char *socket_name, const char *app_name, void 
 
     pthread_mutex_lock(&client->mutex);
 
+    client->objects = hv_array_create();
+    client->free_ids = hv_array_create();
+    client->greatest_id = 0;
+
     hv_connection_type type = HV_CONNECTION_TYPE_CLIENT;
 
     /* CONNECTION TYPE: UInt32 */
 
     if(hv_server_write(client, &type, sizeof(hv_connection_type)))
-        return NULL;
-
-    pthread_mutex_unlock(&client->mutex);
-
-    /* SEND APP NAME */
-
-    if(hv_client_set_app_name(client, app_name) != HV_SUCCESS)
     {
-        printf("Error: App name is NULL.\n");
-        close(client->fd.fd);
-        free(client);
+        pthread_mutex_unlock(&client->mutex);
         return NULL;
     }
 
-    client->objects = hv_array_create();
-    client->free_ids = hv_array_create();
-    client->greatest_id = 0;
+    /* SEND APP NAME */
+    int ret = hv_client_set_app_name(client, app_name);
+
+    if(ret == HV_ERROR)
+    {
+        hv_client_destroy(client);
+        printf("Error: App name is NULL.\n");
+        pthread_mutex_unlock(&client->mutex);
+        return NULL;
+    }
+    else if(ret == HV_CONNECTION_LOST)
+    {
+        pthread_mutex_unlock(&client->mutex);
+        return NULL;
+    }
+
+    client->initialized = 1;
+
+    pthread_mutex_unlock(&client->mutex);
 
     return client;
 }
@@ -226,7 +239,8 @@ void hv_client_destroy(hv_client *client)
 
     close(client->fd.fd);
 
-    client->events_interface->disconnected_from_server(client);
+    if(client->initialized)
+        client->events_interface->disconnected_from_server(client);
 
     free(client);
 }

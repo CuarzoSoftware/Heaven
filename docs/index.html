@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Heaven: Heaven</title>
+<title>Heaven: ☁️ Heaven</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -65,28 +65,42 @@ $(function() {
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Heaven </div>  </div>
+<div class="title">☁️ Heaven </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md__home_eduardo_Desktop_Cuarzo_Heaven_README"></a> C library for allowing global menu bars in Wayland and X11 sessions.</p>
-<blockquote class="doxtable">
-<p>:warning: <b>Under development !</b> </p>
-</blockquote>
+<div class="textblock"><p><a class="anchor" id="md__home_eduardo_Desktop_Cuarzo_Heaven_README"></a> Simple C library for exposing global menu bars through Unix Domain Sockets in Wayland and X11 sessions.</p>
 <h1><a class="anchor" id="autotoc_md1"></a>
-APIs</h1>
+🧩 APIs</h1>
 <h3><a class="anchor" id="autotoc_md2"></a>
 Heaven-Server</h3>
-<p>API for the global menu (process in charge of rendering the global menu bar). Accepts menus from clients and choose which one to display with help of the Wayland or X11 compositor.</p>
+<p>API for the global menu bar (process in charge of rendering the bar). Accepts menus from clients and choose which one to display with help from the Wayland or X11 compositor.</p>
 <h3><a class="anchor" id="autotoc_md3"></a>
 Heaven-Client</h3>
-<p>API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu process, update them and listen to their actions events (e.g. when an user clicks on a menu item or types a shortcut).</p>
+<p>API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu bar, update them and listen to their actions events (e.g. when an user clicks on a menu item or types a shortcut).</p>
 <h3><a class="anchor" id="autotoc_md4"></a>
 Heaven-Compositor</h3>
-<p>API for Wayland or X11 compositors. Allows the compositor to notify the global menu which process is currently active using its own policy (e.g. when the user clicks on a window).</p>
+<p>API for Wayland or X11 compositors. Allows the compositor to notify the global menu bar which process is currently active using its own policy (e.g. when the user clicks on a window).</p>
 <h1><a class="anchor" id="autotoc_md5"></a>
-Objects</h1>
+🔨 Build</h1>
+<p>Heaven only depends on standard Linux libraries (socket, poll, etc) found in almost every distribution. Can be built with meson or qmake:</p>
+<div class="fragment"><div class="line">$ cd Heaven</div>
+<div class="line">$ meson setup build</div>
+<div class="line">$ cd build</div>
+<div class="line">$ meson compile</div>
+<div class="line">$ sudo meson install</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md6"></a>
+🕹️ Examples</h1>
+<p>Check the <b>server</b>, <b>client</b> and <b>compositor</b> examples found in <code>src/examples</code> to get familiar with the API.</p>
+<h1><a class="anchor" id="autotoc_md7"></a>
+📖 Documentation</h1>
+<h5><a href="https://ehopperdietzel.github.io/Heaven/" title="Link to the API documentation">Link to the APIs documentation</a></h5>
+<blockquote class="doxtable">
+<p>The documentation is still incomplete. </p>
+</blockquote>
+<h1><a class="anchor" id="autotoc_md8"></a>
+⚽ Objects</h1>
 <p><b>hv_object</b></p><ul>
-<li><b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b>: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple topbars (e.g. for different windows) but only one can be active at a time.</li>
+<li><b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b>: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple top bars (e.g. for different windows) but only one can be active at a time.</li>
 <li><b>hv_menu</b>: A menu which can be assigned a label and contain multiple child items. Can be a child of a top bar or an action.</li>
 <li><b>hv_item</b><ul>
 <li><b>hv_action</b>: A selectable item which can be assigned an icon, label and shortcuts. Child of a menu and can also contain a menu.</li>
@@ -94,21 +108,22 @@ Objects</h1>
 </ul>
 </li>
 </ul>
-<p>All objects except <b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b> can be child of other objects and only one object at the time.</p>
-<h1><a class="anchor" id="autotoc_md6"></a>
-Features</h1>
+<p>All objects except for <b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b> can be child of other objects and only one object at the time.</p>
+<h1><a class="anchor" id="autotoc_md9"></a>
+⭐ Features</h1>
 <ul>
-<li>Multiple topbars per client.</li>
-<li>Actions with icons, label and shortcuts.</li>
+<li>Multiple top bars per client.</li>
+<li>Actions with icon (8-bit alpha only), label and shortcuts.</li>
 <li>Separators with label.</li>
-<li>Nested menus,</li>
+<li>Nested menus.</li>
+<li>Thread safe.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Use case</h1>
 <ol type="1">
 <li>The Wayland or X11 compositor starts.</li>
 <li>The global menu process starts, gets displayed by the compositor and creates the global menu service using the <b>Heaven-Server</b> library.</li>
-<li>The compositor connects to the global menu service using the <b>Heaven-Compositor</b> library (only one compositor can be connected at a time), identifies the global menu process by its pid and adds it to a keyboard events whitelist.</li>
+<li>The compositor connects to the global menu service using the <b>Heaven-Compositor</b> library (only one compositor can be connected at a time), identifies the global menu process by its pid and adds it to a keyboard events white list.</li>
 <li>A client app starts and the compositor identifies it by its pid.</li>
 <li>The client app connects to the global menu service and sends its menus using the <b>Heaven-Client</b> library.</li>
 <li>The global menu process identifies the client by its pid.</li>

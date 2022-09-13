@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['heaven_59',['Heaven',['../index.html',1,'']]]
+  ['☁️_20heaven_71',['☁️ Heaven',['../index.html',1,'']]]
 ];

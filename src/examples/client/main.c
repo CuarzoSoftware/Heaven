@@ -43,7 +43,6 @@ static void server_action_invoke(hv_action *action)
 static void server_send_custom_event(hv_client *client, void *data, u_int32_t size)
 {
     HV_UNUSED(client);
-    HV_UNUSED(data);
     char *msg = data;
     msg[size] = '\0';
     printf("- SERVER SENT A CUSTOM MESSAGE = \"%s\"\n", msg);
@@ -68,7 +67,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    printf("Client started.\n");
+    printf("\nClient with pid (%d) started.\n\n", getpid());
 
     char *msg = "Hello dear server!";
     hv_client_send_custom_request(client, msg, strlen(msg) + 1);

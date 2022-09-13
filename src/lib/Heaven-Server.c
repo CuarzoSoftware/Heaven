@@ -14,6 +14,8 @@ struct hv_server_struct
     hv_client *clients[HV_MAX_CLIENTS];
     void *user_data;
     pthread_mutex_t mutex;
+    hv_compositor *compositor;
+    hv_client *active_client;
 };
 
 struct hv_creds
@@ -36,7 +38,8 @@ struct hv_client_struct
 
 struct hv_compositor_struct
 {
-    int a;
+    void *user_data;
+    hv_server *server;
 };
 
 /* objects */
@@ -124,6 +127,40 @@ int hv_client_read(hv_client *client, void *dst, ssize_t bytes)
     return 0;
 }
 
+int hv_compositor_read(hv_compositor *compositor, void *dst, ssize_t bytes)
+{
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 500000;
+
+    fd_set set;
+    FD_ZERO(&set);
+    FD_SET(compositor->server->fds[1].fd, &set);
+
+    if(select(compositor->server->fds[1].fd + 1, &set, NULL, NULL, &timeout) <= 0)
+    {
+        printf("Error: Compositor read timeout.\n");
+        hv_server_compositor_destroy(compositor);
+        return 1;
+    }
+
+    u_int8_t *data = dst;
+
+    ssize_t readBytes = read(compositor->server->fds[1].fd, data, bytes);
+
+    if(readBytes < 1)
+    {
+        printf("Error: Compositor read failed.\n");
+        hv_server_compositor_destroy(compositor);
+        return 1;
+    }
+
+    else if(readBytes < bytes)
+        return hv_compositor_read(compositor, &data[readBytes], bytes - readBytes);
+
+    return 0;
+}
+
 int hv_client_write(hv_client *client, void *src, ssize_t bytes)
 {
     u_int8_t *data = src;
@@ -137,6 +174,23 @@ int hv_client_write(hv_client *client, void *src, ssize_t bytes)
     }
     else if(writtenBytes < bytes)
         return hv_client_write(client, &data[writtenBytes], bytes - writtenBytes);
+
+    return 0;
+}
+
+int hv_compositor_write(hv_compositor *compositor, void *src, ssize_t bytes)
+{
+    u_int8_t *data = src;
+
+    ssize_t writtenBytes = write(compositor->server->fds[1].fd, data, bytes);
+
+    if(writtenBytes < 1)
+    {
+        hv_server_compositor_destroy(compositor);
+        return 1;
+    }
+    else if(writtenBytes < bytes)
+        return hv_compositor_write(compositor, &data[writtenBytes], bytes - writtenBytes);
 
     return 0;
 }
@@ -172,6 +226,8 @@ hv_server *hv_server_create(const char *socket_name, void *user_data, hv_server_
     server->fds[0].events = POLLIN;
     server->fds[0].revents = 0;
     server->user_data = user_data;
+    server->compositor = NULL;
+    server->active_client = NULL;
 
     if(pthread_mutex_init(&server->mutex, NULL) != 0)
     {
@@ -247,6 +303,11 @@ void hv_server_set_user_data(hv_server *server, void *user_data)
     server->user_data = user_data;
 }
 
+hv_compositor *hv_server_get_compositor(hv_server *server)
+{
+    return server->compositor;
+}
+
 /* CLIENT */
 
 void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid)
@@ -259,9 +320,30 @@ void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t 
         *gid = client->creds.gid;
 }
 
+hv_client *hv_client_get_by_pid(hv_server *server, hv_client_pid pid)
+{
+    for(int i = 2; i < HV_MAX_CLIENTS; i++)
+    {
+        if(server->fds[i].fd != -1)
+        {
+            if(server->clients[i-2]->creds.pid == pid)
+            {
+                return server->clients[i-2];
+            }
+        }
+    }
+
+    return NULL;
+}
+
 hv_client_id hv_client_get_id(hv_client *client)
 {
     return client->fds_i-1;
+}
+
+hv_server *hv_client_get_server(hv_client *client)
+{
+    return client->server;
 }
 
 hv_object *hv_client_object_create(hv_client *client, hv_object_type type, u_int32_t size)
@@ -333,6 +415,13 @@ void hv_client_send_custom_request_handler(hv_client *client)
         return;
 
     client->server->requests_interface->client_send_custom_request(client, data, data_len);
+}
+
+/* COMPOSITOR */
+
+hv_server *hv_compositor_get_server(hv_compositor *compositor)
+{
+    return compositor->server;
 }
 
 /* TOP BAR */
@@ -1020,6 +1109,50 @@ void hv_object_destroy_handler(hv_client *client)
     hv_object_destroy(object);
 }
 
+/* COMPOSITOR REQUESTS */
+
+void hv_set_active_client_handler(hv_compositor *compositor)
+{
+    hv_client_pid client_pid;
+
+    if(hv_compositor_read(compositor, &client_pid, sizeof(hv_client_pid)))
+        return;
+
+    if(compositor->server->active_client)
+    {
+        if(client_pid == compositor->server->active_client->creds.pid)
+            return;
+    }
+
+    if(client_pid == 0)
+    {
+        compositor->server->active_client = NULL;
+        compositor->server->requests_interface->compositor_set_active_client(compositor, NULL, 0);
+        return;
+    }
+
+    compositor->server->active_client = hv_client_get_by_pid(compositor->server,client_pid);
+    compositor->server->requests_interface->compositor_set_active_client(compositor, compositor->server->active_client, client_pid);
+}
+
+void hv_compositor_send_custom_request_handler(hv_compositor *compositor)
+{
+    hv_string_length data_len;
+
+    if(hv_compositor_read(compositor, &data_len, sizeof(u_int32_t)))
+        return;
+
+    if(data_len == 0)
+        return;
+
+    u_int8_t data[data_len];
+
+    if(hv_compositor_read(compositor, data, data_len))
+        return;
+
+    compositor->server->requests_interface->compositor_send_custom_request(compositor, data, data_len);
+}
+
 /* CONNECTION */
 
 void hv_client_handle_request(hv_client *client, hv_message_id msg_id)
@@ -1029,64 +1162,100 @@ void hv_client_handle_request(hv_client *client, hv_message_id msg_id)
         case HV_CLIENT_SET_APP_NAME_ID:
         {
             hv_client_set_app_name_handler(client);
+            return;
         }break;
         case HV_CLIENT_SEND_CUSTOM_REQUEST_ID:
         {
             hv_client_send_custom_request_handler(client);
+            return;
         }break;
         case HV_TOP_BAR_SET_ACTIVE_ID:
         {
             hv_top_bar_set_active_handler(client);
+            return;
         }break;
         case HV_OBJECT_CREATE_ID:
         {
             hv_object_create_handler(client);
+            return;
         }break;
         case HV_OBJECT_DESTROY_ID:
         {
             hv_object_destroy_handler(client);
+            return;
         }break;
         case HV_OBJECT_REMOVE_FROM_PARENT_ID:
         {
             hv_object_remove_from_parent_handler(client);
+            return;
         }break;
         case HV_MENU_SET_TITLE_ID:
         {
             hv_menu_set_title_handler(client);
+            return;
         }break;
         case HV_MENU_ADD_TO_TOP_BAR_ID:
         {
             hv_menu_add_to_top_bar_handler(client);
+            return;
         }break;
         case HV_MENU_ADD_TO_ACTION_ID:
         {
             hv_menu_add_to_action_handler(client);
+            return;
         }break;
         case HV_ACTION_SET_TEXT_ID:
         {
             hv_action_set_text_handler(client);
+            return;
         }break;
         case HV_ACTION_SET_ICON_ID:
         {
             hv_action_set_icon_handler(client);
+            return;
         }break;
         case HV_ACTION_SET_SHORTCUTS_ID:
         {
             hv_action_set_shortcuts_handler(client);
+            return;
         }break;
         case HV_ACTION_SET_STATE_ID:
         {
             hv_action_set_state_handler(client);
+            return;
         }break;
         case HV_SEPARATOR_SET_TEXT_ID:
         {
             hv_separator_set_text_handler(client);
+            return;
         }break;
         case HV_ITEM_ADD_TO_MENU_ID:
         {
             hv_item_add_to_menu_handler(client);
+            return;
         }break;
     }
+
+    hv_server_client_destroy(client);
+}
+
+void hv_compositor_handle_request(hv_compositor *compositor, hv_message_id msg_id)
+{
+    switch(msg_id)
+    {
+        case HV_SET_ACTIVE_CLIENT_ID:
+        {
+            hv_set_active_client_handler(compositor);
+            return;
+        }break;
+        case HV_COMPOSITOR_SEND_CUSTOM_REQUEST_ID:
+        {
+            hv_compositor_send_custom_request_handler(compositor);
+            return;
+        }break;
+    }
+
+    hv_server_compositor_destroy(compositor);
 }
 
 int hv_server_accept_connection(hv_server *server)
@@ -1151,6 +1320,39 @@ int hv_server_accept_connection(hv_server *server)
 
         return 0;
     }
+    else if(type == HV_CONNECTION_TYPE_COMPOSITOR)
+    {
+        hv_compositor_auth_reply reply;
+
+        // There is already a current compositor connected
+        if(server->compositor)
+        {
+            reply = HV_COMPOSITOR_REJECTED;
+            write(connection_fd, &reply, sizeof(hv_compositor_auth_reply));
+            close(connection_fd);
+            return -1;
+        }
+
+
+        struct epoll_event epoll_ev;
+        epoll_ev.events = POLLIN | POLLHUP;
+        epoll_ctl(server->epoll_fd, EPOLL_CTL_ADD, connection_fd, &epoll_ev);
+
+        hv_compositor *compositor = malloc(sizeof(hv_compositor));
+        compositor->server = server;
+
+        server->compositor = compositor;
+        server->fds[1].fd = connection_fd;
+        server->fds[1].events = POLLIN | POLLHUP;
+        server->fds[1].revents = 0;
+
+        reply = HV_COMPOSITOR_ACCEPTED;
+        write(connection_fd, &reply, sizeof(hv_compositor_auth_reply));
+
+        server->requests_interface->compositor_connected(compositor);
+
+        return 0;
+    }
     else
     {
         close(connection_fd);
@@ -1168,10 +1370,30 @@ int hv_server_dispatch_requests(hv_server *server, int timeout)
 
     if(ret != 0)
     {
-        // New client
+        // New client or compositor
         if(server->fds[0].revents & POLLIN)
             hv_server_accept_connection(server);
 
+        // If compositor
+        if(server->compositor)
+        {
+            if(server->fds[1].revents & POLLHUP)
+            {
+                hv_server_compositor_destroy(server->compositor);
+                goto read_clients;
+            }
+
+            if(server->fds[1].revents & POLLIN)
+            {
+                hv_message_id msg_id;
+
+                if(hv_compositor_read(server->compositor, &msg_id, sizeof(hv_message_id)) == 0)
+                    hv_compositor_handle_request(server->compositor, msg_id);
+
+            }
+        }
+
+        read_clients:
 
         for(int i = 2; i < HV_MAX_CLIENTS+2; i++)
         {
@@ -1203,8 +1425,24 @@ int hv_server_dispatch_requests(hv_server *server, int timeout)
     return 0;
 }
 
+void hv_server_compositor_destroy(hv_compositor *compositor)
+{
+    epoll_ctl(compositor->server->epoll_fd, EPOLL_CTL_DEL, compositor->server->fds[1].fd, NULL);
+    close(compositor->server->fds[1].fd);
+    compositor->server->fds[1].fd = -1;
+    compositor->server->compositor = NULL;
+    compositor->server->requests_interface->compositor_disconnected(compositor);
+    free(compositor);
+}
+
 void hv_server_client_destroy(hv_client *client)
 {
+    if(client->server->active_client == client)
+    {
+        client->server->active_client = NULL;
+        client->server->requests_interface->compositor_set_active_client(client->server->compositor, NULL, 0);
+    }
+
     if(client->active_top_bar)
     {
         client->active_top_bar = NULL;
@@ -1227,6 +1465,7 @@ void hv_server_client_destroy(hv_client *client)
     free(client);
 }
 
+/* EVENTS */
 
 int hv_action_invoke(hv_action *action)
 {
@@ -1261,7 +1500,7 @@ int hv_action_invoke(hv_action *action)
     return HV_SUCCESS;
 }
 
-int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size)
+int hv_server_send_custom_event_to_client(hv_client *client, void *data, u_int32_t size)
 {
     if(!client)
         return HV_ERROR;
@@ -1305,3 +1544,47 @@ int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size)
 
     return HV_SUCCESS;
 }
+
+int hv_server_send_custom_event_to_compositor(hv_compositor *compositor, void *data, u_int32_t size)
+{
+    if(!compositor)
+        return HV_ERROR;
+
+    if(size == 0)
+        return HV_SUCCESS;
+
+    if(!data)
+        return HV_ERROR;
+
+    // Memory access test
+    u_int8_t *test = data;
+    test = &test[size-1];
+    HV_UNUSED(test);
+
+    hv_message_id msg_id = HV_SERVER_TO_COMPOSITOR_SEND_CUSTOM_EVENT_ID;
+
+    pthread_mutex_lock(&compositor->server->mutex);
+
+    if(hv_compositor_write(compositor, &msg_id, sizeof(hv_message_id)))
+    {
+        pthread_mutex_unlock(&compositor->server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    if(hv_compositor_write(compositor, &size, sizeof(u_int32_t)))
+    {
+        pthread_mutex_unlock(&compositor->server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    if(hv_compositor_write(compositor, data, size))
+    {
+        pthread_mutex_unlock(&compositor->server->mutex);
+        return HV_CONNECTION_LOST;
+    }
+
+    pthread_mutex_unlock(&compositor->server->mutex);
+
+    return HV_SUCCESS;
+}
+

@@ -67,7 +67,8 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Server-Client Common</div>  </div>
 </div><!--header-->
@@ -97,6 +98,27 @@ Typedefs</h2></td></tr>
 <tr class="separator:gaecad00ac0d8ca15c3a214067c9aa2dcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga907d7fdae195465a114ab21df31b9bce"><td class="memItemLeft" align="right" valign="top">typedef u_int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___server-_client-_common.html#ga907d7fdae195465a114ab21df31b9bce">hv_action_state</a></td></tr>
 <tr class="separator:ga907d7fdae195465a114ab21df31b9bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad3b23d178f80e37c92d52138a4390b9c"><td class="memItemLeft" align="right" valign="top"><a id="gad3b23d178f80e37c92d52138a4390b9c"></a>
+typedef struct hv_client_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client</b></td></tr>
+<tr class="separator:gad3b23d178f80e37c92d52138a4390b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga208fda70c749721b0fc225ccbd1764a9"><td class="memItemLeft" align="right" valign="top"><a id="ga208fda70c749721b0fc225ccbd1764a9"></a>
+typedef struct hv_top_bar_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_top_bar</b></td></tr>
+<tr class="separator:ga208fda70c749721b0fc225ccbd1764a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa27764ef301f28db8fa06bd396574abf"><td class="memItemLeft" align="right" valign="top"><a id="gaa27764ef301f28db8fa06bd396574abf"></a>
+typedef struct hv_menu_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_menu</b></td></tr>
+<tr class="separator:gaa27764ef301f28db8fa06bd396574abf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5f27438ef012e36c307aa95206cde173"><td class="memItemLeft" align="right" valign="top"><a id="ga5f27438ef012e36c307aa95206cde173"></a>
+typedef struct hv_action_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action</b></td></tr>
+<tr class="separator:ga5f27438ef012e36c307aa95206cde173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8bc653f6e1cc9d5d5018ff0723a1086b"><td class="memItemLeft" align="right" valign="top"><a id="ga8bc653f6e1cc9d5d5018ff0723a1086b"></a>
+typedef struct hv_separator_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_separator</b></td></tr>
+<tr class="separator:ga8bc653f6e1cc9d5d5018ff0723a1086b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga63437b6add1694f74c80fb84a0f091a5"><td class="memItemLeft" align="right" valign="top"><a id="ga63437b6add1694f74c80fb84a0f091a5"></a>
+typedef void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object</b></td></tr>
+<tr class="separator:ga63437b6add1694f74c80fb84a0f091a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5caaf9e2431c7183d5f179af6244026f"><td class="memItemLeft" align="right" valign="top"><a id="ga5caaf9e2431c7183d5f179af6244026f"></a>
+typedef void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_item</b></td></tr>
+<tr class="separator:ga5caaf9e2431c7183d5f179af6244026f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -120,6 +142,76 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga8f16448e93e4448b39f15a720f126af8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Object types.  <a href="group___server-_client-_common.html#ga8f16448e93e4448b39f15a720f126af8">More...</a><br /></td></tr>
 <tr class="separator:ga8f16448e93e4448b39f15a720f126af8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1f01b3200d89c76a8ad5544b4c20d2d6"><td class="memItemLeft" align="right" valign="top"><a id="ga1f01b3200d89c76a8ad5544b4c20d2d6"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_CLIENT_REQUEST</b> { <br />
+&#160;&#160;<b>HV_OBJECT_CREATE_ID</b>
+, <br />
+&#160;&#160;<b>HV_OBJECT_DESTROY_ID</b>
+, <br />
+&#160;&#160;<b>HV_OBJECT_REMOVE_FROM_PARENT_ID</b>
+, <br />
+&#160;&#160;<b>HV_CLIENT_SET_APP_NAME_ID</b>
+, <br />
+&#160;&#160;<b>HV_CLIENT_SEND_CUSTOM_REQUEST_ID</b>
+, <br />
+&#160;&#160;<b>HV_TOP_BAR_SET_ACTIVE_ID</b>
+, <br />
+&#160;&#160;<b>HV_MENU_SET_TITLE_ID</b>
+, <br />
+&#160;&#160;<b>HV_MENU_ADD_TO_TOP_BAR_ID</b>
+, <br />
+&#160;&#160;<b>HV_MENU_ADD_TO_ACTION_ID</b>
+, <br />
+&#160;&#160;<b>HV_ACTION_SET_ICON_ID</b>
+, <br />
+&#160;&#160;<b>HV_ACTION_SET_TEXT_ID</b>
+, <br />
+&#160;&#160;<b>HV_ACTION_SET_SHORTCUTS_ID</b>
+, <br />
+&#160;&#160;<b>HV_ACTION_SET_STATE_ID</b>
+, <br />
+&#160;&#160;<b>HV_SEPARATOR_SET_TEXT_ID</b>
+, <br />
+&#160;&#160;<b>HV_ITEM_ADD_TO_MENU_ID</b>
+<br />
+ }</td></tr>
+<tr class="separator:ga1f01b3200d89c76a8ad5544b4c20d2d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5d88b29d125c0322d5959c5a73ffff06"><td class="memItemLeft" align="right" valign="top"><a id="ga5d88b29d125c0322d5959c5a73ffff06"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_SERVER_TO_CLIENT_EVENTS</b> { <br />
+&#160;&#160;<b>HV_ACTION_INVOKE_ID</b>
+, <br />
+&#160;&#160;<b>HV_SERVER_TO_CLIENT_SEND_CUSTOM_EVENT_ID</b>
+<br />
+ }</td></tr>
+<tr class="separator:ga5d88b29d125c0322d5959c5a73ffff06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ga16e2da7c42aa8880ec945fdb8f165c6c"><td class="memItemLeft" align="right" valign="top"><a id="ga16e2da7c42aa8880ec945fdb8f165c6c"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_user_data</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
+<tr class="separator:ga16e2da7c42aa8880ec945fdb8f165c6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6b7e36d6a57d1b0310847955209adab1"><td class="memItemLeft" align="right" valign="top"><a id="ga6b7e36d6a57d1b0310847955209adab1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_set_user_data</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, void *user_data)</td></tr>
+<tr class="separator:ga6b7e36d6a57d1b0310847955209adab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c6790a079be1e2626e5a424bae6765b"><td class="memItemLeft" align="right" valign="top"><a id="ga3c6790a079be1e2626e5a424bae6765b"></a>
+hv_object *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_by_id</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, <a class="el" href="group___server-_client-_common.html#ga5c10ee725448b1d8651c61f299182793">hv_object_id</a> id)</td></tr>
+<tr class="separator:ga3c6790a079be1e2626e5a424bae6765b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga48bf3ca06892a6ec0502bccd39dce9a8"><td class="memItemLeft" align="right" valign="top"><a id="ga48bf3ca06892a6ec0502bccd39dce9a8"></a>
+<a class="el" href="group___server-_client-_common.html#ga5c10ee725448b1d8651c61f299182793">hv_object_id</a>&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_id</b> (hv_object *object)</td></tr>
+<tr class="separator:ga48bf3ca06892a6ec0502bccd39dce9a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafd78f6f6dc6fa047ae5a653a44e48fc4"><td class="memItemLeft" align="right" valign="top"><a id="gafd78f6f6dc6fa047ae5a653a44e48fc4"></a>
+<a class="el" href="group___server-_client-_common.html#ga3cb8835ad6f4f2e4e4d3d7ac724aecf7">hv_object_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_type</b> (hv_object *object)</td></tr>
+<tr class="separator:gafd78f6f6dc6fa047ae5a653a44e48fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0906987e5222c74fe12e4982143b6ab3"><td class="memItemLeft" align="right" valign="top"><a id="ga0906987e5222c74fe12e4982143b6ab3"></a>
+<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_client</b> (hv_object *object)</td></tr>
+<tr class="separator:ga0906987e5222c74fe12e4982143b6ab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga498d7dfd9112632a3c6523907f1c0282"><td class="memItemLeft" align="right" valign="top"><a id="ga498d7dfd9112632a3c6523907f1c0282"></a>
+hv_object *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_parent</b> (hv_object *object)</td></tr>
+<tr class="separator:ga498d7dfd9112632a3c6523907f1c0282"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaed48a034e81285709695f48399e9b3b3"><td class="memItemLeft" align="right" valign="top"><a id="gaed48a034e81285709695f48399e9b3b3"></a>
+hv_object *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_get_user_data</b> (hv_object *object)</td></tr>
+<tr class="separator:gaed48a034e81285709695f48399e9b3b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1e48ef1860851c23d06eb8d2e8416921"><td class="memItemLeft" align="right" valign="top"><a id="ga1e48ef1860851c23d06eb8d2e8416921"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_set_user_data</b> (hv_object *object, void *user_data)</td></tr>
+<tr class="separator:ga1e48ef1860851c23d06eb8d2e8416921"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Shared members between the server and client API. </p>

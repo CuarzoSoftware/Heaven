@@ -5,4 +5,5 @@ CONFIG += ordered
 
 SUBDIRS = server/Server.pro \
           client/Client.pro \
+          compositor/Compositor.pro
 

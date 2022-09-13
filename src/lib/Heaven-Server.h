@@ -48,6 +48,11 @@ struct hv_server_requests_interface_struct
 
     void (*client_item_add_to_menu)(hv_client *, hv_item *, hv_menu *, hv_item *);
 
+    void (*compositor_connected)(hv_compositor *);
+    void (*compositor_set_active_client)(hv_compositor*, hv_client*, hv_client_pid);
+    void (*compositor_send_custom_request)(hv_compositor*, void*, u_int32_t);
+    void (*compositor_disconnected)(hv_compositor *);
+
 };
 
 hv_server *hv_server_create(const char *socket, void *user_data, hv_server_requests_interface *events_interface);
@@ -60,14 +65,20 @@ int hv_server_get_fd(hv_server *server);
 
 int hv_server_dispatch_requests(hv_server *server, int timeout);
 
+void hv_server_compositor_destroy(hv_compositor *compositor);
 void hv_server_client_destroy(hv_client *client);
 
 hv_client_id hv_client_get_id(hv_client *client);
+hv_server *hv_compositor_get_server(hv_compositor *compositor);
+hv_compositor *hv_server_get_compositor(hv_server *server);
+hv_client *hv_client_get_by_pid(hv_server *server, hv_client_pid pid);
 
 void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid);
+hv_server *hv_client_get_server(hv_client *client);
 
 int hv_action_invoke(hv_action *action);
-int hv_server_send_custom_event(hv_client *client, void *data, u_int32_t size);
+int hv_server_send_custom_event_to_client(hv_client *client, void *data, u_int32_t size);
+int hv_server_send_custom_event_to_compositor(hv_compositor *compositor, void *data, u_int32_t size);
 
 /*! @}*/
 

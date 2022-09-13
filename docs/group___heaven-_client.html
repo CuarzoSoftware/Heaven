@@ -65,6 +65,7 @@ $(function() {
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Heaven Client API</div>  </div>
@@ -74,6 +75,11 @@ $(function() {
 <p>API used by client applications to send their menus to the global menu server.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhv__client__events__interface__struct.html">hv_client_events_interface</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga65766d5716ce7cd0fb6ab52274fca50f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___heaven-_client.html#ga65766d5716ce7cd0fb6ab52274fca50f">hv_client_create</a> (const char *socket_name, const char *app_name, void *user_data, hv_client_events_interface *events_interface)</td></tr>
@@ -85,6 +91,54 @@ Functions</h2></td></tr>
 <tr class="memitem:gaadc83662bb838bfbd055bdfcad4fc6fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___heaven-_client.html#gaadc83662bb838bfbd055bdfcad4fc6fc">hv_client_destroy</a> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
 <tr class="memdesc:gaadc83662bb838bfbd055bdfcad4fc6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the connection with the global menu server.  <a href="group___heaven-_client.html#gaadc83662bb838bfbd055bdfcad4fc6fc">More...</a><br /></td></tr>
 <tr class="separator:gaadc83662bb838bfbd055bdfcad4fc6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaffd94a9be17fb6454fee98a21c8f5df2"><td class="memItemLeft" align="right" valign="top"><a id="gaffd94a9be17fb6454fee98a21c8f5df2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_set_app_name</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, const char *app_name)</td></tr>
+<tr class="separator:gaffd94a9be17fb6454fee98a21c8f5df2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga294575dfb2b7994082384172d906f1c9"><td class="memItemLeft" align="right" valign="top"><a id="ga294575dfb2b7994082384172d906f1c9"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_fd</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
+<tr class="separator:ga294575dfb2b7994082384172d906f1c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaabed45978c6a0e6e7a93118cda2d297d"><td class="memItemLeft" align="right" valign="top"><a id="gaabed45978c6a0e6e7a93118cda2d297d"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_send_custom_request</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, void *data, u_int32_t size)</td></tr>
+<tr class="separator:gaabed45978c6a0e6e7a93118cda2d297d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga541635c7c4702aed02dd2d2cb46ef8ea"><td class="memItemLeft" align="right" valign="top"><a id="ga541635c7c4702aed02dd2d2cb46ef8ea"></a>
+hv_object *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_create</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, <a class="el" href="group___server-_client-_common.html#ga3cb8835ad6f4f2e4e4d3d7ac724aecf7">hv_object_type</a> type, void *user_data)</td></tr>
+<tr class="separator:ga541635c7c4702aed02dd2d2cb46ef8ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae544fa90e60c3480adf78fef5174802d"><td class="memItemLeft" align="right" valign="top"><a id="gae544fa90e60c3480adf78fef5174802d"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_destroy</b> (hv_object *object)</td></tr>
+<tr class="separator:gae544fa90e60c3480adf78fef5174802d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga171e9b1e472486d4a5f07b68b66ff5c1"><td class="memItemLeft" align="right" valign="top"><a id="ga171e9b1e472486d4a5f07b68b66ff5c1"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_object_remove_from_parent</b> (hv_object *object)</td></tr>
+<tr class="separator:ga171e9b1e472486d4a5f07b68b66ff5c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga702344a3699ba17b42b9acb767303943"><td class="memItemLeft" align="right" valign="top"><a id="ga702344a3699ba17b42b9acb767303943"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_top_bar_set_active</b> (<a class="el" href="group___server-_client-_common.html#structhv__top__bar">hv_top_bar</a> *top_bar)</td></tr>
+<tr class="separator:ga702344a3699ba17b42b9acb767303943"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga09fa462ebf8278ea563213de2ec11b7b"><td class="memItemLeft" align="right" valign="top"><a id="ga09fa462ebf8278ea563213de2ec11b7b"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_menu_set_title</b> (hv_menu *menu, const char *title)</td></tr>
+<tr class="separator:ga09fa462ebf8278ea563213de2ec11b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8d133c9d43fb7ea6e653bca75dd96b52"><td class="memItemLeft" align="right" valign="top"><a id="ga8d133c9d43fb7ea6e653bca75dd96b52"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_menu_add_to_top_bar</b> (hv_menu *menu, <a class="el" href="group___server-_client-_common.html#structhv__top__bar">hv_top_bar</a> *top_bar, hv_menu *before)</td></tr>
+<tr class="separator:ga8d133c9d43fb7ea6e653bca75dd96b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga371e1cb0d2fdcb76fe58317105b344ac"><td class="memItemLeft" align="right" valign="top"><a id="ga371e1cb0d2fdcb76fe58317105b344ac"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_menu_add_to_action</b> (hv_menu *menu, hv_action *action)</td></tr>
+<tr class="separator:ga371e1cb0d2fdcb76fe58317105b344ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaec0fcfd33c112d9f415054b5b8d243f7"><td class="memItemLeft" align="right" valign="top"><a id="gaec0fcfd33c112d9f415054b5b8d243f7"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_set_icon</b> (hv_action *action, <a class="el" href="group___server-_client-_common.html#gaecad00ac0d8ca15c3a214067c9aa2dcd">hv_pixel</a> *pixels, u_int32_t width, u_int32_t height)</td></tr>
+<tr class="separator:gaec0fcfd33c112d9f415054b5b8d243f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacdbee26d3f20df2bf7d300d2e9eee4b8"><td class="memItemLeft" align="right" valign="top"><a id="gacdbee26d3f20df2bf7d300d2e9eee4b8"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_set_text</b> (hv_action *action, const char *text)</td></tr>
+<tr class="separator:gacdbee26d3f20df2bf7d300d2e9eee4b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga42f007effda273e367b60bda0a52a268"><td class="memItemLeft" align="right" valign="top"><a id="ga42f007effda273e367b60bda0a52a268"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_set_shortcuts</b> (hv_action *action, const char *shortcuts)</td></tr>
+<tr class="separator:ga42f007effda273e367b60bda0a52a268"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad0dda02a2bff07ac3dbf2364a42df899"><td class="memItemLeft" align="right" valign="top"><a id="gad0dda02a2bff07ac3dbf2364a42df899"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_set_state</b> (hv_action *action, <a class="el" href="group___server-_client-_common.html#ga907d7fdae195465a114ab21df31b9bce">hv_action_state</a> state)</td></tr>
+<tr class="separator:gad0dda02a2bff07ac3dbf2364a42df899"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad17fb875e7ead16d0b22f474567bc399"><td class="memItemLeft" align="right" valign="top"><a id="gad17fb875e7ead16d0b22f474567bc399"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_separator_set_text</b> (hv_separator *separator, const char *text)</td></tr>
+<tr class="separator:gad17fb875e7ead16d0b22f474567bc399"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga88c31ce8e6c464c2009f104f2b7cbef9"><td class="memItemLeft" align="right" valign="top"><a id="ga88c31ce8e6c464c2009f104f2b7cbef9"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_item_add_to_menu</b> (hv_item *item, hv_menu *menu, hv_item *before)</td></tr>
+<tr class="separator:ga88c31ce8e6c464c2009f104f2b7cbef9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>API used by client applications to send their menus to the global menu server. </p>

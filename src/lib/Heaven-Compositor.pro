@@ -9,4 +9,5 @@ HEADERS += \
 
 SOURCES += \
     Heaven-Common.c \
-    Heaven-Compositor.c
+    Heaven-Compositor.c \
+    Heaven-Server-Compositor-Common.c

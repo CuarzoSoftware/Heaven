@@ -75,11 +75,43 @@ $(function() {
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef HEAVENSERVERCOMPOSITORCOMMON_H</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define HEAVENSERVERCOMPOSITORCOMMON_H</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">struct </span>hv_compositor_struct;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>hv_compositor_struct <a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a>;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;Heaven-Common.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">   18</a></span>&#160;<span class="keyword">typedef</span> pid_t <a class="code" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a>;</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// HEAVENSERVERCOMPOSITORCOMMON_H</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">typedef</span> u_int8_t hv_compositor_auth_reply;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">enum</span> HV_COMPOSITOR_AUTH_REPLY</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    HV_COMPOSITOR_ACCEPTED,</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    HV_COMPOSITOR_REJECTED</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;};</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">/* COMPOSITOR REQUESTS */</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">enum</span> HV_COMPOSITOR_REQUEST</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;{</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    HV_SET_ACTIVE_CLIENT_ID,</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    HV_COMPOSITOR_SEND_CUSTOM_REQUEST_ID</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;};</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/* SERVER EVENTS */</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">enum</span> HV_SERVER_TO_COMPOSITOR_EVENTS</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;{</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    HV_SERVER_TO_COMPOSITOR_SEND_CUSTOM_EVENT_ID,</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;};</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">struct </span>hv_compositor_struct;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>hv_compositor_struct <a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> hv_compositor_ser_user_data(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor, <span class="keywordtype">void</span> *user_data);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keywordtype">void</span> *hv_compositor_get_user_data(<a class="code" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif </span><span class="comment">// HEAVENSERVERCOMPOSITORCOMMON_H</span></div>
+<div class="ttc" id="agroup___server-_compositor-_common_html_gaf965129c99ecfe02d268e15ad5c4f544"><div class="ttname"><a href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a></div><div class="ttdeci">pid_t hv_client_pid</div><div class="ttdoc">The process id of a client.</div><div class="ttdef"><b>Definition:</b> Heaven-Server-Compositor-Common.h:18</div></div>
 <div class="ttc" id="agroup___server-_compositor-_common_html_structhv__compositor"><div class="ttname"><a href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a></div><div class="ttdoc">Representation of a compositor connected to the global menu server.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

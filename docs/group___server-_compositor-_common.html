@@ -65,7 +65,10 @@ $(function() {
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Server-Compositor Common</div>  </div>
 </div><!--header-->
@@ -79,6 +82,48 @@ Data Structures</h2></td></tr>
 <tr class="memitem:structhv__compositor"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a></td></tr>
 <tr class="memdesc:structhv__compositor"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation of a compositor connected to the global menu server.  <a href="group___server-_compositor-_common.html#structhv__compositor">More...</a><br /></td></tr>
 <tr class="separator:structhv__compositor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:gaf965129c99ecfe02d268e15ad5c4f544"><td class="memItemLeft" align="right" valign="top"><a id="gaf965129c99ecfe02d268e15ad5c4f544"></a>
+typedef pid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a></td></tr>
+<tr class="memdesc:gaf965129c99ecfe02d268e15ad5c4f544"><td class="mdescLeft">&#160;</td><td class="mdescRight">The process id of a client. <br /></td></tr>
+<tr class="separator:gaf965129c99ecfe02d268e15ad5c4f544"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2209d1a342310833d3681041fb6fb5c2"><td class="memItemLeft" align="right" valign="top"><a id="ga2209d1a342310833d3681041fb6fb5c2"></a>
+typedef u_int8_t&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor_auth_reply</b></td></tr>
+<tr class="separator:ga2209d1a342310833d3681041fb6fb5c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9ff6205a049160a51ba4393800757860"><td class="memItemLeft" align="right" valign="top"><a id="ga9ff6205a049160a51ba4393800757860"></a>
+typedef struct hv_compositor_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor</b></td></tr>
+<tr class="separator:ga9ff6205a049160a51ba4393800757860"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:gab209e978c9198ec9b4980aa80a920d19"><td class="memItemLeft" align="right" valign="top"><a id="gab209e978c9198ec9b4980aa80a920d19"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_COMPOSITOR_AUTH_REPLY</b> { <br />
+&#160;&#160;<b>HV_COMPOSITOR_ACCEPTED</b>
+, <br />
+&#160;&#160;<b>HV_COMPOSITOR_REJECTED</b>
+<br />
+ }</td></tr>
+<tr class="separator:gab209e978c9198ec9b4980aa80a920d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7f4e54b67a3c71ab0dbee60c8f35d14e"><td class="memItemLeft" align="right" valign="top"><a id="ga7f4e54b67a3c71ab0dbee60c8f35d14e"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_COMPOSITOR_REQUEST</b> { <br />
+&#160;&#160;<b>HV_SET_ACTIVE_CLIENT_ID</b>
+, <br />
+&#160;&#160;<b>HV_COMPOSITOR_SEND_CUSTOM_REQUEST_ID</b>
+<br />
+ }</td></tr>
+<tr class="separator:ga7f4e54b67a3c71ab0dbee60c8f35d14e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafb9b48216db189cb3c29e1f364c84f94"><td class="memItemLeft" align="right" valign="top"><a id="gafb9b48216db189cb3c29e1f364c84f94"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HV_SERVER_TO_COMPOSITOR_EVENTS</b> { <b>HV_SERVER_TO_COMPOSITOR_SEND_CUSTOM_EVENT_ID</b>
+ }</td></tr>
+<tr class="separator:gafb9b48216db189cb3c29e1f364c84f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:gaf0c57d0ea0601055f46771cc6792ea3f"><td class="memItemLeft" align="right" valign="top"><a id="gaf0c57d0ea0601055f46771cc6792ea3f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor_ser_user_data</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor, void *user_data)</td></tr>
+<tr class="separator:gaf0c57d0ea0601055f46771cc6792ea3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaac57455d580e30f14c8941a9ca333f46"><td class="memItemLeft" align="right" valign="top"><a id="gaac57455d580e30f14c8941a9ca333f46"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor_get_user_data</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor)</td></tr>
+<tr class="separator:gaac57455d580e30f14c8941a9ca333f46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Shared members between the server and compositor API. </p>

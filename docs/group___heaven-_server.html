@@ -64,6 +64,11 @@ $(function() {
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Heaven Server API</div>  </div>
 </div><!--header-->
@@ -71,6 +76,75 @@ $(function() {
 
 <p>API used by global menu processes to receive and display clients menus and notify action events.  
 <a href="#details">More...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhv__server__requests__interface__struct.html">hv_server_requests_interface</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga758d24ad047df7675e90b50d76e0e676"><td class="memItemLeft" align="right" valign="top"><a id="ga758d24ad047df7675e90b50d76e0e676"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HV_MAX_CLIENTS</b>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:ga758d24ad047df7675e90b50d76e0e676"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:gae840f726191aa11c9bf0973395d113e5"><td class="memItemLeft" align="right" valign="top"><a id="gae840f726191aa11c9bf0973395d113e5"></a>
+typedef struct hv_server_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server</b></td></tr>
+<tr class="separator:gae840f726191aa11c9bf0973395d113e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ga351207a79a156058ee9cef75ed5e0fc0"><td class="memItemLeft" align="right" valign="top"><a id="ga351207a79a156058ee9cef75ed5e0fc0"></a>
+hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_create</b> (const char *socket, void *user_data, hv_server_requests_interface *events_interface)</td></tr>
+<tr class="separator:ga351207a79a156058ee9cef75ed5e0fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad411cd14a1cd203b88f264f95394c4e2"><td class="memItemLeft" align="right" valign="top"><a id="gad411cd14a1cd203b88f264f95394c4e2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_set_user_data</b> (hv_server *server, void *user_data)</td></tr>
+<tr class="separator:gad411cd14a1cd203b88f264f95394c4e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga36874002b2f28caab71d52dbde1d578a"><td class="memItemLeft" align="right" valign="top"><a id="ga36874002b2f28caab71d52dbde1d578a"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_user_data</b> (hv_server *server)</td></tr>
+<tr class="separator:ga36874002b2f28caab71d52dbde1d578a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga73d91b85f3a586b3032f587f6bb83926"><td class="memItemLeft" align="right" valign="top"><a id="ga73d91b85f3a586b3032f587f6bb83926"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_fd</b> (hv_server *server)</td></tr>
+<tr class="separator:ga73d91b85f3a586b3032f587f6bb83926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga89ba1ba53958c9f1d83ddc4b13eaad8a"><td class="memItemLeft" align="right" valign="top"><a id="ga89ba1ba53958c9f1d83ddc4b13eaad8a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_dispatch_requests</b> (hv_server *server, int timeout)</td></tr>
+<tr class="separator:ga89ba1ba53958c9f1d83ddc4b13eaad8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae774201b562cad4639f7e4c1bf07e19c"><td class="memItemLeft" align="right" valign="top"><a id="gae774201b562cad4639f7e4c1bf07e19c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_compositor_destroy</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor)</td></tr>
+<tr class="separator:gae774201b562cad4639f7e4c1bf07e19c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5c97f7528f938e370328547c0727c7e5"><td class="memItemLeft" align="right" valign="top"><a id="ga5c97f7528f938e370328547c0727c7e5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_client_destroy</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
+<tr class="separator:ga5c97f7528f938e370328547c0727c7e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaca197dbced2f599a48e3791278ce9835"><td class="memItemLeft" align="right" valign="top"><a id="gaca197dbced2f599a48e3791278ce9835"></a>
+<a class="el" href="group___server-_client-_common.html#ga6fab0799e0814a624a0bd6d277a45f30">hv_client_id</a>&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_id</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
+<tr class="separator:gaca197dbced2f599a48e3791278ce9835"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabd7393e1ca622ee70354bb658515f455"><td class="memItemLeft" align="right" valign="top"><a id="gabd7393e1ca622ee70354bb658515f455"></a>
+hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor_get_server</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor)</td></tr>
+<tr class="separator:gabd7393e1ca622ee70354bb658515f455"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabb260ee1022443f332031f98aafa7e55"><td class="memItemLeft" align="right" valign="top"><a id="gabb260ee1022443f332031f98aafa7e55"></a>
+<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_compositor</b> (hv_server *server)</td></tr>
+<tr class="separator:gabb260ee1022443f332031f98aafa7e55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1385315b792e7fe1698e73d222feb371"><td class="memItemLeft" align="right" valign="top"><a id="ga1385315b792e7fe1698e73d222feb371"></a>
+<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_by_pid</b> (hv_server *server, <a class="el" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a> pid)</td></tr>
+<tr class="separator:ga1385315b792e7fe1698e73d222feb371"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga37d586581c9f58870272a4c9e73fc3fc"><td class="memItemLeft" align="right" valign="top"><a id="ga37d586581c9f58870272a4c9e73fc3fc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_credentials</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, pid_t *pid, uid_t *uid, gid_t *gid)</td></tr>
+<tr class="separator:ga37d586581c9f58870272a4c9e73fc3fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3173a02976b287fbf7288d60c1a717bb"><td class="memItemLeft" align="right" valign="top"><a id="ga3173a02976b287fbf7288d60c1a717bb"></a>
+hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_server</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
+<tr class="separator:ga3173a02976b287fbf7288d60c1a717bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2bea37ab587c7858541d8f968fa98ce2"><td class="memItemLeft" align="right" valign="top"><a id="ga2bea37ab587c7858541d8f968fa98ce2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_invoke</b> (hv_action *action)</td></tr>
+<tr class="separator:ga2bea37ab587c7858541d8f968fa98ce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae5d5e927325604b902ecbf1010d73d5e"><td class="memItemLeft" align="right" valign="top"><a id="gae5d5e927325604b902ecbf1010d73d5e"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_send_custom_event_to_client</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, void *data, u_int32_t size)</td></tr>
+<tr class="separator:gae5d5e927325604b902ecbf1010d73d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9b56783c34d996a11e0de6b59c7b954a"><td class="memItemLeft" align="right" valign="top"><a id="ga9b56783c34d996a11e0de6b59c7b954a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_send_custom_event_to_compositor</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor, void *data, u_int32_t size)</td></tr>
+<tr class="separator:ga9b56783c34d996a11e0de6b59c7b954a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>API used by global menu processes to receive and display clients menus and notify action events. </p>
 </div><!-- contents -->

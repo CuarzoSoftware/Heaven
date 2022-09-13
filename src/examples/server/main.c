@@ -41,7 +41,7 @@ static void client_send_custom_request(hv_client *client, void *data, u_int32_t 
     printf("- CLIENT (%d) SENT A CUSTOM MESSAGE = \"%s\"\n", hv_client_get_id(client), msg);
 
     char *reply = "Hello my dear client! <3";
-    hv_server_send_custom_event(client, reply, strlen(reply) + 1);
+    hv_server_send_custom_event_to_client(client, reply, strlen(reply) + 1);
 }
 
 static void client_disconnected(hv_client *client)
@@ -202,31 +202,80 @@ static void item_add_to_menu(hv_client *client, hv_item *item, hv_menu *menu, hv
         printf("- CLIENT (%d) ADDED %s (%d) TO MENU (%d)\n", client_id, object_type_to_string(item_type), item_id, menu_id);
 }
 
+/* COMPOSITOR REQUESTS */
+
+void compositor_connected(hv_compositor *compositor)
+{
+    HV_UNUSED(compositor);
+    printf("- COMPOSITOR CONNECTED\n");
+}
+
+void compositor_set_active_client(hv_compositor *compositor, hv_client *client, hv_client_pid pid)
+{
+    HV_UNUSED(compositor);
+
+    if(client)
+    {
+        printf("- COMPOSITOR SETS CLIENT (%d) ACTIVE\n", hv_client_get_id(client));
+        char *msg = "Hey! The compositor says you are the active client!";
+        hv_server_send_custom_event_to_client(client, msg, strlen(msg) + 1);
+    }
+    else
+    {
+        if(pid == 0)
+            printf("- COMPOSITOR SETS NO ACTIVE CLIENT\n");
+        else
+            printf("- CLIENT SENDS PID (%d) BUT THAT CLIENT IS NOT CONNECTED TO THE GLOBAL MENU\n", pid);
+    }
+
+    if(compositor)
+    {
+        char *msg = "Active client changed!";
+        hv_server_send_custom_event_to_compositor(compositor, msg, strlen(msg) + 1);
+    }
+}
+
+void compositor_send_custom_request(hv_compositor *compositor, void *data, u_int32_t size)
+{
+    char *msg = data;
+    msg[size] = '\0';
+    printf("- COMPOSITOR SENT A CUSTOM MESSAGE = \"%s\"\n", msg);
+
+    char *reply = "Hello lovely compositor! <3";
+    hv_server_send_custom_event_to_compositor(compositor, reply, strlen(reply) + 1);
+}
+
+void compositor_disconnected(hv_compositor *compositor)
+{
+    HV_UNUSED(compositor);
+    printf("- COMPOSITOR DISCONNECTED\n");
+}
+
 static hv_server_requests_interface requests_interface =
 {
     &client_connected,
     &client_set_app_name,
     &client_send_custom_request,
     &client_disconnected,
-
     &object_create,
     &object_remove_from_parent,
     &object_destroy,
-
     &top_bar_set_active,
-
     &menu_set_title,
     &menu_add_to_top_bar,
     &menu_add_to_action,
-
     &action_set_icon,
     &action_set_text,
     &action_set_shortcuts,
     &action_set_state,
-
     &separator_set_text,
+    &item_add_to_menu,
 
-    &item_add_to_menu
+    &compositor_connected,
+    &compositor_set_active_client,
+    &compositor_send_custom_request,
+    &compositor_disconnected
+
 };
 
 int main()
@@ -240,7 +289,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    printf("Server started.\n");
+    printf("\nServer started.\n\n");
 
     struct pollfd fd;
     fd.fd = hv_server_get_fd(server);
