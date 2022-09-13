@@ -33,7 +33,7 @@ $ sudo meson install
 Check the **server**, **client** and **compositor** examples found in `src/examples` to get familiar with the API.
 
 ## 📖 Documentation
-<h5> [Link to the APIs documentation](https://ehopperdietzel.github.io/Heaven/ "Link to the API documentation")</h5>
+##### [Link to the APIs documentation](https://ehopperdietzel.github.io/Heaven/ "Link to the API documentation")
 
 > The documentation is still incomplete.
 
