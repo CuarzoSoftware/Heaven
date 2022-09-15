@@ -44,7 +44,7 @@ Check the **server**, **client** and **compositor** examples found in `src/examp
 * **hn_menu**: A menu which can be assigned a label and icon (when nested) and contain multiple child items. Can be a child of a top bar or another menu.
 * **hn_action**: A clickable item which can be assigned an icon, label and shortcuts. Child of a menu.
 * **hn_toggle**: A toggable item which can be assigned a label and shortucts. Child of a menu.
-* **hn_select**: Represent a group of options where only one can be active at a time. Child of a menu.
+* **hn_select**: Represents a group of options where only one can be active at a time. Child of a menu.
 * **hn_option**: Member of a select group. Can be assigned a label and shortcuts.
 * **hn_separator**: A horizontal line which can contain a label and be added to a menu or select to separate groups of actions or options respectively.
 
