@@ -1,20 +1,29 @@
 #include "../../lib/Heaven-Server.h"
 #include <poll.h>
 
-const char *object_type_to_string(hv_object_type object_type)
+const char *object_type_to_string(hn_object_type object_type)
 {
     switch (object_type)
     {
-        case HV_OBJECT_TYPE_TOP_BAR:
+        case HN_OBJECT_TYPE_TOP_BAR:
             return "TOP BAR";
             break;
-        case HV_OBJECT_TYPE_MENU:
+        case HN_OBJECT_TYPE_MENU:
             return "MENU";
             break;
-        case HV_OBJECT_TYPE_ACTION:
+        case HN_OBJECT_TYPE_ACTION:
             return "ACTION";
             break;
-        case HV_OBJECT_TYPE_SEPARATOR:
+        case HN_OBJECT_TYPE_TOGGLE:
+            return "TOGGLE";
+            break;
+        case HN_OBJECT_TYPE_SELECT:
+            return "SELECT";
+            break;
+        case HN_OBJECT_TYPE_OPTION:
+            return "OPTION";
+            break;
+        case HN_OBJECT_TYPE_SEPARATOR:
             return "SEPARATOR";
             break;
     }
@@ -22,203 +31,185 @@ const char *object_type_to_string(hv_object_type object_type)
     return NULL;
 }
 
-static void client_connected(hv_client *client)
+const char *bool_to_string(hn_bool checked)
+{
+    if(checked)
+        return "TRUE";
+    return "FALSE";
+}
+
+
+static void client_connected(hn_client *client)
 {
     pid_t pid;
-    hv_client_get_credentials(client, &pid, NULL, NULL);
-    printf("- CLIENT (%d) WITH PID (%d) CONNECTED\n", hv_client_get_id(client), pid);
+    hn_client_get_credentials(client, &pid, NULL, NULL);
+    printf("- CLIENT (%d) WITH PID (%d) CONNECTED\n",
+           hn_client_get_id(client),
+           pid);
 }
 
-static void client_set_app_name(hv_client *client, const char *app_name)
+static void client_set_app_name(hn_client *client, const char *app_name)
 {
-    printf("- CLIENT (%d) SET APP NAME = \"%s\"\n", hv_client_get_id(client), app_name);
+    printf("- CLIENT (%d) SET APP NAME = \"%s\"\n",
+           hn_client_get_id(client),
+           app_name);
 }
 
-static void client_send_custom_request(hv_client *client, void *data, u_int32_t size)
+static void client_send_custom_request(hn_client *client, void *data, u_int32_t size)
 {
     char *msg = data;
     msg[size] = '\0';
-    printf("- CLIENT (%d) SENT A CUSTOM MESSAGE = \"%s\"\n", hv_client_get_id(client), msg);
+    printf("- CLIENT (%d) SENT A CUSTOM MESSAGE = \"%s\"\n",
+           hn_client_get_id(client),
+           msg);
 
     char *reply = "Hello my dear client! <3";
-    hv_server_send_custom_event_to_client(client, reply, strlen(reply) + 1);
+    hn_server_send_custom_event_to_client(client, reply, strlen(reply) + 1);
 }
 
-static void client_disconnected(hv_client *client)
+static void client_disconnected(hn_client *client)
 {
     pid_t pid;
-    hv_client_get_credentials(client, &pid, NULL, NULL);
-    printf("- CLIENT (%d) WITH PID (%d) DISCONNECTED\n", hv_client_get_id(client), pid);
+    hn_client_get_credentials(client, &pid, NULL, NULL);
+    printf("- CLIENT (%d) WITH PID (%d) DISCONNECTED\n",
+           hn_client_get_id(client),
+           pid);
 }
 
-static void object_create(hv_client *client, hv_object *object)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id object_id = hv_object_get_id(object);
-    hv_object_type object_type = hv_object_get_type(object);
-    printf("- CLIENT (%d) CREATED %s (%d)\n", client_id, object_type_to_string(object_type), object_id);
 
-    /* Send a "fake" action invokation */
-    if(object_type == HV_OBJECT_TYPE_ACTION)
-        hv_action_invoke(object);
+static void object_create(hn_client *client, hn_object *object)
+{
+    printf("- CLIENT (%d) CREATED %s (%d)\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object));
 }
 
-static void object_remove_from_parent(hv_client *client, hv_object *object)
+static void object_set_parent(hn_client *client, hn_object *object, hn_object *parent, hn_object *before)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id object_id = hv_object_get_id(object);
-    hv_object_type object_type = hv_object_get_type(object);
-    hv_object *parent = hv_object_get_parent(object);
-    hv_object_id parent_id = hv_object_get_id(parent);
-    hv_object_type parent_type = hv_object_get_type(parent);
+    if(parent)
+    {
+        if(before)
+        {
+            printf("- CLIENT (%d) ADDS %s (%d) TO %s (%d) BEFORE %s (%d)\n",
+                   hn_client_get_id(client),
+                   object_type_to_string(hn_object_get_type(object)),
+                   hn_object_get_id(object),
+                   object_type_to_string(hn_object_get_type(parent)),
+                   hn_object_get_id(parent),
+                   object_type_to_string(hn_object_get_type(before)),
+                   hn_object_get_id(before));
+        }
+        else
+        {
+            printf("- CLIENT (%d) ADDS %s (%d) TO THE END OF %s (%d)\n",
+                   hn_client_get_id(client),
+                   object_type_to_string(hn_object_get_type(object)),
+                   hn_object_get_id(object),
+                   object_type_to_string(hn_object_get_type(parent)),
+                   hn_object_get_id(parent));
+        }
+    }
+    else
+    {
+        hn_object *current_parent = hn_object_get_parent(object);
 
-    printf("- CLIENT (%d) REMOVED %s (%d) FROM %s (%d)\n",
+        printf("- CLIENT (%d) REMOVES %s (%d) FROM PARENT %s (%d)\n",
+               hn_client_get_id(client),
+               object_type_to_string(hn_object_get_type(object)),
+               hn_object_get_id(object),
+               object_type_to_string(hn_object_get_type(current_parent)),
+               hn_object_get_id(current_parent));
+    }
+}
+
+static void object_set_label(hn_client *client, hn_object *object, const char *label)
+{
+    hn_client_id client_id = hn_client_get_id(client);
+
+    printf("- CLIENT (%d) SET %s (%d) LABEL TO \"%s\"\n",
            client_id,
-           object_type_to_string(object_type),
-           object_id,
-           object_type_to_string(parent_type),
-           parent_id);
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object),
+           label);
 }
 
-static void object_destroy(hv_client *client, hv_object *object)
+static void object_set_icon(hn_client *client, hn_object *object, const hn_pixel *pixels, u_int32_t width, u_int32_t height)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id object_id = hv_object_get_id(object);
-    hv_object_type object_type = hv_object_get_type(object);
-
-    printf("- CLIENT (%d) DESTROYED %s (%d)\n", client_id, object_type_to_string(object_type), object_id);
-}
-
-static void top_bar_set_active(hv_client *client, hv_top_bar *top_bar)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-
-    if(top_bar)
-    {
-        hv_object_id object_id = hv_object_get_id(top_bar);
-        printf("- CLIENT (%d) SET TOP BAR (%d) ACTIVE\n", client_id, object_id);
-    }
-    else
-        printf("- CLIENT (%d) HAS NO ACTIVE TOPBARS\n", client_id);
-}
-
-static void menu_set_title(hv_client *client, hv_menu *menu, const char *title)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id object_id = hv_object_get_id(menu);
-
-    printf("- CLIENT (%d) SET MENU (%d) TITLE = \"%s\"\n", client_id, object_id, title);
-}
-
-static void menu_add_to_top_bar(hv_client *client, hv_menu *menu, hv_top_bar *top_bar, hv_menu *before)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id menu_id = hv_object_get_id(menu);
-    hv_object_id top_bar_id = hv_object_get_id(top_bar);
-
-    if(before)
-    {
-        hv_object_id before_id = hv_object_get_id(before);
-        printf("- CLIENT (%d) ADDED MENU (%d) TO TOP BAR (%d) BEFORE MENU (%d)\n", client_id, menu_id, top_bar_id, before_id);
-    }
-    else
-    {
-        printf("- CLIENT (%d) ADDED MENU (%d) AT THE END OF TOP BAR (%d)\n", client_id, menu_id, top_bar_id);
-    }
-}
-
-static void menu_add_to_action(hv_client *client, hv_menu *menu, hv_action *action)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id menu_id = hv_object_get_id(menu);
-    hv_object_id action_id = hv_object_get_id(action);
-
-    printf("- CLIENT (%d) ADDED MENU (%d) TO ACTION (%d)\n", client_id, menu_id, action_id);
-}
-
-static void action_set_icon(hv_client *client, hv_action *action, const unsigned char *pixels, u_int32_t width, u_int32_t height)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id action_id = hv_object_get_id(action);
-
     if(pixels)
-        printf("- CLIENT (%d) SET ACTION (%d) ICON %dx%d\n", client_id, action_id, width, height);
+        printf("- CLIENT (%d) SET %s (%d) ICON %dx%d\n",
+               hn_client_get_id(client),
+               object_type_to_string(hn_object_get_type(object)),
+               hn_object_get_id(object),
+               width,
+               height);
     else
-        printf("- CLIENT (%d) REMOVED ACTION (%d) ICON\n", client_id, action_id);
+        printf("- CLIENT (%d) REMOVED %s (%d) ICON\n",
+               hn_client_get_id(client),
+               object_type_to_string(hn_object_get_type(object)),
+               hn_object_get_id(object));
 }
 
-static void action_set_text(hv_client *client, hv_action *action, const char *text)
-{
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id action_id = hv_object_get_id(action);
+static void object_set_shortcuts(hn_client *client, hn_object *object, const char *shortcuts){
 
-    printf("- CLIENT (%d) SET ACTION (%d) TEXT = \"%s\"\n", client_id, action_id, text);
+    printf("- CLIENT (%d) SET %s (%d) SHORTCUTS TO \"%s\"\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object),
+           shortcuts);
 }
 
-static void action_set_shortcuts(hv_client *client, hv_action *action, const char *shortcuts)
+static void object_set_enabled(hn_client *client, hn_object *object, hn_bool enabled)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id action_id = hv_object_get_id(action);
-
-    printf("- CLIENT (%d) SET ACTION (%d) SHORTCUTS = \"%s\"\n", client_id, action_id, shortcuts);
+    printf("- CLIENT (%d) SET %s (%d) ENABLED TO %s\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object),
+           bool_to_string(enabled));
 }
 
-static void action_set_state(hv_client *client, hv_action *action, hv_action_state state)
+static void object_set_checked(hn_client *client, hn_object *object, hn_bool checked)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id action_id = hv_object_get_id(action);
-
-    printf("- CLIENT (%d) SET ACTION (%d) STATE = ", client_id, action_id);
-
-    if(state == HV_ACTION_STATE_ENABLED)
-        printf("ENABLED\n");
-    else
-        printf("DISABLED\n");
+    printf("- CLIENT (%d) SET %s (%d) CHECKED TO %s\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object),
+           bool_to_string(checked));
 }
 
-static void separator_set_text(hv_client *client, hv_separator *separator, const char *text)
+static void object_set_active(hn_client *client, hn_object *object)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id separator_id = hv_object_get_id(separator);
-
-    printf("- CLIENT (%d) SET SEPARATOR (%d) TEXT = \"%s\"\n", client_id, separator_id, text);
+    printf("- CLIENT (%d) SET %s (%d) ACTIVE\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object));
 }
 
-static void item_add_to_menu(hv_client *client, hv_item *item, hv_menu *menu, hv_item *before)
+static void object_destroy(hn_client *client, hn_object *object)
 {
-    hv_client_id client_id = hv_client_get_id(client);
-    hv_object_id item_id = hv_object_get_id(item);
-    hv_object_type item_type = hv_object_get_type(item);
-    hv_object_id menu_id = hv_object_get_id(item);
-
-    if(before)
-    {
-        hv_object_id before_id = hv_object_get_id(before);
-        hv_object_type before_type = hv_object_get_type(before);
-
-        printf("- CLIENT (%d) ADDED %s (%d) TO MENU (%d) AFTER %s (%d)\n", client_id, object_type_to_string(item_type), item_id, menu_id, object_type_to_string(before_type), before_id);
-    }
-    else
-        printf("- CLIENT (%d) ADDED %s (%d) TO MENU (%d)\n", client_id, object_type_to_string(item_type), item_id, menu_id);
+    printf("- CLIENT (%d) DESTROYED %s (%d)\n",
+           hn_client_get_id(client),
+           object_type_to_string(hn_object_get_type(object)),
+           hn_object_get_id(object));
 }
 
 /* COMPOSITOR REQUESTS */
 
-void compositor_connected(hv_compositor *compositor)
+void compositor_connected(hn_compositor *compositor)
 {
-    HV_UNUSED(compositor);
+    HN_UNUSED(compositor);
     printf("- COMPOSITOR CONNECTED\n");
 }
 
-void compositor_set_active_client(hv_compositor *compositor, hv_client *client, hv_client_pid pid)
+void compositor_set_active_client(hn_compositor *compositor, hn_client *client, hn_client_pid pid)
 {
-    HV_UNUSED(compositor);
+    HN_UNUSED(compositor);
 
     if(client)
     {
-        printf("- COMPOSITOR SETS CLIENT (%d) ACTIVE\n", hv_client_get_id(client));
+        printf("- COMPOSITOR SETS CLIENT (%d) ACTIVE\n", hn_client_get_id(client));
         char *msg = "Hey! The compositor says you are the active client!";
-        hv_server_send_custom_event_to_client(client, msg, strlen(msg) + 1);
+        hn_server_send_custom_event_to_client(client, msg, strlen(msg) + 1);
     }
     else
     {
@@ -231,45 +222,42 @@ void compositor_set_active_client(hv_compositor *compositor, hv_client *client, 
     if(compositor)
     {
         char *msg = "Active client changed!";
-        hv_server_send_custom_event_to_compositor(compositor, msg, strlen(msg) + 1);
+        hn_server_send_custom_event_to_compositor(compositor, msg, strlen(msg) + 1);
     }
 }
 
-void compositor_send_custom_request(hv_compositor *compositor, void *data, u_int32_t size)
+void compositor_send_custom_request(hn_compositor *compositor, void *data, u_int32_t size)
 {
     char *msg = data;
     msg[size] = '\0';
     printf("- COMPOSITOR SENT A CUSTOM MESSAGE = \"%s\"\n", msg);
 
     char *reply = "Hello lovely compositor! <3";
-    hv_server_send_custom_event_to_compositor(compositor, reply, strlen(reply) + 1);
+    hn_server_send_custom_event_to_compositor(compositor, reply, strlen(reply) + 1);
 }
 
-void compositor_disconnected(hv_compositor *compositor)
+void compositor_disconnected(hn_compositor *compositor)
 {
-    HV_UNUSED(compositor);
+    HN_UNUSED(compositor);
     printf("- COMPOSITOR DISCONNECTED\n");
 }
 
-static hv_server_requests_interface requests_interface =
+static hn_server_requests_interface requests_interface =
 {
     &client_connected,
     &client_set_app_name,
     &client_send_custom_request,
     &client_disconnected,
+
     &object_create,
-    &object_remove_from_parent,
+    &object_set_parent,
+    &object_set_label,
+    &object_set_icon,
+    &object_set_shortcuts,
+    &object_set_enabled,
+    &object_set_checked,
+    &object_set_active,
     &object_destroy,
-    &top_bar_set_active,
-    &menu_set_title,
-    &menu_add_to_top_bar,
-    &menu_add_to_action,
-    &action_set_icon,
-    &action_set_text,
-    &action_set_shortcuts,
-    &action_set_state,
-    &separator_set_text,
-    &item_add_to_menu,
 
     &compositor_connected,
     &compositor_set_active_client,
@@ -278,10 +266,11 @@ static hv_server_requests_interface requests_interface =
 
 };
 
+
 int main()
 {
 
-    hv_server *server = hv_server_create(NULL, NULL, &requests_interface);
+    hn_server *server = hn_server_create(NULL, NULL, &requests_interface);
 
     if(!server)
     {
@@ -292,7 +281,7 @@ int main()
     printf("\nServer started.\n\n");
 
     struct pollfd fd;
-    fd.fd = hv_server_get_fd(server);
+    fd.fd = hn_server_get_fd(server);
     fd.events = POLLIN | POLLHUP;
     fd.revents = 0;
 
@@ -300,7 +289,7 @@ int main()
     {
         poll(&fd, 1, -1);
 
-        hv_server_dispatch_requests(server, 0);
+        hn_server_dispatch_requests(server, 0);
     }
 
     return 0;

@@ -3,20 +3,20 @@
 #include <sys/select.h>
 #include <pthread.h>
 
-struct hv_compositor_struct
+struct hn_compositor_struct
 {
     void *user_data;
     struct pollfd fd;
     struct sockaddr_un name;
-    hv_compositor_events_interface *events_interface;
+    hn_compositor_events_interface *events_interface;
     pthread_mutex_t mutex;
-    hv_client_pid active_client;
+    hn_client_pid active_client;
     int initialized;
 };
 
 /* Utils */
 
-int hv_server_read(hv_compositor *compositor, void *dst, ssize_t bytes)
+int hn_server_read(hn_compositor *compositor, void *dst, ssize_t bytes)
 {
     struct timeval timeout;
     timeout.tv_sec = 0;
@@ -29,7 +29,7 @@ int hv_server_read(hv_compositor *compositor, void *dst, ssize_t bytes)
     if(select(compositor->fd.fd + 1, &set, NULL, NULL, &timeout) <= 0)
     {
         printf("Error: Server read timeout.\n");
-        hv_compositor_destroy(compositor);
+        hn_compositor_destroy(compositor);
         return 1;
     }
 
@@ -41,16 +41,16 @@ int hv_server_read(hv_compositor *compositor, void *dst, ssize_t bytes)
     if(readBytes < 1)
     {
         printf("Error: Server read failed. read() call returned %zd\n", readBytes);
-        hv_compositor_destroy(compositor);
+        hn_compositor_destroy(compositor);
         return 1;
     }
     else if(readBytes < bytes)
-        hv_server_read(compositor, &data[readBytes], bytes - readBytes);
+        hn_server_read(compositor, &data[readBytes], bytes - readBytes);
 
     return 0;
 }
 
-int hv_server_write(hv_compositor *compositor, void *src, ssize_t bytes)
+int hn_server_write(hn_compositor *compositor, void *src, ssize_t bytes)
 {
     u_int8_t *data = src;
 
@@ -58,18 +58,18 @@ int hv_server_write(hv_compositor *compositor, void *src, ssize_t bytes)
 
     if(writtenBytes < 1)
     {
-        hv_compositor_destroy(compositor);
+        hn_compositor_destroy(compositor);
         return 1;
     }
     else if(writtenBytes < bytes)
-        return hv_server_write(compositor, &data[writtenBytes], bytes - writtenBytes);
+        return hn_server_write(compositor, &data[writtenBytes], bytes - writtenBytes);
 
     return 0;
 }
 
 /* COMPOSITOR */
 
-hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv_compositor_events_interface *events_interface)
+hn_compositor *hn_compositor_create(const char *socket_name, void *user_data, hn_compositor_events_interface *events_interface)
 {
     const char *sock_name;
 
@@ -83,7 +83,7 @@ hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv
         sock_name = socket_name;
     }
     else
-        sock_name = HV_DEFAULT_SOCKET;
+        sock_name = HN_DEFAULT_SOCKET;
 
     char *xdg_runtime_dir = getenv("XDG_RUNTIME_DIR");
 
@@ -93,7 +93,7 @@ hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv
         return NULL;
     }
 
-    hv_compositor *compositor = malloc(sizeof(hv_compositor));
+    hn_compositor *compositor = malloc(sizeof(hn_compositor));
     compositor->events_interface = events_interface;
     compositor->fd.events = POLLIN | POLLHUP;
     compositor->fd.revents = 0;
@@ -139,11 +139,11 @@ hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv
 
     pthread_mutex_lock(&compositor->mutex);
 
-    hv_connection_type type = HV_CONNECTION_TYPE_COMPOSITOR;
+    hn_connection_type type = HN_CONNECTION_TYPE_COMPOSITOR;
 
     /* CONNECTION TYPE: UInt32 */
 
-    if(hv_server_write(compositor, &type, sizeof(hv_connection_type)))
+    if(hn_server_write(compositor, &type, sizeof(hn_connection_type)))
     {
         pthread_mutex_unlock(&compositor->mutex);
         return NULL;
@@ -151,18 +151,18 @@ hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv
 
     /* CHECK IF SERVER ACCEPTED CONNECTION */
 
-    hv_compositor_auth_reply reply;
+    hn_compositor_auth_reply reply;
 
-    if(hv_server_read(compositor, &reply, sizeof(hv_connection_type)))
+    if(hn_server_read(compositor, &reply, sizeof(hn_connection_type)))
     {
         pthread_mutex_unlock(&compositor->mutex);
         return NULL;
     }
 
-    if(reply != HV_COMPOSITOR_ACCEPTED)
+    if(reply != HN_COMPOSITOR_ACCEPTED)
     {
         printf("Error: There is already another compositor connected to the global menu.\n");
-        hv_compositor_destroy(compositor);
+        hn_compositor_destroy(compositor);
         pthread_mutex_unlock(&compositor->mutex);
         return NULL;
     }
@@ -175,7 +175,7 @@ hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv
 
 }
 
-void hv_compositor_destroy(hv_compositor *compositor)
+void hn_compositor_destroy(hn_compositor *compositor)
 {
     pthread_mutex_destroy(&compositor->mutex);
 
@@ -189,135 +189,135 @@ void hv_compositor_destroy(hv_compositor *compositor)
 
 /* REQUESTS */
 
-int hv_compositor_set_active_client(hv_compositor *compositor, hv_client_pid client_pid)
+int hn_compositor_set_active_client(hn_compositor *compositor, hn_client_pid client_pid)
 {
     if(!compositor)
-        return HV_ERROR;
+        return HN_ERROR;
 
     if(client_pid == compositor->active_client)
-        return HV_SUCCESS;
+        return HN_SUCCESS;
 
-    hv_message_id msg_id;
+    hn_message_id msg_id;
 
     pthread_mutex_lock(&compositor->mutex);
 
-    if(hv_server_write(compositor, &msg_id, sizeof(hv_message_id)))
+    if(hn_server_write(compositor, &msg_id, sizeof(hn_message_id)))
     {
         pthread_mutex_unlock(&compositor->mutex);
-        return HV_CONNECTION_LOST;
+        return HN_CONNECTION_LOST;
     }
 
-    if(hv_server_write(compositor, &client_pid, sizeof(hv_client_pid)))
+    if(hn_server_write(compositor, &client_pid, sizeof(hn_client_pid)))
     {
         pthread_mutex_unlock(&compositor->mutex);
-        return HV_CONNECTION_LOST;
+        return HN_CONNECTION_LOST;
     }
 
     compositor->active_client = client_pid;
 
     pthread_mutex_unlock(&compositor->mutex);
 
-    return HV_SUCCESS;
+    return HN_SUCCESS;
 }
 
-int hv_compositor_send_custom_request(hv_compositor *compositor, void *data, u_int32_t size)
+int hn_compositor_send_custom_request(hn_compositor *compositor, void *data, u_int32_t size)
 {
     if(!compositor)
-        return HV_ERROR;
+        return HN_ERROR;
 
     if(size == 0)
-        return HV_SUCCESS;
+        return HN_SUCCESS;
 
     if(!data)
-        return HV_ERROR;
+        return HN_ERROR;
 
     // Memory access test
     u_int8_t *test = data;
     test = &test[size-1];
-    HV_UNUSED(test);
+    HN_UNUSED(test);
 
-    hv_message_id msg_id = HV_COMPOSITOR_SEND_CUSTOM_REQUEST_ID;
+    hn_message_id msg_id = HN_COMPOSITOR_SEND_CUSTOM_REQUEST_ID;
 
     pthread_mutex_lock(&compositor->mutex);
 
-    if(hv_server_write(compositor, &msg_id, sizeof(hv_message_id)))
+    if(hn_server_write(compositor, &msg_id, sizeof(hn_message_id)))
     {
         pthread_mutex_unlock(&compositor->mutex);
-        return HV_CONNECTION_LOST;
+        return HN_CONNECTION_LOST;
     }
 
-    if(hv_server_write(compositor, &size, sizeof(u_int32_t)))
+    if(hn_server_write(compositor, &size, sizeof(u_int32_t)))
     {
         pthread_mutex_unlock(&compositor->mutex);
-        return HV_CONNECTION_LOST;
+        return HN_CONNECTION_LOST;
     }
 
-    if(hv_server_write(compositor, data, size))
+    if(hn_server_write(compositor, data, size))
     {
         pthread_mutex_unlock(&compositor->mutex);
-        return HV_CONNECTION_LOST;
+        return HN_CONNECTION_LOST;
     }
 
     pthread_mutex_unlock(&compositor->mutex);
 
-    return HV_SUCCESS;
+    return HN_SUCCESS;
 }
 
-int hv_compositor_get_fd(hv_compositor *compositor)
+int hn_compositor_get_fd(hn_compositor *compositor)
 {
     return compositor->fd.fd;
 }
 
 /* EVENTS */
 
-int hv_send_custom_event_handler(hv_compositor *compositor)
+int hn_send_custom_event_handler(hn_compositor *compositor)
 {
     u_int32_t data_len;
 
-    if(hv_server_read(compositor, &data_len, sizeof(u_int32_t)))
-        return HV_CONNECTION_LOST;
+    if(hn_server_read(compositor, &data_len, sizeof(u_int32_t)))
+        return HN_CONNECTION_LOST;
 
     if(data_len == 0)
-        return HV_SUCCESS;
+        return HN_SUCCESS;
 
     u_int8_t data[data_len];
 
-    if(hv_server_read(compositor, data, data_len))
-        return HV_CONNECTION_LOST;
+    if(hn_server_read(compositor, data, data_len))
+        return HN_CONNECTION_LOST;
 
     compositor->events_interface->server_send_custom_event(compositor, data, data_len);
 
-    return HV_SUCCESS;
+    return HN_SUCCESS;
 }
 
 /* CONNECTION */
 
-int hv_compositor_handle_server_event(hv_compositor *compositor)
+int hn_compositor_handle_server_event(hn_compositor *compositor)
 {
-    hv_message_id msg_id;
+    hn_message_id msg_id;
 
-    if(hv_server_read(compositor, &msg_id, sizeof(hv_message_id)))
-        return HV_CONNECTION_LOST;
+    if(hn_server_read(compositor, &msg_id, sizeof(hn_message_id)))
+        return HN_CONNECTION_LOST;
 
     switch (msg_id)
     {
-        case HV_SERVER_TO_COMPOSITOR_SEND_CUSTOM_EVENT_ID:
-            return hv_send_custom_event_handler(compositor);
+        case HN_SERVER_TO_COMPOSITOR_SEND_CUSTOM_EVENT_ID:
+            return hn_send_custom_event_handler(compositor);
         break;
     }
 
-    hv_compositor_destroy(compositor);
-    return HV_CONNECTION_LOST;
+    hn_compositor_destroy(compositor);
+    return HN_CONNECTION_LOST;
 }
 
-int hv_compositor_dispatch_events(hv_compositor *compositor, int timeout)
+int hn_compositor_dispatch_events(hn_compositor *compositor, int timeout)
 {
     int ret = poll(&compositor->fd, 1, timeout);
 
     if(ret == -1)
     {
-        hv_compositor_destroy(compositor);
-        return HV_CONNECTION_LOST;
+        hn_compositor_destroy(compositor);
+        return HN_CONNECTION_LOST;
     }
 
     if(ret != 0)
@@ -325,16 +325,16 @@ int hv_compositor_dispatch_events(hv_compositor *compositor, int timeout)
         // Disconnected from server
         if(compositor->fd.revents & POLLHUP)
         {
-            hv_compositor_destroy(compositor);
-            return HV_CONNECTION_LOST;
+            hn_compositor_destroy(compositor);
+            return HN_CONNECTION_LOST;
         }
 
         // Server event
         if(compositor->fd.revents & POLLIN)
         {
-            return hv_compositor_handle_server_event(compositor);
+            return hn_compositor_handle_server_event(compositor);
         }
     }
 
-    return HV_SUCCESS;
+    return HN_SUCCESS;
 }

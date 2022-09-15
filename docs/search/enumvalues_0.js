@@ -1,12 +1,15 @@
 var searchData=
 [
-  ['hv_5faction_5fstate_5fdisabled_56',['HV_ACTION_STATE_DISABLED',['../group___server-_client-_common.html#gga10349d137fcff262e2aae28103950b53a90b38727ce57ef58960f6ad4b14cd22d',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5faction_5fstate_5fenabled_57',['HV_ACTION_STATE_ENABLED',['../group___server-_client-_common.html#gga10349d137fcff262e2aae28103950b53aeb702281aa13d2513af4740baa982090',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5fconnection_5flost_58',['HV_CONNECTION_LOST',['../group___common.html#gga6d484ac87abb968f098063c0fc133d5eaa95f655919788e1f1d8c034e0d500fcc',1,'Heaven-Common.h']]],
-  ['hv_5ferror_59',['HV_ERROR',['../group___common.html#gga6d484ac87abb968f098063c0fc133d5ea2303713b8a2ce365abb6b0de95c38595',1,'Heaven-Common.h']]],
-  ['hv_5fobject_5ftype_5faction_60',['HV_OBJECT_TYPE_ACTION',['../group___server-_client-_common.html#gga8f16448e93e4448b39f15a720f126af8a62257cffbe01f3058f312d8a80f79238',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5fobject_5ftype_5fmenu_61',['HV_OBJECT_TYPE_MENU',['../group___server-_client-_common.html#gga8f16448e93e4448b39f15a720f126af8ab88de429adc8bde8247e12904e25e4b7',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5fobject_5ftype_5fseparator_62',['HV_OBJECT_TYPE_SEPARATOR',['../group___server-_client-_common.html#gga8f16448e93e4448b39f15a720f126af8ab8b37ffd33dd0853dcccd07a15351a38',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5fobject_5ftype_5ftop_5fbar_63',['HV_OBJECT_TYPE_TOP_BAR',['../group___server-_client-_common.html#gga8f16448e93e4448b39f15a720f126af8a567423162105f54d9e6fd02280efcbe2',1,'Heaven-Server-Client-Common.h']]],
-  ['hv_5fsuccess_64',['HV_SUCCESS',['../group___common.html#gga6d484ac87abb968f098063c0fc133d5ea3b42feed258392d156011cfeeb3f75fe',1,'Heaven-Common.h']]]
+  ['hn_5faction_5fstate_5fdisabled_59',['HN_ACTION_STATE_DISABLED',['../group___server-_client-_common.html#gga33c67432fc3715a8776a318cce18f0dca64c7a91d6e389da5f394b79f16c7a49b',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5faction_5fstate_5fenabled_60',['HN_ACTION_STATE_ENABLED',['../group___server-_client-_common.html#gga33c67432fc3715a8776a318cce18f0dcaf60735a3ef480dac1ab07056c5b35261',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fconnection_5flost_61',['HN_CONNECTION_LOST',['../group___common.html#ggab885eaf3ee5a4554f87fc93cd451d2eaaf326650410addcf80b2d6311f241572e',1,'Heaven-Common.h']]],
+  ['hn_5ferror_62',['HN_ERROR',['../group___common.html#ggab885eaf3ee5a4554f87fc93cd451d2eaa0add016a231a9863e109e2b18a76b671',1,'Heaven-Common.h']]],
+  ['hn_5fobject_5ftype_5faction_63',['HN_OBJECT_TYPE_ACTION',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99aa59c0066cd8ddb017a51c21da5e96635',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5fmenu_64',['HN_OBJECT_TYPE_MENU',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99a767d947fe64e467ec61a0c55620aba49',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5foption_65',['HN_OBJECT_TYPE_OPTION',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99a778fe580f21584ffa31a4bfd34a94ac6',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5fselect_66',['HN_OBJECT_TYPE_SELECT',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99aa3d90a6fd40bfd6767e4d166b9bd071c',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5fseparator_67',['HN_OBJECT_TYPE_SEPARATOR',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99a9ed51b0fa8e7751b1df1053a489ed618',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5ftoggle_68',['HN_OBJECT_TYPE_TOGGLE',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99af577a6a00e9fb4eb0b3200f66dfb082f',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fobject_5ftype_5ftop_5fbar_69',['HN_OBJECT_TYPE_TOP_BAR',['../group___server-_client-_common.html#ggac3e94dabd49270d1902be2406b3bfa99aca7aeecb296706cc57c804745851f34d',1,'Heaven-Server-Client-Common.h']]],
+  ['hn_5fsuccess_70',['HN_SUCCESS',['../group___common.html#ggab885eaf3ee5a4554f87fc93cd451d2eaae8c2adcaa29069db6119c94cd27c0a68',1,'Heaven-Common.h']]]
 ];

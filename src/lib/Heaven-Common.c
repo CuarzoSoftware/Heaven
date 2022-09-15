@@ -1,30 +1,30 @@
 #include "Heaven-Common.h"
 
-hv_array *hv_array_create()
+hn_array *hn_array_create()
 {
-    hv_array *array = malloc(sizeof(hv_array));
+    hn_array *array = malloc(sizeof(hn_array));
     array->begin = NULL;
     array->end = NULL;
     return array;
 }
 
-void hv_array_destroy(hv_array *array)
+void hn_array_destroy(hn_array *array)
 {
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
     {
         free(array);
         return;
     }
 
-    while(!hv_array_empty(array))
-        hv_array_pop_back(array);
+    while(!hn_array_empty(array))
+        hn_array_pop_back(array);
 
     free(array);
 }
 
-void hv_array_pop_front(hv_array *array)
+void hn_array_pop_front(hn_array *array)
 {
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
         return;
 
     // If only 1 element
@@ -36,15 +36,15 @@ void hv_array_pop_front(hv_array *array)
         return;
     }
 
-    hv_node *next = array->begin->next;
+    hn_node *next = array->begin->next;
     next->prev = NULL;
     free(array->begin);
     array->begin = next;
 }
 
-void hv_array_pop_back(hv_array *array)
+void hn_array_pop_back(hn_array *array)
 {
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
         return;
 
     // If only 1 element
@@ -56,26 +56,26 @@ void hv_array_pop_back(hv_array *array)
         return;
     }
 
-    hv_node *prev = array->end->prev;
+    hn_node *prev = array->end->prev;
     prev->next = NULL;
     free(array->end);
     array->end = prev;
 }
 
-int hv_array_empty(hv_array *array)
+int hn_array_empty(hn_array *array)
 {
     if(array->end != NULL)
         return 0;
     return 1;
 }
 
-hv_node *hv_array_push_back(hv_array *array, void *data)
+hn_node *hn_array_push_back(hn_array *array, void *data)
 {
-    hv_node *node = malloc(sizeof(hv_node));
+    hn_node *node = malloc(sizeof(hn_node));
     node->data = data;
     node->next = NULL;
 
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
     {
         node->prev = NULL;
         array->begin = node;
@@ -89,13 +89,13 @@ hv_node *hv_array_push_back(hv_array *array, void *data)
     return node;
 }
 
-hv_node *hv_array_push_front(hv_array *array, void *data)
+hn_node *hn_array_push_front(hn_array *array, void *data)
 {
-    hv_node *node = malloc(sizeof(hv_node));
+    hn_node *node = malloc(sizeof(hn_node));
     node->data = data;
     node->prev = NULL;
 
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
     {
         node->next = NULL;
         array->begin = node;
@@ -109,12 +109,12 @@ hv_node *hv_array_push_front(hv_array *array, void *data)
     return node;
 }
 
-hv_node *hv_array_insert_before(hv_array *array, hv_node *before, void *data)
+hn_node *hn_array_insert_before(hn_array *array, hn_node *before, void *data)
 {
-    if(hv_array_empty(array) || array->begin == before)
-        return hv_array_push_front(array, data);
+    if(hn_array_empty(array) || array->begin == before)
+        return hn_array_push_front(array, data);
 
-    hv_node *node = malloc(sizeof(hv_node));
+    hn_node *node = malloc(sizeof(hn_node));
     node->data = data;
     node->prev = before->prev;
     node->next = before;
@@ -122,20 +122,20 @@ hv_node *hv_array_insert_before(hv_array *array, hv_node *before, void *data)
     return node;
 }
 
-void hv_array_erase(hv_array *array, hv_node *node)
+void hn_array_erase(hn_array *array, hn_node *node)
 {
-    if(hv_array_empty(array))
+    if(hn_array_empty(array))
         return;
 
     if(array->begin == node)
     {
-        hv_array_pop_front(array);
+        hn_array_pop_front(array);
         return;
     }
 
     if(array->end == node)
     {
-        hv_array_pop_back(array);
+        hn_array_pop_back(array);
         return;
     }
 

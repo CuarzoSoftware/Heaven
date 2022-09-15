@@ -76,7 +76,7 @@ Heaven-Server</h3>
 <p>API for the global menu bar (process in charge of rendering the bar). Accepts menus from clients and choose which one to display with help from the Wayland or X11 compositor.</p>
 <h3><a class="anchor" id="autotoc_md3"></a>
 Heaven-Client</h3>
-<p>API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu bar, update them and listen to their actions events (e.g. when an user clicks on a menu item or types a shortcut).</p>
+<p>API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu bar, update them and listen to their items events (e.g. when an user clicks on an action or types a shortcut).</p>
 <h3><a class="anchor" id="autotoc_md4"></a>
 Heaven-Compositor</h3>
 <p>API for Wayland or X11 compositors. Allows the compositor to notify the global menu bar which process is currently active using its own policy (e.g. when the user clicks on a window).</p>
@@ -93,32 +93,56 @@ Heaven-Compositor</h3>
 <p>Check the <b>server</b>, <b>client</b> and <b>compositor</b> examples found in <code>src/examples</code> to get familiar with the API.</p>
 <h1><a class="anchor" id="autotoc_md7"></a>
 📖 Documentation</h1>
-<h5><a href="https://ehopperdietzel.github.io/Heaven/" title="Link to the API documentation">Link to the APIs documentation</a></h5>
+<h4><a class="anchor" id="autotoc_md8"></a>
+&lt;a href="https://ehopperdietzel.github.io/Heaven/" title="Link to the API documentation"&gt;Link to the APIs documentation&lt;/a&gt;</h4>
 <blockquote class="doxtable">
 <p>The documentation is still incomplete. </p>
 </blockquote>
-<h1><a class="anchor" id="autotoc_md8"></a>
-⚽ Objects</h1>
-<p><b>hv_object</b></p><ul>
-<li><b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b>: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple top bars (e.g. for different windows) but only one can be active at a time.</li>
-<li><b>hv_menu</b>: A menu which can be assigned a label and contain multiple child items. Can be a child of a top bar or an action.</li>
-<li><b>hv_item</b><ul>
-<li><b>hv_action</b>: A selectable item which can be assigned an icon, label and shortcuts. Child of a menu and can also contain a menu.</li>
-<li><b>hv_separator</b>: A horizontal line which can contain a label and be added to a menu to separate groups of actions.</li>
-</ul>
-</li>
-</ul>
-<p>All objects except for <b><a class="el" href="group___server-_client-_common.html#structhv__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hv_top_bar</a></b> can be child of other objects and only one object at the time.</p>
 <h1><a class="anchor" id="autotoc_md9"></a>
+⚽ Objects</h1>
+<p><b>hn_object</b></p><ul>
+<li><b><a class="el" href="group___server-_client-_common.html#structhn__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hn_top_bar</a></b>: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple top bars (e.g. for different windows) but only one can be active at a time.</li>
+<li><b>hn_menu</b>: A menu which can be assigned a label and icon (when nested) and contain multiple child items. Can be a child of a top bar or another menu.</li>
+<li><b>hn_action</b>: A clickable item which can be assigned an icon, label and shortcuts. Child of a menu.</li>
+<li><b>hn_toggle</b>: A toggable item which can be assigned a label and shortucts. Child of a menu.</li>
+<li><b>hn_select</b>: Represent a group of options where only one can be active at a time. Child of a menu.</li>
+<li><b>hn_option</b>: Member of a select group. Can be assigned a label and shortcuts.</li>
+<li><b>hn_separator</b>: A horizontal line which can contain a label and be added to a menu or select to separate groups of actions or options respectively.</li>
+</ul>
+<p>All objects except for <b><a class="el" href="group___server-_client-_common.html#structhn__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hn_top_bar</a></b> can be child of other objects and only one object at the time.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">hn_object   </th><th class="markdownTableHeadNone">Child of   </th><th class="markdownTableHeadNone">Label   </th><th class="markdownTableHeadNone">Icon   </th><th class="markdownTableHeadNone">Shortcuts   </th><th class="markdownTableHeadNone">Enab. / Disab.   </th><th class="markdownTableHeadNone">Checked   </th><th class="markdownTableHeadNone">Active    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="group___server-_client-_common.html#structhn__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hn_top_bar</a>   </td><td class="markdownTableBodyNone">None   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">hn_menu   </td><td class="markdownTableBodyNone"><a class="el" href="group___server-_client-_common.html#structhn__top__bar" title="A container of an ordered group of menus (e.g. File, Edit, View, etc) tipically displayed at the top ...">hn_top_bar</a> <br  />
+ hn_menu   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">hn_action   </td><td class="markdownTableBodyNone">hn_menu   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">hn_toggle   </td><td class="markdownTableBodyNone">hn_menu   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">hn_select   </td><td class="markdownTableBodyNone">hn_menu   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">hn_option   </td><td class="markdownTableBodyNone">hn_select   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✔️</center>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">hn_separator   </td><td class="markdownTableBodyNone">hn_menu <br  />
+ hn_select   </td><td class="markdownTableBodyNone"><center>✔️</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td><td class="markdownTableBodyNone"><center>✘</center>   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md10"></a>
 ⭐ Features</h1>
 <ul>
 <li>Multiple top bars per client.</li>
-<li>Actions with icon (8-bit alpha only), label and shortcuts.</li>
-<li>Separators with label.</li>
 <li>Nested menus.</li>
-<li>Thread safe.</li>
+<li>8-bit alpha only icons.</li>
+<li>Actions with icon, label and shortcuts.</li>
+<li>Toggles with label and shortcuts.</li>
+<li>Select groups options with label and shortcuts.</li>
+<li>Separators with label.</li>
+<li>Multi-thread safe.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md10"></a>
+<h1><a class="anchor" id="autotoc_md11"></a>
 Use case</h1>
 <ol type="1">
 <li>The Wayland or X11 compositor starts.</li>

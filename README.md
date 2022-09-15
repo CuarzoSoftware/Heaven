@@ -10,7 +10,7 @@ API for the global menu bar (process in charge of rendering the bar). Accepts me
 
 #### Heaven-Client
 
-API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu bar, update them and listen to their actions events (e.g. when an user clicks on a menu item or types a shortcut).
+API for client applications which want to display their menus in the global menu bar. Allow applications to send their menus to the global menu bar, update them and listen to their items events (e.g. when an user clicks on an action or types a shortcut).
 
 #### Heaven-Compositor
 
@@ -39,22 +39,38 @@ Check the **server**, **client** and **compositor** examples found in `src/examp
 
 ## ⚽ Objects
 
-**hv_object**
-* **hv_top_bar**: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple top bars (e.g. for different windows) but only one can be active at a time.
-* **hv_menu**: A menu which can be assigned a label and contain multiple child items. Can be a child of a top bar or an action.
-* **hv_item**
-	* **hv_action**: A selectable item which can be assigned an icon, label and shortcuts. Child of a menu and can also contain a menu.
-	* **hv_separator**: A horizontal line which can contain a label and be added to a menu to separate groups of actions.
+**hn_object**
+* **hn_top_bar**: Represents an orderer group of menus (e.g. File, Edit, View, etc). The client can create multiple top bars (e.g. for different windows) but only one can be active at a time.
+* **hn_menu**: A menu which can be assigned a label and icon (when nested) and contain multiple child items. Can be a child of a top bar or another menu.
+* **hn_action**: A clickable item which can be assigned an icon, label and shortcuts. Child of a menu.
+* **hn_toggle**: A toggable item which can be assigned a label and shortucts. Child of a menu.
+* **hn_select**: Represent a group of options where only one can be active at a time. Child of a menu.
+* **hn_option**: Member of a select group. Can be assigned a label and shortcuts.
+* **hn_separator**: A horizontal line which can contain a label and be added to a menu or select to separate groups of actions or options respectively.
 
-All objects except for **hv_top_bar** can be child of other objects and only one object at the time.
+All objects except for **hn_top_bar** can be child of other objects and only one object at the time.
+
+|  hn_object | Child of  |  Label |  Icon | Shortcuts  |  Enab. / Disab.| Checked | Active
+| ------------ | ------------ | ------------ | ------------ | ------------ | ------------ | ------------ | ------------ |
+|  hn_top_bar | None  |  <center>✘</center> | <center>✘</center>   |  <center>✘</center>     |  <center>✘</center> | <center>✘</center> | <center>✔️</center> |
+|  hn_menu |   hn_top_bar <br> hn_menu | <center>✔️</center>  | <center>✔️</center>  |   <center>✘</center>   |  <center>✔️</center>  | <center>✘</center>   | <center>✘</center>   | 
+|  hn_action | hn_menu  | <center>✔️</center>  |  <center>✔️</center> | <center>✔️</center>   |  <center>✔️</center>  |<center>✘</center>   | <center>✘</center>   | 
+|  hn_toggle |  hn_menu |  <center>✔️</center> | <center>✘</center>   |  <center>✔️</center>  |  <center>✔️</center>  |<center>✔️</center>  |<center>✘</center>   | 
+|  hn_select| hn_menu  | <center>✘</center>  | <center>✘</center>   |  <center>✘</center>  |  <center>✘</center>  | <center>✘</center>  | <center>✘</center>  |
+|  hn_option | hn_select  | <center>✔️</center>  | <center>✘</center>   |  <center>✔️</center>  |  <center>✔️</center>  |  <center>✘</center>   |  <center>✔️</center>  | 
+|  hn_separator | hn_menu <br> hn_select |  <center>✔️</center> | <center>✘</center>   |  <center>✘</center>    | <center>✘</center>  | <center>✘</center>  | <center>✘</center>  |
+
 
 ## ⭐ Features
 
 * Multiple top bars per client.
-* Actions with icon (8-bit alpha only), label and shortcuts.
-* Separators with label.
 * Nested menus.
-* Thread safe.
+* 8-bit alpha only icons.
+* Actions with icon, label and shortcuts.
+* Toggles with label and shortcuts.
+* Select groups options with label and shortcuts.
+* Separators with label.
+* Multi-thread safe.
 
 ## Use case
 

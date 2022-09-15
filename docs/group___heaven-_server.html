@@ -79,71 +79,71 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhv__server__requests__interface__struct.html">hv_server_requests_interface</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhn__server__requests__interface__struct.html">hn_server_requests_interface</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ga758d24ad047df7675e90b50d76e0e676"><td class="memItemLeft" align="right" valign="top"><a id="ga758d24ad047df7675e90b50d76e0e676"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>HV_MAX_CLIENTS</b>&#160;&#160;&#160;256</td></tr>
-<tr class="separator:ga758d24ad047df7675e90b50d76e0e676"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7bc2eb5b8855e305a770aef2699b2053"><td class="memItemLeft" align="right" valign="top"><a id="ga7bc2eb5b8855e305a770aef2699b2053"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>HN_MAX_CLIENTS</b>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:ga7bc2eb5b8855e305a770aef2699b2053"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:gae840f726191aa11c9bf0973395d113e5"><td class="memItemLeft" align="right" valign="top"><a id="gae840f726191aa11c9bf0973395d113e5"></a>
-typedef struct hv_server_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server</b></td></tr>
-<tr class="separator:gae840f726191aa11c9bf0973395d113e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafcbcd2e52a90d7ce670d53958caad22e"><td class="memItemLeft" align="right" valign="top"><a id="gafcbcd2e52a90d7ce670d53958caad22e"></a>
+typedef struct hn_server_struct&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server</b></td></tr>
+<tr class="separator:gafcbcd2e52a90d7ce670d53958caad22e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga351207a79a156058ee9cef75ed5e0fc0"><td class="memItemLeft" align="right" valign="top"><a id="ga351207a79a156058ee9cef75ed5e0fc0"></a>
-hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_create</b> (const char *socket, void *user_data, hv_server_requests_interface *events_interface)</td></tr>
-<tr class="separator:ga351207a79a156058ee9cef75ed5e0fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad411cd14a1cd203b88f264f95394c4e2"><td class="memItemLeft" align="right" valign="top"><a id="gad411cd14a1cd203b88f264f95394c4e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_set_user_data</b> (hv_server *server, void *user_data)</td></tr>
-<tr class="separator:gad411cd14a1cd203b88f264f95394c4e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga36874002b2f28caab71d52dbde1d578a"><td class="memItemLeft" align="right" valign="top"><a id="ga36874002b2f28caab71d52dbde1d578a"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_user_data</b> (hv_server *server)</td></tr>
-<tr class="separator:ga36874002b2f28caab71d52dbde1d578a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga73d91b85f3a586b3032f587f6bb83926"><td class="memItemLeft" align="right" valign="top"><a id="ga73d91b85f3a586b3032f587f6bb83926"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_fd</b> (hv_server *server)</td></tr>
-<tr class="separator:ga73d91b85f3a586b3032f587f6bb83926"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga89ba1ba53958c9f1d83ddc4b13eaad8a"><td class="memItemLeft" align="right" valign="top"><a id="ga89ba1ba53958c9f1d83ddc4b13eaad8a"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_dispatch_requests</b> (hv_server *server, int timeout)</td></tr>
-<tr class="separator:ga89ba1ba53958c9f1d83ddc4b13eaad8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae774201b562cad4639f7e4c1bf07e19c"><td class="memItemLeft" align="right" valign="top"><a id="gae774201b562cad4639f7e4c1bf07e19c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_compositor_destroy</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor)</td></tr>
-<tr class="separator:gae774201b562cad4639f7e4c1bf07e19c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5c97f7528f938e370328547c0727c7e5"><td class="memItemLeft" align="right" valign="top"><a id="ga5c97f7528f938e370328547c0727c7e5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_client_destroy</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
-<tr class="separator:ga5c97f7528f938e370328547c0727c7e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaca197dbced2f599a48e3791278ce9835"><td class="memItemLeft" align="right" valign="top"><a id="gaca197dbced2f599a48e3791278ce9835"></a>
-<a class="el" href="group___server-_client-_common.html#ga6fab0799e0814a624a0bd6d277a45f30">hv_client_id</a>&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_id</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
-<tr class="separator:gaca197dbced2f599a48e3791278ce9835"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabd7393e1ca622ee70354bb658515f455"><td class="memItemLeft" align="right" valign="top"><a id="gabd7393e1ca622ee70354bb658515f455"></a>
-hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_compositor_get_server</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor)</td></tr>
-<tr class="separator:gabd7393e1ca622ee70354bb658515f455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabb260ee1022443f332031f98aafa7e55"><td class="memItemLeft" align="right" valign="top"><a id="gabb260ee1022443f332031f98aafa7e55"></a>
-<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_get_compositor</b> (hv_server *server)</td></tr>
-<tr class="separator:gabb260ee1022443f332031f98aafa7e55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1385315b792e7fe1698e73d222feb371"><td class="memItemLeft" align="right" valign="top"><a id="ga1385315b792e7fe1698e73d222feb371"></a>
-<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_by_pid</b> (hv_server *server, <a class="el" href="group___server-_compositor-_common.html#gaf965129c99ecfe02d268e15ad5c4f544">hv_client_pid</a> pid)</td></tr>
-<tr class="separator:ga1385315b792e7fe1698e73d222feb371"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga37d586581c9f58870272a4c9e73fc3fc"><td class="memItemLeft" align="right" valign="top"><a id="ga37d586581c9f58870272a4c9e73fc3fc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_credentials</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, pid_t *pid, uid_t *uid, gid_t *gid)</td></tr>
-<tr class="separator:ga37d586581c9f58870272a4c9e73fc3fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3173a02976b287fbf7288d60c1a717bb"><td class="memItemLeft" align="right" valign="top"><a id="ga3173a02976b287fbf7288d60c1a717bb"></a>
-hv_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hv_client_get_server</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client)</td></tr>
-<tr class="separator:ga3173a02976b287fbf7288d60c1a717bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga2bea37ab587c7858541d8f968fa98ce2"><td class="memItemLeft" align="right" valign="top"><a id="ga2bea37ab587c7858541d8f968fa98ce2"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_action_invoke</b> (hv_action *action)</td></tr>
-<tr class="separator:ga2bea37ab587c7858541d8f968fa98ce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae5d5e927325604b902ecbf1010d73d5e"><td class="memItemLeft" align="right" valign="top"><a id="gae5d5e927325604b902ecbf1010d73d5e"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_send_custom_event_to_client</b> (<a class="el" href="group___server-_client-_common.html#structhv__client">hv_client</a> *client, void *data, u_int32_t size)</td></tr>
-<tr class="separator:gae5d5e927325604b902ecbf1010d73d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9b56783c34d996a11e0de6b59c7b954a"><td class="memItemLeft" align="right" valign="top"><a id="ga9b56783c34d996a11e0de6b59c7b954a"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>hv_server_send_custom_event_to_compositor</b> (<a class="el" href="group___server-_compositor-_common.html#structhv__compositor">hv_compositor</a> *compositor, void *data, u_int32_t size)</td></tr>
-<tr class="separator:ga9b56783c34d996a11e0de6b59c7b954a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga76b23e5121e3f886942f8bd18785b654"><td class="memItemLeft" align="right" valign="top"><a id="ga76b23e5121e3f886942f8bd18785b654"></a>
+hn_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_create</b> (const char *socket, void *user_data, hn_server_requests_interface *events_interface)</td></tr>
+<tr class="separator:ga76b23e5121e3f886942f8bd18785b654"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7892768a209f1ec5e50e7d14b23dccf6"><td class="memItemLeft" align="right" valign="top"><a id="ga7892768a209f1ec5e50e7d14b23dccf6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_set_user_data</b> (hn_server *server, void *user_data)</td></tr>
+<tr class="separator:ga7892768a209f1ec5e50e7d14b23dccf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9c688c8ee353deeb189609f4e1d3c663"><td class="memItemLeft" align="right" valign="top"><a id="ga9c688c8ee353deeb189609f4e1d3c663"></a>
+void *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_get_user_data</b> (hn_server *server)</td></tr>
+<tr class="separator:ga9c688c8ee353deeb189609f4e1d3c663"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga21cc149220844f8b58771e0bfb5bf607"><td class="memItemLeft" align="right" valign="top"><a id="ga21cc149220844f8b58771e0bfb5bf607"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_get_fd</b> (hn_server *server)</td></tr>
+<tr class="separator:ga21cc149220844f8b58771e0bfb5bf607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f638e4f952c2dd8b74be4e3321a219b"><td class="memItemLeft" align="right" valign="top"><a id="ga9f638e4f952c2dd8b74be4e3321a219b"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_dispatch_requests</b> (hn_server *server, int timeout)</td></tr>
+<tr class="separator:ga9f638e4f952c2dd8b74be4e3321a219b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga410d4be3cfe403ab3e16bb95b36928bd"><td class="memItemLeft" align="right" valign="top"><a id="ga410d4be3cfe403ab3e16bb95b36928bd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_compositor_destroy</b> (<a class="el" href="group___server-_compositor-_common.html#structhn__compositor">hn_compositor</a> *compositor)</td></tr>
+<tr class="separator:ga410d4be3cfe403ab3e16bb95b36928bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga64bedd0c354eb9cd5e13c57cfeb893a4"><td class="memItemLeft" align="right" valign="top"><a id="ga64bedd0c354eb9cd5e13c57cfeb893a4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_client_destroy</b> (<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *client)</td></tr>
+<tr class="separator:ga64bedd0c354eb9cd5e13c57cfeb893a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga67056ae5de79676cbcf15a28819959e5"><td class="memItemLeft" align="right" valign="top"><a id="ga67056ae5de79676cbcf15a28819959e5"></a>
+<a class="el" href="group___server-_client-_common.html#gaaab3075071f15fe7591a8a58ecf5a8af">hn_client_id</a>&#160;</td><td class="memItemRight" valign="bottom"><b>hn_client_get_id</b> (<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *client)</td></tr>
+<tr class="separator:ga67056ae5de79676cbcf15a28819959e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4730a38ccb4a357b3123b6c81d18bcec"><td class="memItemLeft" align="right" valign="top"><a id="ga4730a38ccb4a357b3123b6c81d18bcec"></a>
+hn_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_compositor_get_server</b> (<a class="el" href="group___server-_compositor-_common.html#structhn__compositor">hn_compositor</a> *compositor)</td></tr>
+<tr class="separator:ga4730a38ccb4a357b3123b6c81d18bcec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4be270e8af14a822c0d24ef0ce3668e4"><td class="memItemLeft" align="right" valign="top"><a id="ga4be270e8af14a822c0d24ef0ce3668e4"></a>
+<a class="el" href="group___server-_compositor-_common.html#structhn__compositor">hn_compositor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_get_compositor</b> (hn_server *server)</td></tr>
+<tr class="separator:ga4be270e8af14a822c0d24ef0ce3668e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab07b9141cbd9bc947f712a0ef573b83c"><td class="memItemLeft" align="right" valign="top"><a id="gab07b9141cbd9bc947f712a0ef573b83c"></a>
+<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_client_get_by_pid</b> (hn_server *server, <a class="el" href="group___server-_compositor-_common.html#ga88069a30c297c2b8c670b1fcaf069af7">hn_client_pid</a> pid)</td></tr>
+<tr class="separator:gab07b9141cbd9bc947f712a0ef573b83c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga49cb506a8561183403bdee7a2a27d060"><td class="memItemLeft" align="right" valign="top"><a id="ga49cb506a8561183403bdee7a2a27d060"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hn_client_get_credentials</b> (<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *client, pid_t *pid, uid_t *uid, gid_t *gid)</td></tr>
+<tr class="separator:ga49cb506a8561183403bdee7a2a27d060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf8e830db7795b84c3f8d953b57de7892"><td class="memItemLeft" align="right" valign="top"><a id="gaf8e830db7795b84c3f8d953b57de7892"></a>
+hn_server *&#160;</td><td class="memItemRight" valign="bottom"><b>hn_client_get_server</b> (<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *client)</td></tr>
+<tr class="separator:gaf8e830db7795b84c3f8d953b57de7892"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6f6c0f51033db745c398aac3d7d72324"><td class="memItemLeft" align="right" valign="top"><a id="ga6f6c0f51033db745c398aac3d7d72324"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hn_action_invoke</b> (hn_action *action)</td></tr>
+<tr class="separator:ga6f6c0f51033db745c398aac3d7d72324"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga33c04d024a72c15d68689e35b316e775"><td class="memItemLeft" align="right" valign="top"><a id="ga33c04d024a72c15d68689e35b316e775"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_send_custom_event_to_client</b> (<a class="el" href="group___server-_client-_common.html#structhn__client">hn_client</a> *client, void *data, u_int32_t size)</td></tr>
+<tr class="separator:ga33c04d024a72c15d68689e35b316e775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gade9668317b7b490130a72b9a421f7467"><td class="memItemLeft" align="right" valign="top"><a id="gade9668317b7b490130a72b9a421f7467"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>hn_server_send_custom_event_to_compositor</b> (<a class="el" href="group___server-_compositor-_common.html#structhn__compositor">hn_compositor</a> *compositor, void *data, u_int32_t size)</td></tr>
+<tr class="separator:gade9668317b7b490130a72b9a421f7467"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>API used by global menu processes to receive and display clients menus and notify action events. </p>

@@ -17,66 +17,75 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define HV_DEFAULT_SOCKET "heaven-0"
+#define HN_DEFAULT_SOCKET "heaven-0"
 
-#define HV_UNUSED(variable)(void)variable;
+#define HN_UNUSED(variable)(void)variable;
 
-typedef u_int8_t hv_connection_type;
-typedef u_int8_t hv_message_id;
-typedef u_int8_t hv_string_length;
+typedef u_int8_t hn_connection_type;
+typedef u_int8_t hn_message_id;
+typedef u_int8_t hn_string_length;
+
+/*! A value that can be either TRUE or FALSE. */
+typedef u_int8_t hn_bool;
 
 /* CONNECTION TYPES */
 
-enum HV_CONNECTION_TYPE
+enum HN_CONNECTION_TYPE
 {
-    HV_CONNECTION_TYPE_COMPOSITOR = 1,
-    HV_CONNECTION_TYPE_CLIENT = 2
+    HN_CONNECTION_TYPE_COMPOSITOR = 1,
+    HN_CONNECTION_TYPE_CLIENT = 2
 };
 
 /*!
  * @brief Method return values.
  */
-enum HV_RETURN_CODE
+enum HN_RETURN_CODE
 {
     /*! Method call executed successfully. */
-    HV_SUCCESS = 1,
+    HN_SUCCESS = 1,
 
     /*! Method call failed due to invalid agruments. */
-    HV_ERROR = 0,
+    HN_ERROR = 0,
 
     /*! Connection with the other end is lost. */
-    HV_CONNECTION_LOST = -1
+    HN_CONNECTION_LOST = -1
+};
+
+enum HN_BOOL
+{
+    HN_FALSE = 0,
+    HN_TRUE = 1,
 };
 
 
 /* Array */
 
-typedef struct hv_node_struct hv_node;
+typedef struct hn_node_struct hn_node;
 
-struct hv_node_struct
+struct hn_node_struct
 {
-    hv_node *prev;
-    hv_node *next;
+    hn_node *prev;
+    hn_node *next;
     void *data;
 };
 
-typedef struct hv_array_struct hv_array;
+typedef struct hn_array_struct hn_array;
 
-struct hv_array_struct
+struct hn_array_struct
 {
-    hv_node *begin;
-    hv_node *end;
+    hn_node *begin;
+    hn_node *end;
 };
 
-hv_array *hv_array_create();
-void hv_array_destroy(hv_array *array);
-void hv_array_pop_front(hv_array *array);
-void hv_array_pop_back(hv_array *array);
-int hv_array_empty(hv_array *array);
-void hv_array_erase(hv_array *array, hv_node *node);
-hv_node *hv_array_push_back(hv_array *array, void *data);
-hv_node *hv_array_push_front(hv_array *array, void *data);
-hv_node *hv_array_insert_before(hv_array *array, hv_node *before, void *data);
+hn_array *hn_array_create();
+void hn_array_destroy(hn_array *array);
+void hn_array_pop_front(hn_array *array);
+void hn_array_pop_back(hn_array *array);
+int hn_array_empty(hn_array *array);
+void hn_array_erase(hn_array *array, hn_node *node);
+hn_node *hn_array_push_back(hn_array *array, void *data);
+hn_node *hn_array_push_front(hn_array *array, void *data);
+hn_node *hn_array_insert_before(hn_array *array, hn_node *before, void *data);
 
 /*! @} */
 

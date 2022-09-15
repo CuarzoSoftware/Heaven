@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['hv_5fclient_5fcreate_44',['hv_client_create',['../group___heaven-_client.html#ga65766d5716ce7cd0fb6ab52274fca50f',1,'Heaven-Client.h']]],
-  ['hv_5fclient_5fdestroy_45',['hv_client_destroy',['../group___heaven-_client.html#gaadc83662bb838bfbd055bdfcad4fc6fc',1,'Heaven-Client.h']]],
-  ['hv_5fclient_5fdispatch_5fevents_46',['hv_client_dispatch_events',['../group___heaven-_client.html#ga4af43e9e35887f88c70afb0f2a21b77c',1,'Heaven-Client.h']]]
+  ['hn_5fclient_5fcreate_47',['hn_client_create',['../group___heaven-_client.html#ga06c4e976331ea2b51d1f491337cc00ce',1,'Heaven-Client.h']]],
+  ['hn_5fclient_5fdestroy_48',['hn_client_destroy',['../group___heaven-_client.html#ga22ae7da266d55ffdee86cc052cc9b45f',1,'Heaven-Client.h']]],
+  ['hn_5fclient_5fdispatch_5fevents_49',['hn_client_dispatch_events',['../group___heaven-_client.html#ga7d0f99fdd779d1161320dc7934ed1eec',1,'Heaven-Client.h']]]
 ];

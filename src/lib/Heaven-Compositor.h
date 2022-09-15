@@ -8,23 +8,23 @@
 
 #include "Heaven-Server-Compositor-Common.h"
 
-typedef struct hv_compositor_events_interface_struct hv_compositor_events_interface;
+typedef struct hn_compositor_events_interface_struct hn_compositor_events_interface;
 
-struct hv_compositor_events_interface_struct
+struct hn_compositor_events_interface_struct
 {
-    void (*disconnected_from_server)(hv_compositor *);
-    void (*server_send_custom_event)(hv_compositor *, void *, u_int32_t size);
+    void (*disconnected_from_server)(hn_compositor *);
+    void (*server_send_custom_event)(hn_compositor *, void *, u_int32_t size);
 };
 
-hv_compositor *hv_compositor_create(const char *socket_name, void *user_data, hv_compositor_events_interface *events_interface);
-int hv_compositor_dispatch_events(hv_compositor *compositor, int timeout);
-int hv_compositor_get_fd(hv_compositor *compositor);
-void hv_compositor_destroy(hv_compositor *compositor);
+hn_compositor *hn_compositor_create(const char *socket_name, void *user_data, hn_compositor_events_interface *events_interface);
+int hn_compositor_dispatch_events(hn_compositor *compositor, int timeout);
+int hn_compositor_get_fd(hn_compositor *compositor);
+void hn_compositor_destroy(hn_compositor *compositor);
 
 
 /* REQUESTS */
-int hv_compositor_set_active_client(hv_compositor *compositor, hv_client_pid client_pid);
-int hv_compositor_send_custom_request(hv_compositor *compositor, void *data, u_int32_t size);
+int hn_compositor_set_active_client(hn_compositor *compositor, hn_client_pid client_pid);
+int hn_compositor_send_custom_request(hn_compositor *compositor, void *data, u_int32_t size);
 
 
 /*! @}*/

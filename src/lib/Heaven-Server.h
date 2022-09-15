@@ -16,69 +16,60 @@ extern "C" {
 #include "Heaven-Server-Client-Common.h"
 #include "Heaven-Server-Compositor-Common.h"
 
-#define HV_MAX_CLIENTS 256
+#define HN_MAX_CLIENTS 256
 
-typedef struct hv_server_struct hv_server;
+typedef struct hn_server_struct hn_server;
 
-typedef struct  hv_server_requests_interface_struct  hv_server_requests_interface;
+typedef struct  hn_server_requests_interface_struct  hn_server_requests_interface;
 
-struct hv_server_requests_interface_struct
+struct hn_server_requests_interface_struct
 {
-    void (*client_connected)(hv_client *);
-    void (*client_set_app_name)(hv_client *, const char *);
-    void (*client_send_custom_request)(hv_client *, void *, u_int32_t);
-    void (*client_disconnected)(hv_client *);
+    void (*client_connected)(hn_client *);
+    void (*client_set_app_name)(hn_client *, const char *);
+    void (*client_send_custom_request)(hn_client *, void *, u_int32_t);
+    void (*client_disconnected)(hn_client *);
 
-    void (*client_object_create)(hv_client *, hv_object *object);
-    void (*client_object_remove_from_parent)(hv_client *, hv_object *object);
-    void (*client_object_destroy)(hv_client *, hv_object *object);
+    void (*client_object_create)(hn_client *, hn_object *);
+    void (*client_object_set_parent)(hn_client *, hn_object *, hn_object *, hn_object *);
+    void (*client_object_set_label)(hn_client *, hn_object *, const char *);
+    void (*client_object_set_icon)(hn_client *, hn_object *, const hn_pixel *, u_int32_t, u_int32_t);
+    void (*client_object_set_shortcuts)(hn_client *, hn_object *, const char *);
+    void (*client_object_set_enabled)(hn_client *, hn_object *, hn_bool);
+    void (*client_object_set_checked)(hn_client *, hn_object *, hn_bool);
+    void (*client_object_set_active)(hn_client *, hn_object *);
+    void (*client_object_destroy)(hn_client *, hn_object *);
 
-    void (*client_top_bar_set_active)(hv_client *, hv_top_bar *);
-
-    void (*client_menu_set_title)(hv_client *, hv_menu *, const char *);
-    void (*client_menu_add_to_top_bar)(hv_client *, hv_menu *, hv_top_bar *, hv_menu *);
-    void (*client_menu_add_to_action)(hv_client *, hv_menu *, hv_action *);
-
-    void (*client_action_set_icon)(hv_client *, hv_action *, const hv_pixel *, u_int32_t, u_int32_t);
-    void (*client_action_set_text)(hv_client *, hv_action *, const char *);
-    void (*client_action_set_shortcuts)(hv_client *, hv_action *, const char *);
-    void (*client_action_set_state)(hv_client *, hv_action *, hv_action_state);
-
-    void (*client_separator_set_text)(hv_client *, hv_separator *, const char *);
-
-    void (*client_item_add_to_menu)(hv_client *, hv_item *, hv_menu *, hv_item *);
-
-    void (*compositor_connected)(hv_compositor *);
-    void (*compositor_set_active_client)(hv_compositor*, hv_client*, hv_client_pid);
-    void (*compositor_send_custom_request)(hv_compositor*, void*, u_int32_t);
-    void (*compositor_disconnected)(hv_compositor *);
+    void (*compositor_connected)(hn_compositor *);
+    void (*compositor_set_active_client)(hn_compositor*, hn_client*, hn_client_pid);
+    void (*compositor_send_custom_request)(hn_compositor*, void*, u_int32_t);
+    void (*compositor_disconnected)(hn_compositor *);
 
 };
 
-hv_server *hv_server_create(const char *socket, void *user_data, hv_server_requests_interface *events_interface);
+hn_server *hn_server_create(const char *socket, void *user_data, hn_server_requests_interface *events_interface);
 
-void hv_server_set_user_data(hv_server *server, void *user_data);
+void hn_server_set_user_data(hn_server *server, void *user_data);
 
-void *hv_server_get_user_data(hv_server *server);
+void *hn_server_get_user_data(hn_server *server);
 
-int hv_server_get_fd(hv_server *server);
+int hn_server_get_fd(hn_server *server);
 
-int hv_server_dispatch_requests(hv_server *server, int timeout);
+int hn_server_dispatch_requests(hn_server *server, int timeout);
 
-void hv_server_compositor_destroy(hv_compositor *compositor);
-void hv_server_client_destroy(hv_client *client);
+void hn_server_compositor_destroy(hn_compositor *compositor);
+void hn_server_client_destroy(hn_client *client);
 
-hv_client_id hv_client_get_id(hv_client *client);
-hv_server *hv_compositor_get_server(hv_compositor *compositor);
-hv_compositor *hv_server_get_compositor(hv_server *server);
-hv_client *hv_client_get_by_pid(hv_server *server, hv_client_pid pid);
+hn_client_id hn_client_get_id(hn_client *client);
+hn_server *hn_compositor_get_server(hn_compositor *compositor);
+hn_compositor *hn_server_get_compositor(hn_server *server);
+hn_client *hn_client_get_by_pid(hn_server *server, hn_client_pid pid);
 
-void hv_client_get_credentials(hv_client *client, pid_t *pid, uid_t *uid, gid_t *gid);
-hv_server *hv_client_get_server(hv_client *client);
+void hn_client_get_credentials(hn_client *client, pid_t *pid, uid_t *uid, gid_t *gid);
+hn_server *hn_client_get_server(hn_client *client);
 
-int hv_action_invoke(hv_action *action);
-int hv_server_send_custom_event_to_client(hv_client *client, void *data, u_int32_t size);
-int hv_server_send_custom_event_to_compositor(hv_compositor *compositor, void *data, u_int32_t size);
+int hn_action_invoke(hn_action *action);
+int hn_server_send_custom_event_to_client(hn_client *client, void *data, u_int32_t size);
+int hn_server_send_custom_event_to_compositor(hn_compositor *compositor, void *data, u_int32_t size);
 
 /*! @}*/
 
