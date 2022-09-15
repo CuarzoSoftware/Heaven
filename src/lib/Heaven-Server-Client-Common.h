@@ -143,4 +143,8 @@ void hn_object_set_user_data(hn_object *object, void *user_data);
 
 /*! @}*/
 
+#ifdef  __cplusplus
+}
+#endif
+
 #endif // HEAVENSERVERCLIENTCOMMON_H

@@ -3,7 +3,7 @@
 
 #include "Heaven-Common.h"
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -58,7 +58,7 @@ void *hn_compositor_get_user_data(hn_compositor *compositor);
 
 /*! @}*/
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

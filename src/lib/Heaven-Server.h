@@ -12,7 +12,7 @@
 #include "Heaven-Server-Client-Common.h"
 #include "Heaven-Server-Compositor-Common.h"
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -73,10 +73,9 @@ int hn_server_send_custom_event_to_compositor(hn_compositor *compositor, void *d
 
 /*! @}*/
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 }
 #endif
-
 
 #endif // HEAVENSERVER_H
 

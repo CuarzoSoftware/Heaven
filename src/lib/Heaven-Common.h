@@ -17,7 +17,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 extern "C" {
 #endif
 
@@ -93,7 +93,7 @@ hn_node *hn_array_insert_before(hn_array *array, hn_node *before, void *data);
 
 /*! @} */
 
-#ifdef __cplusplus
+#ifdef  __cplusplus
 }
 #endif
 
