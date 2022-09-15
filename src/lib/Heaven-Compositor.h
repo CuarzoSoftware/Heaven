@@ -8,6 +8,10 @@
 
 #include "Heaven-Server-Compositor-Common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct hn_compositor_events_interface_struct hn_compositor_events_interface;
 
 struct hn_compositor_events_interface_struct
@@ -26,5 +30,8 @@ void hn_compositor_destroy(hn_compositor *compositor);
 int hn_compositor_set_active_client(hn_compositor *compositor, hn_client_pid client_pid);
 int hn_compositor_send_custom_request(hn_compositor *compositor, void *data, u_int32_t size);
 
+#ifdef __cplusplus
+}
+#endif
 
 /*! @}*/

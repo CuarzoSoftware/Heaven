@@ -11,6 +11,10 @@
 
 #include "Heaven-Server-Client-Common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct hn_client_events_interface_struct hn_client_events_interface;
 
 struct hn_client_events_interface_struct
@@ -127,8 +131,10 @@ int hn_separator_set_label(hn_separator *separator, const char *label);
 int hn_separator_add_to_menu(hn_separator *separator, hn_menu *parent, hn_object *before);
 int hn_separator_add_to_select(hn_separator *separator, hn_select *parent, hn_object *before);
 
-
-
 /*! @}*/
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // HEAVENCLIENT_H

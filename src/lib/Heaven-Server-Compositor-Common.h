@@ -3,6 +3,10 @@
 
 #include "Heaven-Common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * @defgroup Server-Compositor-Common Server-Compositor Common
  *
@@ -54,4 +58,11 @@ void *hn_compositor_get_user_data(hn_compositor *compositor);
 
 /*! @}*/
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif // HEAVENSERVERCOMPOSITORCOMMON_H
+
+
+

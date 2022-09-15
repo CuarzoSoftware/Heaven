@@ -12,6 +12,10 @@
 
 #include "Heaven-Common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! A value containing a client id. */
 typedef u_int16_t hn_client_id;
 
@@ -95,8 +99,9 @@ enum HN_SERVER_TO_CLIENT_EVENTS
  * @struct hn_client
  * @brief Representation of a client connected to the global menu server.
  */
-typedef struct hn_client_struct hn_client;
+
 struct hn_client_struct;
+typedef struct hn_client_struct hn_client;
 
 /*!
  * @struct hn_top_bar

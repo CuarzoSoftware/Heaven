@@ -17,6 +17,10 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HN_DEFAULT_SOCKET "heaven-0"
 
 #define HN_UNUSED(variable)(void)variable;
@@ -88,5 +92,9 @@ hn_node *hn_array_push_front(hn_array *array, void *data);
 hn_node *hn_array_insert_before(hn_array *array, hn_node *before, void *data);
 
 /*! @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // HEAVENCOMMON_H

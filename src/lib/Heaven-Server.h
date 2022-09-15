@@ -1,10 +1,6 @@
 #ifndef HEAVENSERVER_H
 #define HEAVENSERVER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** @defgroup Heaven-Server Heaven Server API
  *
  * @brief API used by global menu processes to receive and display clients menus and notify action events.
@@ -15,6 +11,10 @@ extern "C" {
 
 #include "Heaven-Server-Client-Common.h"
 #include "Heaven-Server-Compositor-Common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define HN_MAX_CLIENTS 256
 
@@ -73,8 +73,10 @@ int hn_server_send_custom_event_to_compositor(hn_compositor *compositor, void *d
 
 /*! @}*/
 
-#endif // HEAVENSERVER_H
-
 #ifdef __cplusplus
 }
 #endif
+
+
+#endif // HEAVENSERVER_H
+
