@@ -1071,12 +1071,14 @@ void hn_object_set_active_handler(hn_client *client)
 
     if(!object)
     {
+        printf("Active object not found\n");
         hn_server_client_destroy(client);
         return;
     }
 
     if(object->active == HN_TRUE)
     {
+        printf("Object already activen");
         hn_server_client_destroy(client);
         return;
     }

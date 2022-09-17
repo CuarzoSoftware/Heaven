@@ -197,8 +197,6 @@ hn_client *hn_client_create(const char *socket_name, const char *app_name, void 
 
     /* IDENTIFY */
 
-    pthread_mutex_lock(&client->mutex);
-
     client->objects = hn_array_create();
     client->free_ids = hn_array_create();
     client->greatest_id = 0;
@@ -209,12 +207,13 @@ hn_client *hn_client_create(const char *socket_name, const char *app_name, void 
 
     if(hn_server_write(client, &type, sizeof(hn_connection_type)))
     {
-        pthread_mutex_unlock(&client->mutex);
         return NULL;
     }
 
     /* SEND APP NAME */
     int ret = hn_client_set_app_name(client, app_name);
+
+    pthread_mutex_lock(&client->mutex);
 
     if(ret == HN_ERROR)
     {
@@ -917,23 +916,51 @@ int hn_object_set_enabled(hn_object *obj, hn_bool enabled)
 
 int hn_object_set_active(hn_object *obj)
 {
+    printf("SET ACTIVE\n");
     struct hn_object_struct *object = obj;
 
     if(!object)
         return HN_ERROR;
 
-    if(object->type != HN_OBJECT_TYPE_TOP_BAR && object->type != HN_OBJECT_TYPE_OPTION)
+    if(object->type == HN_OBJECT_TYPE_OPTION)
+    {
+        if(object->enabled != HN_TRUE)
+            return HN_ERROR;
+
+        if(!object->parent)
+        {
+            return HN_ERROR;
+        }
+        else
+        {
+            hn_select *sel = (hn_select*)object->parent;
+
+            if(sel->active_option)
+                sel->active_option->object.active = HN_FALSE;
+
+            sel->active_option = (hn_option*)object;
+        }
+    }
+    else if(object->type == HN_OBJECT_TYPE_TOP_BAR)
+    {
+        if(object->client->active_top_bar)
+            object->client->active_top_bar->object.active = HN_FALSE;
+
+        object->client->active_top_bar = (hn_top_bar*)object;
+    }
+    else
+    {
         return HN_ERROR;
+    }
 
     if(object->active == HN_TRUE)
         return HN_SUCCESS;
 
-    if(object->type == HN_OBJECT_TYPE_OPTION && object->enabled != HN_TRUE)
-        return HN_ERROR;
-
     hn_message_id msg_id = HN_CLIENT_REQUEST_OBJECT_SET_ACTIVE_ID;
 
     pthread_mutex_lock(&object->client->mutex);
+
+    object->active = HN_TRUE;
 
     if(hn_server_write(object->client, &msg_id, sizeof(hn_message_id)))
     {
@@ -1101,7 +1128,7 @@ hn_top_bar *hn_top_bar_create(hn_client *client, void *user_data)
     {
         top_bar->object.active = HN_TRUE;
         client->active_top_bar = top_bar;
-        hn_top_bar_set_active(top_bar);
+        //hn_top_bar_set_active(top_bar);
     }
     else
     {
@@ -1113,6 +1140,12 @@ hn_top_bar *hn_top_bar_create(hn_client *client, void *user_data)
 
 int hn_top_bar_set_active(hn_top_bar *top_bar)
 {
+    if(!top_bar)
+        return HN_ERROR;
+
+    if(top_bar->object.client->active_top_bar == top_bar)
+        return HN_ERROR;
+
     return hn_object_set_active(top_bar);
 }
 

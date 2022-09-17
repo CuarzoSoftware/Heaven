@@ -9,7 +9,8 @@ headers = [
 	'src/lib/Heaven-Server-Client-Common.h',
 	'src/lib/Heaven-Server-Compositor-Common.h',
 	'src/lib/Heaven-Server.h',
-	'src/lib/Heaven-Client.h'
+	'src/lib/Heaven-Client.h',
+	'src/lib/Heaven-Compositor.h'
 ]
 
 install_headers(headers, subdir : 'Heaven')
