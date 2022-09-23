@@ -46,14 +46,14 @@ struct hn_compositor_struct
 
 struct hn_object_struct
 {
+    void *user_data;
     hn_object_type type;
     hn_object_id id;
     hn_client *client;
-    struct hn_object_struct *parent;
-    hn_node *link;
-    hn_node *parent_link;
     hn_array *children;
-    void *user_data;
+    struct hn_object_struct *parent;
+    hn_node *parent_link;
+    hn_node *link;
     hn_bool enabled;
     hn_bool checked;
     hn_bool active;
@@ -553,7 +553,6 @@ void hn_option_before_destroy(hn_option *option)
     HN_UNUSED(option);
 }
 
-
 /* SEPARATOR */
 
 void hn_separator_create_handler(hn_client *client)
@@ -568,20 +567,7 @@ void hn_separator_before_destroy(hn_separator *separator)
     HN_UNUSED(separator);
 }
 
-
 /* OBJECT */
-
-hn_object *hn_object_get_user_data(hn_object *object)
-{
-    struct hn_object_struct *obj = object;
-    return obj->user_data;
-}
-
-void hn_object_set_user_data(hn_object *object, void *user_data)
-{
-    struct hn_object_struct *obj = object;
-    obj->user_data = user_data;
-}
 
 void hn_object_create_handler(hn_client *client)
 {
@@ -765,8 +751,6 @@ void hn_object_set_parent_handler(hn_client *client)
             hn_server_client_destroy(client);
             return;
         }
-
-
 
         switch(object->type)
         {
@@ -987,7 +971,7 @@ void hn_object_set_shortcuts_handler(hn_client *client)
         return;
     }
 
-    if(object->type != HN_OBJECT_TYPE_SEPARATOR &&
+    if(
             object->type != HN_OBJECT_TYPE_ACTION &&
             object->type != HN_OBJECT_TYPE_TOGGLE &&
             object->type != HN_OBJECT_TYPE_OPTION)

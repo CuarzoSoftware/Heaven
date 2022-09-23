@@ -21,14 +21,14 @@ struct hn_client_struct
 
 struct hn_object_struct
 {
+    void *user_data;
     hn_object_type type;
     hn_object_id id;
     hn_client *client;
-    struct hn_object_struct *parent;
-    hn_node *link;
-    hn_node *parent_link;
     hn_array *children;
-    void *user_data;
+    struct hn_object_struct *parent;
+    hn_node *parent_link;
+    hn_node *link;
     void (*destroy_func)(hn_object *);
     hn_bool enabled;
     hn_bool active;
@@ -770,7 +770,7 @@ int hn_object_set_shortcuts(hn_object *obj, const char *shortcuts)
     if(!object)
         return HN_ERROR;
 
-    if(object->type != HN_OBJECT_TYPE_SEPARATOR &&
+    if(
             object->type != HN_OBJECT_TYPE_ACTION &&
             object->type != HN_OBJECT_TYPE_TOGGLE &&
             object->type != HN_OBJECT_TYPE_OPTION)

@@ -32,6 +32,10 @@ $ sudo meson install
 
 Check the **server**, **client** and **compositor** examples found in `src/examples` to get familiar with the API.
 
+To see a full example check [Firmament](https://github.com/CuarzoSoftware/Firmament) the global menu bar for **Cuarzo OS**:
+
+![](https://github.com/CuarzoSoftware/Firmament/raw/master/screenshots/light-background.png)
+
 ## 📖 Documentation
 ##### [Link to the APIs documentation](https://ehopperdietzel.github.io/Heaven/ "Link to the API documentation")
 

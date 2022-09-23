@@ -32,6 +32,9 @@ typedef u_int8_t hn_string_length;
 /*! A value that can be either TRUE or FALSE. */
 typedef u_int8_t hn_bool;
 
+/*! A value containing an 8-bit pixel. */
+typedef u_int8_t hn_pixel;
+
 /* CONNECTION TYPES */
 
 enum HN_CONNECTION_TYPE

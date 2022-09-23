@@ -140,13 +140,13 @@ int main()
     E(top_bar, "Create file_menu failed\n");
     L(hn_menu_set_label(file_menu , "File"), client);
     L(hn_menu_add_to_top_bar(file_menu , top_bar, NULL), client);
+    L(hn_menu_add_to_top_bar(file_menu , top_bar, NULL), client);
 
-
+    /*
     hn_action *copy_action = hn_action_create(client, NULL);
     L(hn_action_set_label(copy_action, "Copy"), client);
     L(hn_action_set_icon(copy_action, dummy_icon, 3, 3), client);
     L(hn_action_add_to_menu(copy_action, file_menu, NULL), client);
-
 
     hn_menu *recent_files_menu = hn_menu_create(client, NULL);
     hn_menu_set_label(recent_files_menu, "Recent Files");
@@ -169,6 +169,7 @@ int main()
 
     hn_separator *separator_1 = hn_separator_create(client, NULL);
     hn_separator_add_to_menu(separator_1, file_menu, recent_files_menu);
+    */
     /**/
 
     struct pollfd fd;

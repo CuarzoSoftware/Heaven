@@ -25,9 +25,6 @@ typedef u_int16_t hn_object_id;
 /*! A value containing an object type. */
 typedef u_int8_t hn_object_type;
 
-/*! A value containing an 8-bit pixel. */
-typedef u_int8_t hn_pixel;
-
 
 /*!
  *  @brief States of an action.
@@ -138,8 +135,11 @@ hn_object_id hn_object_get_id(hn_object *object);
 hn_object_type hn_object_get_type(hn_object *object);
 hn_client *hn_object_get_client(hn_object *object);
 hn_object *hn_object_get_parent(hn_object *object);
-hn_object *hn_object_get_user_data(hn_object *object);
+const hn_node *hn_object_get_parent_link(hn_object *object);
+const hn_array *hn_object_get_children(hn_object *object);
+void *hn_object_get_user_data(hn_object *object);
 void hn_object_set_user_data(hn_object *object, void *user_data);
+
 
 /*! @}*/
 

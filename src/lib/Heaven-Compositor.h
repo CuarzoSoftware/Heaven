@@ -1,3 +1,6 @@
+#ifndef HEAVENCOMPOSITOR_H
+#define HEAVENCOMPOSITOR_H
+
 /** @defgroup Heaven-Compositor Heaven Compositor API
  *
  * @brief API used by Wayland or X11 compositors to send the pid of the current active client to the global menu server\n\n
@@ -34,4 +37,5 @@ int hn_compositor_send_custom_request(hn_compositor *compositor, void *data, u_i
 }
 #endif
 
+#endif
 /*! @}*/
