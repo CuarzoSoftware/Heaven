@@ -117,6 +117,7 @@ hn_node *hn_array_insert_before(hn_array *array, hn_node *before, void *data)
     hn_node *node = malloc(sizeof(hn_node));
     node->data = data;
     node->prev = before->prev;
+    before->prev->next = node;
     node->next = before;
     before->prev = node;
     return node;
@@ -144,3 +145,8 @@ void hn_array_erase(hn_array *array, hn_node *node)
     free(node);
 }
 
+
+void hn_debug(const char *msg)
+{
+    printf("%s\n",msg);
+}

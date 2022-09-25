@@ -134,7 +134,7 @@ int hn_client_read(hn_client *client, void *dst, ssize_t bytes)
 
     if(readBytes < 1)
     {
-        printf("Error: Client read failed.\n");
+        hn_debug("Error: Client read failed");
         hn_server_client_destroy(client);
         return 1;
     }
@@ -389,6 +389,7 @@ hn_object *hn_client_object_create(hn_client *client, hn_object_type type, u_int
 
 void hn_object_remove_from_parent(struct hn_object_struct *object)
 {
+
     if(!object)
         return;
 
@@ -623,12 +624,16 @@ void hn_object_set_parent_handler(hn_client *client)
     hn_object_id id;
 
     if(hn_client_read(client, &id, sizeof(hn_object_id)))
+    {
+        hn_debug("Set parent failed, could not read parent id.");
         return;
+    }
 
     struct hn_object_struct *object = hn_object_get_by_id(client, id);
 
     if(!object)
     {
+        hn_debug("Set parent failed, object not found.");
         hn_server_client_destroy(client);
         return;
     }
@@ -636,13 +641,17 @@ void hn_object_set_parent_handler(hn_client *client)
     hn_object_id parent_id;
 
     if(hn_client_read(client, &parent_id, sizeof(hn_object_id)))
+    {
+        hn_debug("Set parent failed, could not read parent id");
         return;
+    }
 
     // Remove parent
     if(parent_id == 0)
     {
         if(object->parent == NULL)
         {
+            hn_debug("Set parent failed, object already has no parent");
             hn_server_client_destroy(client);
             return;
         }
@@ -742,12 +751,14 @@ void hn_object_set_parent_handler(hn_client *client)
 
         if(!parent)
         {
+            hn_debug("Set parent failed, parent not found");
             hn_server_client_destroy(client);
             return;
         }
 
         if(parent == object)
         {
+            hn_debug("Set parent failed, object can not be parent of itself");
             hn_server_client_destroy(client);
             return;
         }
@@ -759,6 +770,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_MENU && parent->type != HN_OBJECT_TYPE_TOP_BAR)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid menu parent");
                     return;
                 }
             }break;
@@ -767,6 +779,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_MENU)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid action parent");
                     return;
                 }
             }break;
@@ -775,6 +788,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_MENU)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid toggle parent");
                     return;
                 }
             }break;
@@ -783,6 +797,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_MENU && parent->type != HN_OBJECT_TYPE_SELECT)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid separator parent");
                     return;
                 }
             }break;
@@ -791,6 +806,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_MENU)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid select parent");
                     return;
                 }
             }break;
@@ -799,6 +815,7 @@ void hn_object_set_parent_handler(hn_client *client)
                 if(parent->type != HN_OBJECT_TYPE_SELECT)
                 {
                     hn_server_client_destroy(client);
+                    hn_debug("Set parent failed, invalid option parent");
                     return;
                 }
             }break;
@@ -807,11 +824,21 @@ void hn_object_set_parent_handler(hn_client *client)
         hn_object_id before_id;
 
         if(hn_client_read(client, &before_id, sizeof(hn_object_id)))
+        {
+            hn_debug("Failed to read before id.");
             return;
+        }
 
         // Insert back
         if(before_id == 0)
         {
+            if(object->parent_link && object->parent_link == parent->children->end)
+            {
+                hn_debug("Object already added at the end");
+                hn_server_client_destroy(client);
+                return;
+            }
+
             hn_object_remove_from_parent(object);
             object->parent = parent;
             object->parent_link = hn_array_push_back(parent->children, object);
@@ -824,15 +851,25 @@ void hn_object_set_parent_handler(hn_client *client)
 
             if(!before)
             {
+                hn_debug("Before do not exist.");
                 hn_server_client_destroy(client);
                 return;
             }
 
-            if(before->parent != parent)
+            if(before->parent != parent || before == parent || before == object)
             {
+                hn_debug("Invalid insert before.");
                 hn_server_client_destroy(client);
                 return;
             }
+
+            if(before->parent_link->prev && before->parent_link->prev->data == object)
+            {
+                hn_debug("Invalid insert before, object already is before.");
+                hn_server_client_destroy(client);
+                return;
+            }
+
 
             hn_object_remove_from_parent(object);
             object->parent = parent;
@@ -1235,6 +1272,7 @@ void hn_object_destroy(hn_object *obj)
     {
         struct hn_object_struct *child = object->children->end->data;
         hn_object_remove_from_parent(child);
+        //printf("REMOVING %d from %d", child->id, object->id);
     }
 
     object->client->server->requests_interface->client_object_destroy(object->client, object);
@@ -1570,6 +1608,8 @@ void hn_server_compositor_destroy(hn_compositor *compositor)
 
 void hn_server_client_destroy(hn_client *client)
 {
+    hn_debug("Destroyed client");
+
     if(client->server->active_client == client)
     {
         client->server->active_client = NULL;

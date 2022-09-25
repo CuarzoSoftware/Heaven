@@ -547,14 +547,22 @@ int hn_object_set_parent(hn_object *obj, hn_object *par, hn_object *bef)
                 return HN_ERROR;
             }
 
+            if(before == parent)
+            {
+                client->error = "Before cant be the parent";
+                return HN_ERROR;
+            }
+
             if(object == before)
             {
                 client->error = "Before can not be equal to object";
                 return HN_ERROR;
             }
 
-            if(object->parent_link && parent->parent_link->next && parent->parent_link->next->data == before)
-                return HN_SUCCESS;
+            if(before->parent_link)
+                if(before->parent_link->prev)
+                    if(before->parent_link->prev->data == object)
+                        return HN_SUCCESS;
         }
         else
         {

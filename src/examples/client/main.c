@@ -129,6 +129,8 @@ int main()
         255, 255, 255
     };
 
+    enum HN_RETURN_CODE ret;
+
     char *msg = "Hello dear server!";
     L(hn_client_send_custom_request(client, msg, strlen(msg) + 1), client);
 
@@ -139,38 +141,11 @@ int main()
     hn_menu *file_menu = hn_menu_create(client, NULL);
     E(top_bar, "Create file_menu failed\n");
     L(hn_menu_set_label(file_menu , "File"), client);
-    L(hn_menu_add_to_top_bar(file_menu , top_bar, NULL), client);
-    L(hn_menu_add_to_top_bar(file_menu , top_bar, NULL), client);
+    ret = hn_menu_add_to_top_bar(file_menu , top_bar, NULL);
 
-    /*
-    hn_action *copy_action = hn_action_create(client, NULL);
-    L(hn_action_set_label(copy_action, "Copy"), client);
-    L(hn_action_set_icon(copy_action, dummy_icon, 3, 3), client);
-    L(hn_action_add_to_menu(copy_action, file_menu, NULL), client);
+    if(ret != HN_SUCCESS)
+        hn_debug("Error");
 
-    hn_menu *recent_files_menu = hn_menu_create(client, NULL);
-    hn_menu_set_label(recent_files_menu, "Recent Files");
-    hn_menu_add_to_menu(recent_files_menu, file_menu, NULL);
-
-    hn_action *recent_file_1 = hn_action_create(client, NULL);
-    hn_action_set_label(recent_file_1, "A file.txt");
-    hn_action_add_to_menu(recent_file_1, recent_files_menu, NULL);
-
-    hn_select *file_display_mode = hn_select_create(client, NULL);
-    hn_select_add_to_menu(file_display_mode, file_menu, NULL);
-
-    hn_option *display_mode_option_1 = hn_option_create(client, NULL);
-    hn_option_set_label(display_mode_option_1, "Icon View");
-    hn_option_add_to_select(display_mode_option_1, file_display_mode, NULL);
-
-    hn_option *display_mode_option_2 = hn_option_create(client, NULL);
-    hn_option_set_label(display_mode_option_2, "List View");
-    hn_option_add_to_select(display_mode_option_2, file_display_mode, NULL);
-
-    hn_separator *separator_1 = hn_separator_create(client, NULL);
-    hn_separator_add_to_menu(separator_1, file_menu, recent_files_menu);
-    */
-    /**/
 
     struct pollfd fd;
     fd.fd = hn_client_get_fd(client);

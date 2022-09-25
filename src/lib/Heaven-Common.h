@@ -25,6 +25,8 @@ extern "C" {
 
 #define HN_UNUSED(variable)(void)variable;
 
+void hn_debug(const char *msg);
+
 typedef u_int8_t hn_connection_type;
 typedef u_int8_t hn_message_id;
 typedef u_int8_t hn_string_length;
