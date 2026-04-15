@@ -1,0 +1,4 @@
+#ifndef HNWITHCHILDREN_H
+#define HNWITHCHILDREN_H
+
+#endif // HNWITHCHILDREN_H
