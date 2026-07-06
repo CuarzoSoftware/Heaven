@@ -115,8 +115,34 @@ pkg.generate(
     requires: ['cz-core'],
     filebase: 'cz-heaven-compositor')
 
+# -------------- CLIENT --------------
+
+cz_heaven_client = library(
+    'cz-heaven-client',
+    sources : run_command('find', 'src/CZ/Heaven/Client', '-type', 'f', '-name', '*[.cpp,.c]', check : false).stdout().strip().split('\n'),
+    include_directories : include_paths,
+    dependencies : deps,
+    soversion: VERSION_MAJOR,
+    install : true)
+
+cz_heaven_client_dep = declare_dependency(
+    dependencies: deps,
+    include_directories : include_paths,
+    link_with : cz_heaven_client)
+
+pkg.generate(
+    cz_heaven_client,
+    name: 'cz-heaven-client',
+    description: 'Global menu library',
+    version: meson.project_version(),
+    libraries: deps,
+    subdirs: ['CZ','CZ/Heaven'],
+    requires: ['cz-core'],
+    filebase: 'cz-heaven-client')
+
 # -------------- SUBDIRS --------------
 
 subdir('examples/bar')
 subdir('examples/compositor')
+subdir('examples/client')
 

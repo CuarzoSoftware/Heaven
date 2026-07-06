@@ -188,9 +188,9 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
+            UInt32 id;
             sd_bus_message_read(m, "u", &id);
-            cli->m_events.push(std::make_unique<HNClientTopbarChangedEvent>(*id));
+            cli->m_events.push(std::make_unique<HNClientTopbarChangedEvent>(id));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -203,11 +203,11 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id, *type;
+            UInt32 id, type;
             sd_bus_message_read(m, "uu", &id, &type);
 
-            if (*id > 0 && HNObject::IsValidType(*type))
-                cli->m_events.push(std::make_unique<HNObjectCreatedEvent>(*id, (HNObject::Type)*type));
+            if (id > 0 && HNObject::IsValidType(type))
+                cli->m_events.push(std::make_unique<HNObjectCreatedEvent>(id, (HNObject::Type)type));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -218,16 +218,18 @@ struct CZ::Bar::HNIface
         auto bar { s_bar.lock() };
         auto *cli { bar->getClientById(sd_bus_message_get_sender(m)) };
 
+        UInt32 id { 0 };
+
         if (cli)
         {
-            UInt32 *id;
             sd_bus_message_read(m, "u", &id);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectDestroyedEvent>(*id));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectDestroyedEvent>(id));
         }
 
-        return sd_bus_reply_method_return(m, "");
+        /* The reply carries the object id back so the client can safely reuse it. */
+        return sd_bus_reply_method_return(m, "u", id);
     }
 
     static int SetObjectTitle(sd_bus_message *m, void *, sd_bus_error *)
@@ -237,12 +239,12 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
+            UInt32 id;
             const char *title;
             sd_bus_message_read(m, "us", &id, &title);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectTitleChangedEvent>(*id, title));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectTitleChangedEvent>(id, title));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -255,28 +257,28 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id, *parentId;
+            UInt32 id, parentId;
             sd_bus_message_read(m, "uu", &id, &parentId);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectParentChangedEvent>(*id, *parentId));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectParentChangedEvent>(id, parentId));
         }
 
         return sd_bus_reply_method_return(m, "");
     }
 
-    static int InsertObjectAfter(sd_bus_message *m, void *, sd_bus_error *)
+    static int InsertObjectBefore(sd_bus_message *m, void *, sd_bus_error *)
     {
         auto bar { s_bar.lock() };
         auto *cli { bar->getClientById(sd_bus_message_get_sender(m)) };
 
         if (cli)
         {
-            UInt32 *id, *siblingId;
+            UInt32 id, siblingId;
             sd_bus_message_read(m, "uu", &id, &siblingId);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectInsertedAfterEvent>(*id, *siblingId));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectInsertedBeforeEvent>(id, siblingId));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -289,12 +291,12 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
+            UInt32 id;
             const char *icon;
             sd_bus_message_read(m, "us", &id, &icon);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectIconChangedEvent>(*id, icon));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectIconChangedEvent>(id, icon));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -307,12 +309,12 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
-            bool *enabled;
+            UInt32 id;
+            int enabled;
             sd_bus_message_read(m, "ub", &id, &enabled);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectEnabledChangedEvent>(*id, *enabled));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectEnabledChangedEvent>(id, enabled != 0));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -325,12 +327,12 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
+            UInt32 id;
             const char *shortcut;
             sd_bus_message_read(m, "us", &id, &shortcut);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNObjectShortcutChangedEvent>(*id, shortcut));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectShortcutChangedEvent>(id, shortcut));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -343,12 +345,12 @@ struct CZ::Bar::HNIface
 
         if (cli)
         {
-            UInt32 *id;
-            bool *checked;
+            UInt32 id;
+            int checked;
             sd_bus_message_read(m, "ub", &id, &checked);
 
-            if (*id > 0)
-                cli->m_events.push(std::make_unique<HNToggleCheckedChangedEvent>(*id, *checked));
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNToggleCheckedChangedEvent>(id, checked != 0));
         }
 
         return sd_bus_reply_method_return(m, "");
@@ -413,7 +415,7 @@ static const sd_bus_vtable VTable[]
     SD_BUS_METHOD(
         "DestroyObject",
         "u", /* Object ID */
-        "",
+        "u", /* Acknowledged Object ID */
         HNIface::DestroyObject,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
@@ -432,10 +434,10 @@ static const sd_bus_vtable VTable[]
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
     SD_BUS_METHOD(
-        "InsertObjectAfter",
-        "uu", /* Object ID, Sibling ID (0 to place first) */
+        "InsertObjectBefore",
+        "uu", /* Object ID, Sibling ID (0 to place back) */
         "",
-        HNIface::InsertObjectAfter,
+        HNIface::InsertObjectBefore,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
     SD_BUS_METHOD(
@@ -470,7 +472,7 @@ static const sd_bus_vtable VTable[]
         "Commit",
         "",
         "",
-        HNIface::RegisterClient,
+        HNIface::Commit,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
     SD_BUS_VTABLE_END
@@ -598,4 +600,23 @@ void HNBar::checkCompositor() noexcept
         else
             m_compositor->m_id = owner;
     }
+}
+
+static int IgnoreClickReply(sd_bus_message *, void *, sd_bus_error *) { return 0; }
+
+void HNBar::sendObjectClicked(const std::string &clientId, UInt32 objectId) noexcept
+{
+    sd_bus_slot *slot { NULL };
+
+    sd_bus_call_method_async(
+        m_bus->bus(),
+        &slot,
+        clientId.c_str(),
+        "/org/cuarzo/HeavenClient",
+        "org.cuarzo.HeavenClient",
+        "ObjectClicked",
+        IgnoreClickReply,
+        NULL,
+        "u",
+        objectId);
 }

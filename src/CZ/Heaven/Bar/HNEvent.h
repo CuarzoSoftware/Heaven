@@ -18,7 +18,7 @@ namespace Bar
             ObjectDestroyed,
             ObjectTitleChanged,
             ObjectParentChanged,
-            ObjectInsertedAfter,
+            ObjectInsertedBefore,
             ObjectIconChanged,
             ObjectEnabledChanged,
             ObjectShortcutChanged,
@@ -85,10 +85,10 @@ namespace Bar
         UInt32 parentId;
     };
 
-    struct HNObjectInsertedAfterEvent : public HNEvent
+    struct HNObjectInsertedBeforeEvent : public HNEvent
     {
-        HNObjectInsertedAfterEvent(UInt32 objectId, UInt32 siblingId) noexcept :
-            HNEvent(ObjectInsertedAfter),
+        HNObjectInsertedBeforeEvent(UInt32 objectId, UInt32 siblingId) noexcept :
+            HNEvent(ObjectInsertedBefore),
             objectId(objectId),
             siblingId(siblingId) {}
         UInt32 objectId;
@@ -128,7 +128,7 @@ namespace Bar
     struct HNToggleCheckedChangedEvent : public HNEvent
     {
         HNToggleCheckedChangedEvent(UInt32 objectId, bool checked) noexcept :
-            HNEvent(ObjectShortcutChanged),
+            HNEvent(ToggleCheckedChanged),
             objectId(objectId),
             checked(checked) {}
         UInt32 objectId;

@@ -128,13 +128,21 @@ public:
     CZSignal<HNObject*> onObjectParentChanged;
 
     /**
-     * @brief Emitted when an object is inserted after a sibling.
+     * @brief Emitted after an object is inserted before a sibling.
      *
-     * @param obj The inserted object (objects inheriting the HNWithParent interface).
-     * @param sibling The sibling after which the object is inserted.
-     *        If nullptr, the object is inserted at the beginning of the parent's children list.
+     * This signal is triggered once @p obj has been inserted into the hierarchy,
+     * immediately preceding @p sibling.
+     *
+     * @param obj
+     *        The object being inserted.
+     *
+     * @param sibling
+     *        The sibling before which @p obj is inserted.
+     *        - If @p sibling belongs to a different parent, @p obj is reparented to match.
+     *        - If @p sibling is nullptr, @p obj is appended to the end of its current parent's children list.
+     *        - If @p obj has no parent and @p sibling is nullptr, the operation has no effect.
      */
-    CZSignal<HNObject* /*obj*/, HNObject* /*sibling (nullable)*/> onObjectInsertedAfter;
+    CZSignal<HNObject* /*obj*/, HNObject* /*sibling (nullable)*/> onObjectInsertedBefore;
 
     /**
      * @name Object property change signals
@@ -157,8 +165,17 @@ public:
 
 private:
     friend struct HNIface;
+    friend class HNObject;
     HNBar(std::shared_ptr<CZBus> bus) noexcept;
     void checkCompositor() noexcept;
+
+    /**
+     * @brief Sends a click notification to a client over D-Bus.
+     *
+     * @param clientId D-Bus unique name of the target client.
+     * @param objectId Identifier of the clicked object.
+     */
+    void sendObjectClicked(const std::string &clientId, UInt32 objectId) noexcept;
     std::shared_ptr<CZBus> m_bus;
     std::unique_ptr<HNCompositor> m_compositor;
     HNClient *m_activeClient {};

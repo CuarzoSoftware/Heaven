@@ -10,6 +10,8 @@
 
 using namespace CZ::Bar;
 
+CZ::Bar::HNClient::~HNClient() noexcept = default;
+
 static bool IsObjectOrSubchildOf(HNObject *obj, HNObject *possibleParent) noexcept
 {
     if (!obj) return false;
@@ -108,6 +110,7 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 continue;
             }
 
+            obj->m_client = this;
             m_objects[e->objectId] = obj;
             bar->onObjectCreated.notify(obj.get());
             break;
@@ -123,7 +126,10 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 continue;
             }
 
-            if (auto topbar = dynamic_cast<HNTopbar*>(it->second.get()))
+            // Keep the object alive until after the destroyed signal is emitted.
+            auto obj { it->second };
+
+            if (auto topbar = dynamic_cast<HNTopbar*>(obj.get()))
             {
                 if (topbar == m_activeTopbar.lock().get())
                 {
@@ -132,31 +138,33 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 }
             }
 
-            if (auto withParent = dynamic_cast<HNWithParent*>(it->second.get()))
+            // Detach the object from its parent, if any.
+            if (auto withParent = dynamic_cast<HNWithParent*>(obj.get()))
             {
-                auto *parent { (HNWithChildren*)(withParent->m_parent) };
-
-                if (parent)
+                if (auto *parentObj = withParent->m_parent)
                 {
-                    parent->m_children.erase(withParent->m_parentLink);
+                    auto *withChildren { dynamic_cast<HNWithChildren*>(parentObj) };
+                    withChildren->m_children.erase(withParent->m_parentLink);
                     withParent->m_parent = nullptr;
-                    bar->onObjectParentChanged.notify((HNObject*)parent);
+                    bar->onObjectParentChanged.notify(obj.get());
                 }
             }
 
-            if (auto withChildren = dynamic_cast<HNWithChildren*>(it->second.get()))
+            // Detach every child of the object, if any.
+            if (auto withChildren = dynamic_cast<HNWithChildren*>(obj.get()))
             {
                 while (!withChildren->children().empty())
                 {
-                    auto *child { (HNWithParent*)withChildren->children().back() };
+                    auto *childObj { withChildren->m_children.back() };
+                    auto *childWithParent { dynamic_cast<HNWithParent*>(childObj) };
                     withChildren->m_children.pop_back();
-                    child->m_parent = nullptr;
-                    bar->onObjectParentChanged.notify((HNObject*)child);
+                    childWithParent->m_parent = nullptr;
+                    bar->onObjectParentChanged.notify(childObj);
                 }
             }
 
             m_objects.erase(it);
-            bar->onObjectDestroyed.notify(it->second.get());
+            bar->onObjectDestroyed.notify(obj.get());
             break;
         }
         case HNEvent::ObjectTitleChanged:
@@ -209,7 +217,7 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 if (!withParent->parent())
                     continue;
 
-                auto *withChildren { (HNWithChildren*)withParent->m_parent };
+                auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->m_parent) };
                 withChildren->m_children.erase(withParent->m_parentLink);
                 withParent->m_parent = nullptr;
                 bar->onObjectParentChanged.notify(child->second.get());
@@ -227,31 +235,44 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 if (withParent->parent() == parent->second.get())
                     continue;
 
+                auto *parentWithChildren { dynamic_cast<HNWithChildren*>(parent->second.get()) };
+
+                if (!parentWithChildren)
+                {
+                    HNLog(CZDebug, CZLN, "Object {} cannot host children", e->parentId);
+                    continue;
+                }
+
                 if (IsObjectOrSubchildOf(parent->second.get(), child->second.get()))
                 {
                     HNLog(CZDebug, CZLN, "The new parent {} is equal or a subchild of the object {}", e->parentId, e->objectId);
                     continue;
                 }
 
+                if (parent->second->type() == HNObject::Topbar && child->second->type() != HNObject::Menu)
+                {
+                    HNLog(CZDebug, CZLN, "HNTopbar can only host HNMenus");
+                    continue;
+                }
+
                 if (withParent->parent())
                 {
-                    auto *withChildren { (HNWithChildren*)withParent->m_parent };
+                    auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->m_parent) };
                     withChildren->m_children.erase(withParent->m_parentLink);
                     withParent->m_parent = nullptr;
                 }
 
-                auto *withChildren { (HNWithChildren*)parent->second.get() };
-                withChildren->m_children.emplace_back(child->second.get());
+                parentWithChildren->m_children.emplace_back(child->second.get());
                 withParent->m_parent = parent->second.get();
-                withParent->m_parentLink = std::prev(withChildren->m_children.end());
+                withParent->m_parentLink = std::prev(parentWithChildren->m_children.end());
                 bar->onObjectParentChanged.notify(child->second.get());
             }
 
             break;
         }
-        case HNEvent::ObjectInsertedAfter:
+        case HNEvent::ObjectInsertedBefore:
         {
-            auto *e { static_cast<HNObjectInsertedAfterEvent*>(event.get()) };
+            auto *e { static_cast<HNObjectInsertedBeforeEvent*>(event.get()) };
 
             if (e->objectId == e->siblingId)
             {
@@ -275,23 +296,22 @@ void CZ::Bar::HNClient::dispatch() noexcept
                 continue;
             }
 
-            if (!withParent->parent())
-            {
-                HNLog(CZDebug, CZLN, "Object {} has no parent", e->objectId);
-                continue;
-            }
-
             if (e->siblingId == 0)
             {
-                auto *withChildren { (HNWithChildren*)withParent->parent() };
+                if (withParent->parent())
+                {
+                    auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->parent()) };
 
-                if (withChildren->children().front() == it->second.get())
+                    if (withChildren->children().back() == it->second.get())
+                        continue;
+
+                    withChildren->m_children.erase(withParent->m_parentLink);
+                    withChildren->m_children.emplace_back(it->second.get());
+                    withParent->m_parentLink = std::prev(withChildren->m_children.end());
+                    bar->onObjectInsertedBefore.notify(it->second.get(), nullptr);
+                }
+                else
                     continue;
-
-                withChildren->m_children.erase(withParent->m_parentLink);
-                withChildren->m_children.emplace_front(it->second.get());
-                withParent->m_parentLink = withChildren->m_children.begin();
-                bar->onObjectInsertedAfter.notify(it->second.get(), nullptr);
             }
             else
             {
@@ -317,22 +337,42 @@ void CZ::Bar::HNClient::dispatch() noexcept
                     continue;
                 }
 
-                if (withParent->parent() != siblingWithParent->parent())
+                if (siblingWithParent->parent()->type() == HNObject::Topbar && it->second->type() != HNObject::Menu)
                 {
-                    HNLog(CZDebug, CZLN, "Object {} is not sibling of {}", e->objectId, e->siblingId);
+                    HNLog(CZDebug, CZLN, "HNTopbar can only host HNMenus");
                     continue;
                 }
 
-                if (std::next(siblingWithParent->m_parentLink) == withParent->m_parentLink)
-                    continue;
+                if (withParent->parent() == siblingWithParent->parent())
+                {
+                    auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->parent()) };
 
-                auto *withChildren { (HNWithChildren*)withParent->parent() };
-                withChildren->m_children.erase(withParent->m_parentLink);
-                withParent->m_parentLink = withChildren->m_children.insert(
-                    std::next(siblingWithParent->m_parentLink),
-                    it->second.get());
+                    if (siblingWithParent->m_parentLink != withChildren->m_children.begin() &&
+                        std::prev(siblingWithParent->m_parentLink) == withParent->m_parentLink)
+                        continue;
 
-                bar->onObjectInsertedAfter.notify(it->second.get(), sibling->second.get());
+                    withChildren->m_children.erase(withParent->m_parentLink);
+                    withParent->m_parentLink = withChildren->m_children.insert(
+                        siblingWithParent->m_parentLink,
+                        it->second.get());
+
+                    bar->onObjectInsertedBefore.notify(it->second.get(), sibling->second.get());
+                }
+                else
+                {
+                    if (withParent->parent())
+                    {
+                        auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->parent()) };
+                        withChildren->m_children.erase(withParent->m_parentLink);
+                    }
+                    auto *withChildren { dynamic_cast<HNWithChildren*>(siblingWithParent->parent()) };
+                    withParent->m_parent = siblingWithParent->parent();
+                    withParent->m_parentLink = withChildren->m_children.insert(
+                        siblingWithParent->m_parentLink,
+                        it->second.get());
+
+                    bar->onObjectInsertedBefore.notify(it->second.get(), sibling->second.get());
+                }
             }
 
             break;
