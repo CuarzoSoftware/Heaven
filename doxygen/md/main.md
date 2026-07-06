@@ -1,6 +1,3 @@
-<img style="position:relative;margin:0px;padding:0;top:40px" src="https://ehopperdietzel.github.io/img/heaven.png" width="104"/>
-<h1 style="margin-top:0px;padding-top:0px">Heaven</h1>
-
 <p align="left">
   <a href="https://github.com/CuarzoSoftware/Heaven/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-LGPLv2.1-blue.svg" alt="Heaven is released under the LGPLv2.1 license." />
@@ -224,23 +221,3 @@ dbus-run-session -- sh -c '
 ```
 
 Set `CZ_HEAVEN_{BAR,CLIENT,COMPOSITOR}_LOG_LEVEL` (0–6) to control logging.
-
----
-
-## API documentation
-
-Every public class and method is documented with Doxygen. Generate the HTML
-reference (output goes to `docs/`) with:
-
-```sh
-cd doxygen
-doxygen Doxyfile
-```
-
-Or check the [online documentation](https://cuarzosoftware.github.io/Heaven/annotated.html).
-
----
-
-## License
-
-See [LICENSE](LICENSE).
