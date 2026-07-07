@@ -2,7 +2,7 @@ project(
     'cz-heaven',
     'c','cpp',
     version : run_command('cat', files('VERSION'), check : false).stdout().strip(),
-    meson_version: '>= 0.56.0',
+    meson_version: '>= 0.60.0',
     default_options: [
         'warning_level=3',
         'buildtype=release',
@@ -35,7 +35,7 @@ install_data(
 # -------------- DEPENDENCIES --------------
 
 pkg                 = import('pkgconfig')
-cz_core_dep         = dependency('cz-core')
+cz_core_dep         = dependency('cz-core', fallback:['cz-core', 'cz_core_dep'])
 sdbus_dep           = dependency(['libsystemd', 'libelogind', 'basu'])
 
 # -------------- HEADERS --------------
