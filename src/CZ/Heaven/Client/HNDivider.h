@@ -11,7 +11,7 @@
  * A divider can optionally carry a title, which the bar may render as a
  * section label.
  */
-class CZ::Client::HNDivider :
+class CZ::HNClientAPI::HNDivider :
     public HNObject,
     public HNWithTitle,
     public HNWithParent

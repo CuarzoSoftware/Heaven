@@ -9,7 +9,7 @@
  * A disabled object is typically rendered as grayed-out and does not react
  * to user interaction.
  */
-class CZ::Bar::HNWithEnabled
+class CZ::HNBarAPI::HNWithEnabled
 {
 public:
     /**

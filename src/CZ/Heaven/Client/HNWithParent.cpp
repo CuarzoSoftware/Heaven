@@ -4,7 +4,7 @@
 #include <CZ/Heaven/Client/HNWithChildren.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 /**
  * @brief Checks whether @p possibleParent is @p obj itself or one of its descendants.
@@ -21,7 +21,7 @@ static bool IsObjectOrSubchildOf(HNWithParent *obj, HNWithChildren *possiblePare
     return IsObjectOrSubchildOf(dynamic_cast<HNWithParent*>(obj->parent()), possibleParent);
 }
 
-CZ::Client::HNWithParent::~HNWithParent() noexcept
+CZ::HNClientAPI::HNWithParent::~HNWithParent() noexcept
 {
     setParent(nullptr);
 }

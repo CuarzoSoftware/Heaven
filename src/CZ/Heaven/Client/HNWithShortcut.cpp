@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNWithShortcut.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 void HNWithShortcut::setShortcut(const std::string &shortcut) noexcept
 {

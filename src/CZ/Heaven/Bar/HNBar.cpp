@@ -6,11 +6,11 @@
 #include <CZ/Core/CZBus.h>
 #include <systemd/sd-bus.h>
 
-using namespace CZ::Bar;
+using namespace CZ::HNBarAPI;
 
 static std::weak_ptr<HNBar> s_bar;
 
-struct CZ::Bar::HNIface
+struct CZ::HNBarAPI::HNIface
 {
     static int ClientDisconnected(sd_bus_message *m, void *, sd_bus_error *)
     {
@@ -302,6 +302,24 @@ struct CZ::Bar::HNIface
         return sd_bus_reply_method_return(m, "");
     }
 
+    static int SetObjectIconFlat(sd_bus_message *m, void *, sd_bus_error *)
+    {
+        auto bar { s_bar.lock() };
+        auto *cli { bar->getClientById(sd_bus_message_get_sender(m)) };
+
+        if (cli)
+        {
+            UInt32 id;
+            int isFlat;
+            sd_bus_message_read(m, "ub", &id, &isFlat);
+
+            if (id > 0)
+                cli->m_events.push(std::make_unique<HNObjectIconFlatChangedEvent>(id, isFlat != 0));
+        }
+
+        return sd_bus_reply_method_return(m, "");
+    }
+
     static int SetObjectEnabled(sd_bus_message *m, void *, sd_bus_error *)
     {
         auto bar { s_bar.lock() };
@@ -445,6 +463,13 @@ static const sd_bus_vtable VTable[]
         "us", /* Object ID, Icon Name */
         "",
         HNIface::SetObjectIcon,
+        SD_BUS_VTABLE_UNPRIVILEGED
+    ),
+    SD_BUS_METHOD(
+        "SetObjectIconFlat",
+        "ub", /* Object ID, Is Flat */
+        "",
+        HNIface::SetObjectIconFlat,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
     SD_BUS_METHOD(

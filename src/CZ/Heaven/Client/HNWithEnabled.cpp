@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNWithEnabled.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 void HNWithEnabled::setEnabled(bool enabled) noexcept
 {

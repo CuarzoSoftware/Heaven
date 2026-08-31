@@ -15,7 +15,7 @@
  * responsible for updating the checked state (typically toggling it) in
  * response and committing the change.
  */
-class CZ::Client::HNToggle :
+class CZ::HNClientAPI::HNToggle :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,

@@ -22,7 +22,7 @@
 #include <string>
 
 using namespace CZ;
-using namespace CZ::Bar;
+using namespace CZ::HNBarAPI;
 
 static const char *TypeName(HNObject::Type t)
 {

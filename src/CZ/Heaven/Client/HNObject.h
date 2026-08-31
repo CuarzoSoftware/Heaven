@@ -16,7 +16,7 @@
  *
  * The role/type of an object is fixed at construction time.
  */
-class CZ::Client::HNObject : public CZObject
+class CZ::HNClientAPI::HNObject : public CZObject
 {
 public:
     /**

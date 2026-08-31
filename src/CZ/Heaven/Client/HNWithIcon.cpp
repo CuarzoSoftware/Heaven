@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNWithIcon.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 void HNWithIcon::setIcon(const std::string &icon) noexcept
 {
@@ -11,4 +11,13 @@ void HNWithIcon::setIcon(const std::string &icon) noexcept
 
     auto cli { HNClient::Get() };
     cli->sendObjectIcon(this);
+}
+
+void HNWithIcon::setIconFlat(bool flat) noexcept
+{
+    if (m_isFlat == flat) return;
+    m_isFlat = flat;
+
+    auto cli { HNClient::Get() };
+    cli->sendObjectIconFlat(this);
 }

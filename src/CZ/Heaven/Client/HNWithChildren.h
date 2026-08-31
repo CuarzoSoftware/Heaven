@@ -7,7 +7,7 @@
 /**
  * @brief Mixin interface for client objects that can host child objects.
  */
-class CZ::Client::HNWithChildren
+class CZ::HNClientAPI::HNWithChildren
 {
 public:
     /**

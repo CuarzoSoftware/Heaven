@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNClient.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 std::shared_ptr<HNMenu> HNMenu::Make(const std::string &title, const std::string &icon, const std::string &shortcut, bool enabled, HNObject *parent) noexcept
 {

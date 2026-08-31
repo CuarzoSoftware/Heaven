@@ -12,7 +12,7 @@
  * create several topbars (e.g. one per window) and use HNClient::setActiveTopbar()
  * to tell the bar which one should currently be displayed.
  */
-class CZ::Client::HNTopbar :
+class CZ::HNClientAPI::HNTopbar :
     public HNObject,
     public HNWithChildren
 {

@@ -14,7 +14,7 @@
  * - Tracking Wayland clients and associating them with their DBus identifiers.
  * - Notifying the bar application which client is currently active.
  */
-class CZ::Compositor::HNCompositor : public CZObject
+class CZ::HNCompositorAPI::HNCompositor : public CZObject
 {
 public:
     /**

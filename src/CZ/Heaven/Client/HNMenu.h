@@ -15,7 +15,7 @@
  * A menu can be nested inside a topbar or another menu and can host child
  * objects (menus, actions, toggles and dividers).
  */
-class CZ::Client::HNMenu :
+class CZ::HNClientAPI::HNMenu :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,

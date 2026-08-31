@@ -4,11 +4,11 @@
 #include <cstring>
 #include <systemd/sd-bus.h>
 
-using namespace CZ::Compositor;
+using namespace CZ::HNCompositorAPI;
 
 static std::weak_ptr<HNCompositor> s_compositor;
 
-struct CZ::Compositor::HNIface
+struct CZ::HNCompositorAPI::HNIface
 {
     static int RegisterClient(sd_bus_message *m, void *, sd_bus_error *)
     {
@@ -69,7 +69,7 @@ static const sd_bus_vtable VTable[]
     SD_BUS_VTABLE_END
 };
 
-std::shared_ptr<CZ::Compositor::HNCompositor> CZ::Compositor::HNCompositor::GetOrMake() noexcept
+std::shared_ptr<CZ::HNCompositorAPI::HNCompositor> CZ::HNCompositorAPI::HNCompositor::GetOrMake() noexcept
 {
     int r;
 

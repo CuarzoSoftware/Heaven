@@ -10,7 +10,7 @@
  * Provides the API to attach an object to a parent implementing HNWithChildren
  * and to reorder it among its siblings.
  */
-class CZ::Client::HNWithParent
+class CZ::HNClientAPI::HNWithParent
 {
 public:
     /**

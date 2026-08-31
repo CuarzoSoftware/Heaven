@@ -6,7 +6,7 @@
 /**
  * @brief Mixin interface for client objects that can be enabled or disabled.
  */
-class CZ::Client::HNWithEnabled
+class CZ::HNClientAPI::HNWithEnabled
 {
 public:
     /**

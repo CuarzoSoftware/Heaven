@@ -11,7 +11,7 @@
  * the HNWithChildren interface. The parent-child relationship is maintained by
  * the bar library from the events sent by the client.
  */
-class CZ::Bar::HNWithParent
+class CZ::HNBarAPI::HNWithParent
 {
 public:
     /**

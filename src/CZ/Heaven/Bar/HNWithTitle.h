@@ -7,7 +7,7 @@
 /**
  * @brief Mixin interface for objects that expose a textual title.
  */
-class CZ::Bar::HNWithTitle
+class CZ::HNBarAPI::HNWithTitle
 {
 public:
     /**

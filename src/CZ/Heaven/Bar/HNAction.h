@@ -14,7 +14,7 @@
  * When activated (see HNObject::click()), the click is forwarded to the owning
  * client. It exposes a title, icon, shortcut and enabled state.
  */
-class CZ::Bar::HNAction :
+class CZ::HNBarAPI::HNAction :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,

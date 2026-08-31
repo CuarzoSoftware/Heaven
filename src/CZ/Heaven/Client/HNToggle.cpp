@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNClient.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 std::shared_ptr<HNToggle> HNToggle::Make(const std::string &title, const std::string &icon, const std::string &shortcut, bool checked, bool enabled, HNObject *parent) noexcept
 {

@@ -8,9 +8,9 @@
 #include <CZ/Heaven/Bar/HNEvent.h>
 #include <CZ/Heaven/Bar/HNLog.h>
 
-using namespace CZ::Bar;
+using namespace CZ::HNBarAPI;
 
-CZ::Bar::HNClient::~HNClient() noexcept = default;
+CZ::HNBarAPI::HNClient::~HNClient() noexcept = default;
 
 static bool IsObjectOrSubchildOf(HNObject *obj, HNObject *possibleParent) noexcept
 {
@@ -24,7 +24,7 @@ static bool IsObjectOrSubchildOf(HNObject *obj, HNObject *possibleParent) noexce
     return IsObjectOrSubchildOf(withParent->parent(), possibleParent);
 }
 
-void CZ::Bar::HNClient::dispatch() noexcept
+void CZ::HNBarAPI::HNClient::dispatch() noexcept
 {
     auto bar { HNBar::Get() };
     if (!bar) return;
@@ -401,6 +401,32 @@ void CZ::Bar::HNClient::dispatch() noexcept
 
             withIcon->m_icon = e->icon;
             bar->onObjectIconChanged.notify(it->second.get());
+            break;
+        }
+        case HNEvent::ObjectIconFlatChanged:
+        {
+            auto *e { static_cast<HNObjectIconFlatChangedEvent*>(event.get()) };
+            auto it { m_objects.find(e->objectId) };
+
+            if (it == m_objects.end())
+            {
+                HNLog(CZDebug, CZLN, "Invalid object id {}", e->objectId);
+                continue;
+            }
+
+            auto *withIcon { dynamic_cast<HNWithIcon*>(it->second.get()) };
+
+            if (!withIcon)
+            {
+                HNLog(CZDebug, CZLN, "Object {} type has no icon", e->objectId);
+                continue;
+            }
+
+            if (withIcon->isFlat() == e->isFlat)
+                continue;
+
+            withIcon->m_isFlat = e->isFlat;
+            bar->onObjectIconFlatChanged.notify(it->second.get());
             break;
         }
         case HNEvent::ObjectEnabledChanged:

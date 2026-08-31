@@ -14,7 +14,7 @@
 #include <systemd/sd-bus.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 static std::weak_ptr<HNClient> s_client;
 
@@ -28,7 +28,7 @@ static const char *CP { "/org/cuarzo/HeavenCompositor" };
 
 static int IgnoreCallback(sd_bus_message *, void *, sd_bus_error *) { return 0; }
 
-struct CZ::Client::HNIface
+struct CZ::HNClientAPI::HNIface
 {
     /* Tracks the presence and identity of the bar process. */
     static int BarChanged(sd_bus_message *m, void */*userdata*/, sd_bus_error */*ret_error*/)
@@ -436,6 +436,26 @@ void HNClient::sendObjectIcon(HNWithIcon *obj) noexcept
         obj->icon().c_str());
 }
 
+void HNClient::sendObjectIconFlat(HNWithIcon *obj) noexcept
+{
+    if (!canSend()) return;
+
+    auto *o { dynamic_cast<HNObject*>(obj) };
+
+    sd_bus_slot *slot { NULL };
+
+    sd_bus_call_method_async(
+        m_bus->bus(),
+        &slot,
+        BD, BP, BD,
+        "SetObjectIconFlat",
+        IgnoreCallback,
+        NULL,
+        "ub",
+        o->id(),
+        (int)obj->isFlat());
+}
+
 void HNClient::sendObjectEnabled(HNWithEnabled *obj) noexcept
 {
     if (!canSend()) return;
@@ -580,7 +600,7 @@ void HNClient::sendCommit() noexcept
 void HNClient::sendObjectProperties(HNObject *obj) noexcept
 {
     if (auto *t = dynamic_cast<HNWithTitle*>(obj))    sendObjectTitle(t);
-    if (auto *i = dynamic_cast<HNWithIcon*>(obj))     sendObjectIcon(i);
+    if (auto *i = dynamic_cast<HNWithIcon*>(obj))     { sendObjectIcon(i); sendObjectIconFlat(i); }
     if (auto *s = dynamic_cast<HNWithShortcut*>(obj)) sendObjectShortcut(s);
     if (auto *e = dynamic_cast<HNWithEnabled*>(obj))  sendObjectEnabled(e);
     if (auto *g = dynamic_cast<HNToggle*>(obj))       sendToggleChecked(g);

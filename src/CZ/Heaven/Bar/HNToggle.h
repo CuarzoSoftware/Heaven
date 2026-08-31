@@ -14,7 +14,7 @@
  * In addition to the title, icon, shortcut and enabled state, a toggle carries
  * a boolean checked state controlled by the owning client.
  */
-class CZ::Bar::HNToggle :
+class CZ::HNBarAPI::HNToggle :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,

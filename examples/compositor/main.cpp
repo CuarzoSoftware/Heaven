@@ -12,7 +12,7 @@
 #include <CZ/Core/CZCore.h>
 
 using namespace CZ;
-using namespace CZ::Compositor;
+using namespace CZ::HNCompositorAPI;
 
 int main()
 {

@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNClient.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 std::shared_ptr<HNDivider> HNDivider::Make(const std::string &title, HNObject *parent) noexcept
 {

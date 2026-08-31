@@ -14,7 +14,7 @@
  * When the user activates an action in the bar, the client receives a click
  * notification through HNObject::onClicked.
  */
-class CZ::Client::HNAction :
+class CZ::HNClientAPI::HNAction :
     public HNObject,
     public HNWithParent,
     public HNWithTitle,

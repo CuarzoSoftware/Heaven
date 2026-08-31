@@ -6,7 +6,7 @@
 
 namespace CZ
 {
-namespace Bar
+namespace HNBarAPI
 {
     struct HNEvent
     {
@@ -20,6 +20,7 @@ namespace Bar
             ObjectParentChanged,
             ObjectInsertedBefore,
             ObjectIconChanged,
+            ObjectIconFlatChanged,
             ObjectEnabledChanged,
             ObjectShortcutChanged,
             ToggleCheckedChanged
@@ -103,6 +104,16 @@ namespace Bar
             icon(icon) {}
         UInt32 objectId;
         std::string icon;
+    };
+
+    struct HNObjectIconFlatChangedEvent : public HNEvent
+    {
+        HNObjectIconFlatChangedEvent(UInt32 objectId, bool isFlat) noexcept :
+            HNEvent(ObjectIconFlatChanged),
+            objectId(objectId),
+            isFlat(isFlat) {}
+        UInt32 objectId;
+        bool isFlat;
     };
 
     struct HNObjectEnabledChangedEvent : public HNEvent

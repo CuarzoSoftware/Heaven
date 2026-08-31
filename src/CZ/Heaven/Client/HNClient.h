@@ -19,7 +19,7 @@
  *
  * The instance is a lazily-created singleton; retrieve it with GetOrMake().
  */
-class CZ::Client::HNClient
+class CZ::HNClientAPI::HNClient
 {
 public:
     /**
@@ -168,6 +168,7 @@ private:
     void sendObjectTitle(HNWithTitle *obj) noexcept;
     void sendObjectShortcut(HNWithShortcut *obj) noexcept;
     void sendObjectIcon(HNWithIcon *obj) noexcept;
+    void sendObjectIconFlat(HNWithIcon *obj) noexcept;
     void sendObjectEnabled(HNWithEnabled *obj) noexcept;
     void sendObjectParent(HNWithParent *obj) noexcept;
     void sendInsertObjectBefore(HNWithParent *obj) noexcept;

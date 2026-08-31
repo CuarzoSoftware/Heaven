@@ -19,7 +19,7 @@
  * This class also exposes a set of signals to observe lifecycle changes,
  * client state updates, and object hierarchy updates.
  */
-class CZ::Bar::HNBar : public CZObject
+class CZ::HNBarAPI::HNBar : public CZObject
 {
 public:
     /**
@@ -42,6 +42,8 @@ public:
      * @return Pointer to the compositor, or nullptr if not yet bound.
      */
     HNCompositor *compositor() const noexcept { return m_compositor.get(); }
+
+    const std::unordered_map<std::string, std::shared_ptr<HNClient>> &clients() const noexcept { return m_clients; }
 
     /**
      * @brief Returns the currently active client.
@@ -151,6 +153,9 @@ public:
 
     /// Emitted when an object's icon changes (objects inheriting the HNWithIcon interface).
     CZSignal<HNObject*> onObjectIconChanged;
+
+    /// Emitted when an object's icon flat flag changes (objects inheriting the HNWithIcon interface).
+    CZSignal<HNObject*> onObjectIconFlatChanged;
 
     /// Emitted when an object's enabled state changes (objects inheriting the HNWithEnabled interface)
     CZSignal<HNObject*> onObjectEnabledChanged;

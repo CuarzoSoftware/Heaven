@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNClient.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 std::shared_ptr<HNTopbar> HNTopbar::Make() noexcept
 {

@@ -2,7 +2,7 @@
 #include <CZ/Heaven/Client/HNWithTitle.h>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 void HNWithTitle::setTitle(const std::string &title) noexcept
 {

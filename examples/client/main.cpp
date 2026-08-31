@@ -19,7 +19,7 @@
 #include <vector>
 
 using namespace CZ;
-using namespace CZ::Client;
+using namespace CZ::HNClientAPI;
 
 int main()
 {

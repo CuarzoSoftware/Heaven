@@ -7,7 +7,7 @@
 /**
  * @brief Mixin interface for client objects that expose a textual title.
  */
-class CZ::Client::HNWithTitle
+class CZ::HNClientAPI::HNWithTitle
 {
 public:
     /**

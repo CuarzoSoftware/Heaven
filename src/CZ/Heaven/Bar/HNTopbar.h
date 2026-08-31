@@ -11,7 +11,7 @@
  * A client may own several topbars and report which one is currently active
  * (see HNClient::activeTopbar()).
  */
-class CZ::Bar::HNTopbar :
+class CZ::HNBarAPI::HNTopbar :
     public HNObject,
     public HNWithChildren
 {

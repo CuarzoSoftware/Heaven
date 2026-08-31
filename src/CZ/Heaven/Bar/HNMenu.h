@@ -15,7 +15,7 @@
  * A menu can be nested inside a topbar or another menu and can host child
  * objects. It exposes a title, icon, shortcut and enabled state.
  */
-class CZ::Bar::HNMenu :
+class CZ::HNBarAPI::HNMenu :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,

@@ -40,7 +40,9 @@ sdbus_dep           = dependency(['libsystemd', 'libelogind', 'basu'])
 
 # -------------- HEADERS --------------
 
-include_paths = ['src/', 'src/CZ']
+# 'src'    -> lets both this project and consumers include <CZ/Heaven/...>
+# 'src/CZ' -> lets both this project and consumers include <Heaven/...>
+include_paths = [include_directories('src'), include_directories('src/CZ')]
 
 # All headers
 headers = run_command('find', 'src/CZ', '-type', 'f', '-name', '*.h', check : false).stdout().strip().split('\n')
@@ -85,7 +87,7 @@ pkg.generate(
     description: 'Global menu library',
     version: meson.project_version(),
     libraries: deps,
-    subdirs: ['CZ','CZ/Heaven'],
+    subdirs: ['', 'CZ', 'CZ/Heaven'],
     requires: ['cz-core'],
     filebase: 'cz-heaven-bar')
 
@@ -111,7 +113,7 @@ pkg.generate(
     description: 'Global menu library',
     version: meson.project_version(),
     libraries: deps,
-    subdirs: ['CZ','CZ/Heaven'],
+    subdirs: ['', 'CZ', 'CZ/Heaven'],
     requires: ['cz-core'],
     filebase: 'cz-heaven-compositor')
 
@@ -136,7 +138,7 @@ pkg.generate(
     description: 'Global menu library',
     version: meson.project_version(),
     libraries: deps,
-    subdirs: ['CZ','CZ/Heaven'],
+    subdirs: ['', 'CZ', 'CZ/Heaven'],
     requires: ['cz-core'],
     filebase: 'cz-heaven-client')
 

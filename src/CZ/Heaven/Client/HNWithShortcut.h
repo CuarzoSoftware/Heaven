@@ -7,7 +7,7 @@
 /**
  * @brief Mixin interface for client objects that expose a keyboard shortcut.
  */
-class CZ::Client::HNWithShortcut
+class CZ::HNClientAPI::HNWithShortcut
 {
 public:
     /**

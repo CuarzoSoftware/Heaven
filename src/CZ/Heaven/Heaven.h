@@ -3,7 +3,7 @@
 
 namespace CZ
 {
-    namespace Bar
+    namespace HNBarAPI
     {
         struct HNIface;
         struct HNEvent;
@@ -25,13 +25,13 @@ namespace CZ
         class HNWithEnabled;
     }
 
-    namespace Compositor
+    namespace HNCompositorAPI
     {
         struct HNIface;
         class HNCompositor;
     }
 
-    namespace Client
+    namespace HNClientAPI
     {
         struct HNIface;
         class HNClient;

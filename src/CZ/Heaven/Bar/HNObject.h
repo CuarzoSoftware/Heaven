@@ -18,7 +18,7 @@
  * Instances are owned and managed by the bar library; they are created and
  * destroyed as the owning client requests it.
  */
-class CZ::Bar::HNObject : public CZObject
+class CZ::HNBarAPI::HNObject : public CZObject
 {
 public:
     /**

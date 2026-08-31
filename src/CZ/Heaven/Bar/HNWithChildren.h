@@ -12,7 +12,7 @@
  * ordered list of children. The order reflects the order in which items
  * should be displayed in the bar.
  */
-class CZ::Bar::HNWithChildren
+class CZ::HNBarAPI::HNWithChildren
 {
 public:
     /**

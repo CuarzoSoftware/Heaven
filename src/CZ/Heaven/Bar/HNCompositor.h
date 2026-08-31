@@ -12,7 +12,7 @@
  * on the bus. It is created and destroyed automatically as the compositor
  * appears and disappears (see HNBar::onCompositorChanged).
  */
-class CZ::Bar::HNCompositor : public CZObject
+class CZ::HNBarAPI::HNCompositor : public CZObject
 {
 public:
     /**

@@ -3,7 +3,7 @@
 #include <CZ/Heaven/Bar/HNEvent.h>
 #include <CZ/Heaven/Bar/HNBar.h>
 
-using namespace CZ::Bar;
+using namespace CZ::HNBarAPI;
 
 void HNObject::click() noexcept
 {

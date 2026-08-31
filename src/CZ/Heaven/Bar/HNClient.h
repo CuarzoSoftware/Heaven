@@ -17,7 +17,7 @@
  * of its topbars is currently active. Instances are created and destroyed by
  * the bar library as clients register and disconnect.
  */
-class CZ::Bar::HNClient : public CZObject
+class CZ::HNBarAPI::HNClient : public CZObject
 {
 public:
     /**
