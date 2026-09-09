@@ -4,7 +4,6 @@
 #include <CZ/Heaven/Bar/HNObject.h>
 #include <CZ/Heaven/Bar/HNWithTitle.h>
 #include <CZ/Heaven/Bar/HNWithIcon.h>
-#include <CZ/Heaven/Bar/HNWithShortcut.h>
 #include <CZ/Heaven/Bar/HNWithParent.h>
 #include <CZ/Heaven/Bar/HNWithChildren.h>
 #include <CZ/Heaven/Bar/HNWithEnabled.h>
@@ -13,13 +12,13 @@
  * @brief Menu displayed in the bar.
  *
  * A menu can be nested inside a topbar or another menu and can host child
- * objects. It exposes a title, icon, shortcut and enabled state.
+ * objects. It exposes a title, icon and enabled state. Menus do not carry a
+ * keyboard shortcut.
  */
 class CZ::HNBarAPI::HNMenu :
     public HNObject,
     public HNWithTitle,
     public HNWithIcon,
-    public HNWithShortcut,
     public HNWithParent,
     public HNWithChildren,
     public HNWithEnabled

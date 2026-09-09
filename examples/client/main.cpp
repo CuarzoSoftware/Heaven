@@ -35,8 +35,8 @@ int main()
     std::vector<std::shared_ptr<HNObject>> keepAlive;
 
     auto topbar   { HNTopbar::Make() };
-    auto fileMenu { HNMenu::Make("File", "", "", true, topbar.get()) };
-    auto editMenu { HNMenu::Make("Edit", "", "", true, topbar.get()) };
+    auto fileMenu { HNMenu::Make("File", "", true, topbar.get()) };
+    auto editMenu { HNMenu::Make("Edit", "", true, topbar.get()) };
 
     auto openAction  { HNAction::Make("Open",  "document-open",   "Ctrl+O", true, fileMenu.get()) };
     auto divider     { HNDivider::Make("", fileMenu.get()) };
