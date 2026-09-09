@@ -64,7 +64,13 @@ bool HNWithParent::setParent(HNObject *parent) noexcept
         m_parentLink = std::prev(newParent->m_children.end());
     }
 
-    self->client()->sendObjectParent(this);
+    // `self` is null when this runs from ~HNWithParent (a cross-cast to a sibling base during that
+    // base's own destruction yields nullptr). Detaching from the parent's child list above is still
+    // done; we only skip the change notification, since ~HNObject already tells the bar the object
+    // is gone (and the bar detaches it from its parent automatically).
+    if (self)
+        self->client()->sendObjectParent(this);
+
     return true;
 }
 
