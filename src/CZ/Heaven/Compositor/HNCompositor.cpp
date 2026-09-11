@@ -16,6 +16,8 @@ struct CZ::HNCompositorAPI::HNIface
         const char *id { sd_bus_message_get_sender(m) };
         const char *token;
         sd_bus_message_read(m, "s", &token);
+        HNLog(CZDebug, CZLN, "DBus <- RegisterClient(token={}) from {}", token, id);
+        HNLog(CZDebug, CZLN, "Event onClientRegistered: token={} id={}", token, id);
         compositor->onClientRegistered.notify(token, id);
         return sd_bus_reply_method_return(m, "");
     }
@@ -134,7 +136,7 @@ void HNCompositor::setActiveClient(const std::string &dbusId) noexcept
 {
     if (dbusId == m_activeClientId) return;
     m_activeClientId = dbusId;
-    HNLog(CZDebug, CZLN, "Sending active client {}", dbusId);
+    HNLog(CZDebug, CZLN, "DBus -> SetActiveClient(id={}) to bar", dbusId);
 
     sd_bus_message *reply {};
 

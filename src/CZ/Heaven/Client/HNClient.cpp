@@ -107,11 +107,14 @@ struct CZ::HNClientAPI::HNIface
         if (r < 0)
             return r;
 
+        HNLog(CZDebug, CZLN, "DBus <- ObjectClicked(id={}) from bar", objectId);
+
         auto it { cli->m_objects.find(objectId) };
 
         if (it == cli->m_objects.end())
             return 0;
 
+        HNLog(CZDebug, CZLN, "Event onClicked: id={}", objectId);
         it->second->onClicked.notify(it->second);
         return 0;
     }
@@ -285,6 +288,8 @@ void HNClient::sendPrivateHandle() noexcept
 {
     if (m_compositorId.empty() || m_privateHandle.empty()) return;
 
+    HNLog(CZDebug, CZLN, "DBus -> RegisterClient(handle={}) to compositor", m_privateHandle);
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -311,6 +316,8 @@ void HNClient::removeObject(HNObject *object) noexcept
     if (canSend())
     {
         m_destroyedIds.emplace(id);
+
+        HNLog(CZDebug, CZLN, "DBus -> DestroyObject(id={})", id);
 
         sd_bus_slot *slot { NULL };
 
@@ -362,6 +369,8 @@ void HNClient::sendCreateObject(HNObject *o) noexcept
 {
     if (!canSend()) return;
 
+    HNLog(CZDebug, CZLN, "DBus -> CreateObject(id={}, type={})", o->id(), (UInt32)o->type());
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -381,6 +390,8 @@ void HNClient::sendObjectTitle(HNWithTitle *obj) noexcept
     if (!canSend()) return;
 
     auto *o { dynamic_cast<HNObject*>(obj) };
+
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectTitle(id={}, title={})", o->id(), obj->title());
 
     sd_bus_slot *slot { NULL };
 
@@ -402,6 +413,8 @@ void HNClient::sendObjectShortcut(HNWithShortcut *obj) noexcept
 
     auto *o { dynamic_cast<HNObject*>(obj) };
 
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectShortcut(id={}, shortcut={})", o->id(), obj->shortcut());
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -421,6 +434,8 @@ void HNClient::sendObjectIcon(HNWithIcon *obj) noexcept
     if (!canSend()) return;
 
     auto *o { dynamic_cast<HNObject*>(obj) };
+
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectIcon(id={}, icon={})", o->id(), obj->icon());
 
     sd_bus_slot *slot { NULL };
 
@@ -442,6 +457,8 @@ void HNClient::sendObjectIconFlat(HNWithIcon *obj) noexcept
 
     auto *o { dynamic_cast<HNObject*>(obj) };
 
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectIconFlat(id={}, flat={})", o->id(), obj->isFlat());
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -462,6 +479,8 @@ void HNClient::sendObjectEnabled(HNWithEnabled *obj) noexcept
 
     auto *o { dynamic_cast<HNObject*>(obj) };
 
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectEnabled(id={}, enabled={})", o->id(), obj->enabled());
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -481,6 +500,8 @@ void HNClient::sendObjectParent(HNWithParent *obj) noexcept
     if (!canSend()) return;
 
     auto *o { dynamic_cast<HNObject*>(obj) };
+
+    HNLog(CZDebug, CZLN, "DBus -> SetObjectParent(id={}, parent={})", o->id(), obj->parent() ? obj->parent()->id() : 0);
 
     sd_bus_slot *slot { NULL };
 
@@ -515,6 +536,8 @@ void HNClient::sendInsertObjectBefore(HNWithParent *obj) noexcept
             siblingId = dynamic_cast<HNObject*>(*next)->id();
     }
 
+    HNLog(CZDebug, CZLN, "DBus -> InsertObjectBefore(id={}, sibling={})", o->id(), siblingId);
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -532,6 +555,8 @@ void HNClient::sendInsertObjectBefore(HNWithParent *obj) noexcept
 void HNClient::sendToggleChecked(HNToggle *obj) noexcept
 {
     if (!canSend()) return;
+
+    HNLog(CZDebug, CZLN, "DBus -> SetToggleChecked(id={}, checked={})", obj->id(), obj->checked());
 
     sd_bus_slot *slot { NULL };
 
@@ -551,6 +576,8 @@ void HNClient::sendClientName() noexcept
 {
     if (!canSend()) return;
 
+    HNLog(CZDebug, CZLN, "DBus -> SetClientName(name={})", m_name);
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -568,6 +595,8 @@ void HNClient::sendClientTopbar() noexcept
 {
     if (!canSend() || !m_activeTopbar.get()) return;
 
+    HNLog(CZDebug, CZLN, "DBus -> SetClientTopbar(id={})", m_activeTopbar->id());
+
     sd_bus_slot *slot { NULL };
 
     sd_bus_call_method_async(
@@ -584,6 +613,8 @@ void HNClient::sendClientTopbar() noexcept
 void HNClient::sendCommit() noexcept
 {
     if (m_barId.empty()) return;
+
+    HNLog(CZDebug, CZLN, "DBus -> Commit");
 
     sd_bus_slot *slot { NULL };
 
@@ -609,6 +640,8 @@ void HNClient::sendObjectProperties(HNObject *obj) noexcept
 void HNClient::flushAll() noexcept
 {
     if (m_barId.empty()) return;
+
+    HNLog(CZDebug, CZLN, "DBus -> RegisterClient + full state flush to bar");
 
     // 1. (Re)register with the bar.
     sd_bus_slot *slot { NULL };

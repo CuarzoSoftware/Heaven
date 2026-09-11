@@ -27,10 +27,13 @@ struct CZ::HNBarAPI::HNIface
 
             if (!client) return 0;
 
+            HNLog(CZDebug, CZLN, "DBus <- NameOwnerChanged: client {} disconnected", old_owner);
+
             if (client == bar->m_activeClient)
             {
                 bar->m_activeClient = nullptr;
                 bar->m_activeClientId = "";
+                HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client cleared (disconnected)");
                 bar->onActiveClientChanged.notify(bar.get());
             }
 
@@ -38,6 +41,7 @@ struct CZ::HNBarAPI::HNIface
                 client->m_events.push(std::make_unique<HNObjectDestroyedEvent>((*it).first));
 
             client->dispatch();
+            HNLog(CZDebug, CZLN, "Event onClientDestroyed: {}", old_owner);
             bar->onClientDestroyed.notify(client);
             bar->m_clients.erase(old_owner);
         }
@@ -105,6 +109,7 @@ struct CZ::HNBarAPI::HNIface
             const char *id;
             sd_bus_message_read(m, "s", &id);
 
+            HNLog(CZDebug, CZLN, "DBus <- SetActiveClient(id={}) from compositor", id);
 
             if (strcmp(id, "") == 0)
             {
@@ -112,6 +117,7 @@ struct CZ::HNBarAPI::HNIface
                 {
                     bar->m_activeClientId = "";
                     bar->m_activeClient = nullptr;
+                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: no active client");
                     bar->onActiveClientChanged.notify(bar.get());
                 }
             }
@@ -125,6 +131,7 @@ struct CZ::HNBarAPI::HNIface
                     {
                         bar->m_activeClientId = id;
                         bar->m_activeClient = client;
+                        HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client = {}", id);
                         bar->onActiveClientChanged.notify(bar.get());
                     }
                 }
@@ -144,6 +151,8 @@ struct CZ::HNBarAPI::HNIface
         bool success { true };
         auto bar { s_bar.lock() };
 
+        HNLog(CZDebug, CZLN, "DBus <- RegisterClient from {}", sd_bus_message_get_sender(m));
+
         if (bar->m_clients.contains(sd_bus_message_get_sender(m)))
         {
             HNLog(CZWarning, CZLN, "Rejected method: Client already registered {}", sd_bus_message_get_sender(m));
@@ -154,11 +163,13 @@ struct CZ::HNBarAPI::HNIface
             auto client { std::shared_ptr<HNClient>(new HNClient(sd_bus_message_get_sender(m))) };
             bar->m_clients[client->id()] = client;
             HNLog(CZInfo, CZLN, "New client: {}", client->id());
+            HNLog(CZDebug, CZLN, "Event onClientCreated: {}", client->id());
             bar->onClientCreated.notify(client.get());
 
             if (client->id() == bar->m_activeClientId)
             {
                 bar->m_activeClient = client.get();
+                HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client = {} (registered)", client->id());
                 bar->onActiveClientChanged.notify(bar.get());
             }
         }
@@ -175,6 +186,7 @@ struct CZ::HNBarAPI::HNIface
         {
             const char *name;
             sd_bus_message_read(m, "s", &name);
+            HNLog(CZDebug, CZLN, "DBus <- SetClientName(name={}) from {}", name, cli->id());
             cli->m_events.push(std::make_unique<HNClientNameChangedEvent>(name));
         }
 
@@ -190,6 +202,7 @@ struct CZ::HNBarAPI::HNIface
         {
             UInt32 id;
             sd_bus_message_read(m, "u", &id);
+            HNLog(CZDebug, CZLN, "DBus <- SetClientTopbar(id={}) from {}", id, cli->id());
             cli->m_events.push(std::make_unique<HNClientTopbarChangedEvent>(id));
         }
 
@@ -205,6 +218,7 @@ struct CZ::HNBarAPI::HNIface
         {
             UInt32 id, type;
             sd_bus_message_read(m, "uu", &id, &type);
+            HNLog(CZDebug, CZLN, "DBus <- CreateObject(id={}, type={}) from {}", id, type, cli->id());
 
             if (id > 0 && HNObject::IsValidType(type))
                 cli->m_events.push(std::make_unique<HNObjectCreatedEvent>(id, (HNObject::Type)type));
@@ -223,6 +237,7 @@ struct CZ::HNBarAPI::HNIface
         if (cli)
         {
             sd_bus_message_read(m, "u", &id);
+            HNLog(CZDebug, CZLN, "DBus <- DestroyObject(id={}) from {}", id, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectDestroyedEvent>(id));
@@ -242,6 +257,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             const char *title;
             sd_bus_message_read(m, "us", &id, &title);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectTitle(id={}, title={}) from {}", id, title, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectTitleChangedEvent>(id, title));
@@ -259,6 +275,7 @@ struct CZ::HNBarAPI::HNIface
         {
             UInt32 id, parentId;
             sd_bus_message_read(m, "uu", &id, &parentId);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectParent(id={}, parent={}) from {}", id, parentId, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectParentChangedEvent>(id, parentId));
@@ -276,6 +293,7 @@ struct CZ::HNBarAPI::HNIface
         {
             UInt32 id, siblingId;
             sd_bus_message_read(m, "uu", &id, &siblingId);
+            HNLog(CZDebug, CZLN, "DBus <- InsertObjectBefore(id={}, sibling={}) from {}", id, siblingId, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectInsertedBeforeEvent>(id, siblingId));
@@ -294,6 +312,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             const char *icon;
             sd_bus_message_read(m, "us", &id, &icon);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectIcon(id={}, icon={}) from {}", id, icon, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectIconChangedEvent>(id, icon));
@@ -312,6 +331,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             int isFlat;
             sd_bus_message_read(m, "ub", &id, &isFlat);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectIconFlat(id={}, flat={}) from {}", id, isFlat != 0, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectIconFlatChangedEvent>(id, isFlat != 0));
@@ -330,6 +350,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             int enabled;
             sd_bus_message_read(m, "ub", &id, &enabled);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectEnabled(id={}, enabled={}) from {}", id, enabled != 0, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectEnabledChangedEvent>(id, enabled != 0));
@@ -348,6 +369,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             const char *shortcut;
             sd_bus_message_read(m, "us", &id, &shortcut);
+            HNLog(CZDebug, CZLN, "DBus <- SetObjectShortcut(id={}, shortcut={}) from {}", id, shortcut, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNObjectShortcutChangedEvent>(id, shortcut));
@@ -366,6 +388,7 @@ struct CZ::HNBarAPI::HNIface
             UInt32 id;
             int checked;
             sd_bus_message_read(m, "ub", &id, &checked);
+            HNLog(CZDebug, CZLN, "DBus <- SetToggleChecked(id={}, checked={}) from {}", id, checked != 0, cli->id());
 
             if (id > 0)
                 cli->m_events.push(std::make_unique<HNToggleCheckedChangedEvent>(id, checked != 0));
@@ -378,6 +401,8 @@ struct CZ::HNBarAPI::HNIface
     {
         auto bar { s_bar.lock() };
         auto cli { bar->m_clients.find(sd_bus_message_get_sender(m)) };
+
+        HNLog(CZDebug, CZLN, "DBus <- Commit from {}", sd_bus_message_get_sender(m));
 
         if (cli != bar->m_clients.end())
             cli->second->dispatch();
@@ -632,6 +657,8 @@ static int IgnoreClickReply(sd_bus_message *, void *, sd_bus_error *) { return 0
 void HNBar::sendObjectClicked(const std::string &clientId, UInt32 objectId) noexcept
 {
     sd_bus_slot *slot { NULL };
+
+    HNLog(CZDebug, CZLN, "DBus -> ObjectClicked(id={}) to {}", objectId, clientId);
 
     sd_bus_call_method_async(
         m_bus->bus(),

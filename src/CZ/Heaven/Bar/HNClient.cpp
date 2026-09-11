@@ -43,6 +43,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             m_name = e->name;
+            HNLog(CZDebug, CZLN, "Event onClientNameChanged: {} -> {}", id(), m_name);
             bar->onClientNameChanged.notify(this);
             break;
         }
@@ -69,6 +70,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             m_activeTopbar = topbar;
+            HNLog(CZDebug, CZLN, "Event onClientTopbarChanged: {} topbar = {}", id(), e->topbarId);
             bar->onClientTopbarChanged.notify(this);
             break;
         }
@@ -112,6 +114,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
 
             obj->m_client = this;
             m_objects[e->objectId] = obj;
+            HNLog(CZDebug, CZLN, "Event onObjectCreated: id={} type={}", e->objectId, (int)e->objectType);
             bar->onObjectCreated.notify(obj.get());
             break;
         }
@@ -134,6 +137,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 if (topbar == m_activeTopbar.lock().get())
                 {
                     m_activeTopbar.reset();
+                    HNLog(CZDebug, CZLN, "Event onClientTopbarChanged: {} active topbar destroyed", id());
                     bar->onClientTopbarChanged.notify(this);
                 }
             }
@@ -146,6 +150,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                     auto *withChildren { dynamic_cast<HNWithChildren*>(parentObj) };
                     withChildren->m_children.erase(withParent->m_parentLink);
                     withParent->m_parent = nullptr;
+                    HNLog(CZDebug, CZLN, "Event onObjectParentChanged: id={} detached (destroyed)", e->objectId);
                     bar->onObjectParentChanged.notify(obj.get());
                 }
             }
@@ -159,11 +164,13 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                     auto *childWithParent { dynamic_cast<HNWithParent*>(childObj) };
                     withChildren->m_children.pop_back();
                     childWithParent->m_parent = nullptr;
+                    HNLog(CZDebug, CZLN, "Event onObjectParentChanged: child of destroyed id={} detached", e->objectId);
                     bar->onObjectParentChanged.notify(childObj);
                 }
             }
 
             m_objects.erase(it);
+            HNLog(CZDebug, CZLN, "Event onObjectDestroyed: id={}", e->objectId);
             bar->onObjectDestroyed.notify(obj.get());
             break;
         }
@@ -190,6 +197,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             withTitle->m_title = e->title;
+            HNLog(CZDebug, CZLN, "Event onObjectTitleChanged: id={} title={}", e->objectId, e->title);
             bar->onObjectTitleChanged.notify(it->second.get());
             break;
         }
@@ -220,6 +228,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 auto *withChildren { dynamic_cast<HNWithChildren*>(withParent->m_parent) };
                 withChildren->m_children.erase(withParent->m_parentLink);
                 withParent->m_parent = nullptr;
+                HNLog(CZDebug, CZLN, "Event onObjectParentChanged: id={} unparented", e->objectId);
                 bar->onObjectParentChanged.notify(child->second.get());
             }
             else
@@ -265,6 +274,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 parentWithChildren->m_children.emplace_back(child->second.get());
                 withParent->m_parent = parent->second.get();
                 withParent->m_parentLink = std::prev(parentWithChildren->m_children.end());
+                HNLog(CZDebug, CZLN, "Event onObjectParentChanged: id={} parent={}", e->objectId, e->parentId);
                 bar->onObjectParentChanged.notify(child->second.get());
             }
 
@@ -308,6 +318,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                     withChildren->m_children.erase(withParent->m_parentLink);
                     withChildren->m_children.emplace_back(it->second.get());
                     withParent->m_parentLink = std::prev(withChildren->m_children.end());
+                    HNLog(CZDebug, CZLN, "Event onObjectInsertedBefore: id={} moved to back", e->objectId);
                     bar->onObjectInsertedBefore.notify(it->second.get(), nullptr);
                 }
                 else
@@ -356,6 +367,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                         siblingWithParent->m_parentLink,
                         it->second.get());
 
+                    HNLog(CZDebug, CZLN, "Event onObjectInsertedBefore: id={} before sibling={}", e->objectId, e->siblingId);
                     bar->onObjectInsertedBefore.notify(it->second.get(), sibling->second.get());
                 }
                 else
@@ -371,6 +383,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                         siblingWithParent->m_parentLink,
                         it->second.get());
 
+                    HNLog(CZDebug, CZLN, "Event onObjectInsertedBefore: id={} before sibling={} (reparented)", e->objectId, e->siblingId);
                     bar->onObjectInsertedBefore.notify(it->second.get(), sibling->second.get());
                 }
             }
@@ -400,6 +413,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             withIcon->m_icon = e->icon;
+            HNLog(CZDebug, CZLN, "Event onObjectIconChanged: id={} icon={}", e->objectId, e->icon);
             bar->onObjectIconChanged.notify(it->second.get());
             break;
         }
@@ -426,6 +440,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             withIcon->m_isFlat = e->isFlat;
+            HNLog(CZDebug, CZLN, "Event onObjectIconFlatChanged: id={} flat={}", e->objectId, e->isFlat);
             bar->onObjectIconFlatChanged.notify(it->second.get());
             break;
         }
@@ -452,6 +467,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             withEnabled->m_enabled = e->enabled;
+            HNLog(CZDebug, CZLN, "Event onObjectEnabledChanged: id={} enabled={}", e->objectId, e->enabled);
             bar->onObjectEnabledChanged.notify(it->second.get());
             break;
         }
@@ -478,6 +494,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             withShortcut->m_shortcut = e->shortcut;
+            HNLog(CZDebug, CZLN, "Event onObjectShortcutChanged: id={} shortcut={}", e->objectId, e->shortcut);
             bar->onObjectShortcutChanged.notify(it->second.get());
             break;
         }
@@ -504,6 +521,7 @@ void CZ::HNBarAPI::HNClient::dispatch() noexcept
                 continue;
 
             toggle->m_checked = e->checked;
+            HNLog(CZDebug, CZLN, "Event onToggleCheckedChanged: id={} checked={}", e->objectId, e->checked);
             bar->onToggleCheckedChanged.notify(toggle);
             break;
         }
