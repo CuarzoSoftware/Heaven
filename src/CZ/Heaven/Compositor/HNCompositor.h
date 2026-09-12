@@ -38,8 +38,11 @@ public:
      *
      * @param dbusId The DBus identifier of the active client.
      *               Passing an empty string ("") clears the active client.
+     * @param pid Optional process id of the underlying Wayland client (0 = unset).
+     * @param uid Optional user id of the underlying Wayland client (0 = unset).
+     * @param gid Optional group id of the underlying Wayland client (0 = unset).
      */
-    void setActiveClient(const std::string &dbusId) noexcept;
+    void setActiveClient(const std::string &dbusId, UInt32 pid = 0, UInt32 uid = 0, UInt32 gid = 0) noexcept;
 
     /**
      * @brief Emitted when a Wayland client is registered.
@@ -58,12 +61,53 @@ public:
      */
     CZSignal<const char* /*privateHandle*/, const char* /*dbusId*/> onClientRegistered;
 
+    /**
+     * @brief Emitted when the bar requests hiding the active client's windows ("Hide <App>").
+     *
+     * The compositor should hide (minimize) the windows of the currently active client.
+     */
+    CZSignal<> onHideActiveClient;
+
+    /**
+     * @brief Emitted when the bar requests hiding every client except the active one ("Hide Others").
+     */
+    CZSignal<> onHideOtherClients;
+
+    /**
+     * @brief Emitted when the bar requests showing (unhiding) every client's windows ("Show All").
+     */
+    CZSignal<> onShowAllClients;
+
+    /**
+     * @brief Emitted when the bar requests toggling the active client's minimized state.
+     */
+    CZSignal<> onToggleActiveClientMinimized;
+
+    /**
+     * @brief Emitted when the bar requests toggling the active client's maximized state.
+     */
+    CZSignal<> onToggleActiveClientMaximized;
+
+    /**
+     * @brief Emitted when the bar requests toggling the active client's fullscreen state.
+     */
+    CZSignal<> onToggleActiveClientFullscreen;
+
+    /**
+     * @brief Emitted when the bar requests closing the active client's window.
+     */
+    CZSignal<> onCloseActiveClient;
+
 private:
     friend struct HNIface;
     HNCompositor(std::shared_ptr<CZBus> bus) noexcept;
-    bool checkBarState() const noexcept;
+    bool checkBarState() noexcept;
     std::shared_ptr<CZBus> m_bus;
     std::string m_activeClientId;
+    std::string m_barId;
+    UInt32 m_activePid { 0 };
+    UInt32 m_activeUid { 0 };
+    UInt32 m_activeGid { 0 };
     bool m_isBarAvailable {};
 };
 

@@ -3,6 +3,7 @@
 
 #include <CZ/Core/CZBus.h>
 #include <CZ/Core/CZWeak.h>
+#include <CZ/Core/CZSignal.h>
 #include <CZ/Heaven/Heaven.h>
 #include <memory>
 #include <string>
@@ -139,6 +140,28 @@ public:
      * @return Shared pointer to the active CZBus instance.
      */
     std::shared_ptr<CZBus> bus() const noexcept { return m_bus; }
+
+    /**
+     * @brief Emitted when the user selects "About" in the application menu.
+     *
+     * Sent by the bar when the active client's app-title menu "About" item is activated. The client
+     * should present its about window/dialog.
+     */
+    CZSignal<> onAbout;
+
+    /**
+     * @brief Emitted when the user selects "Settings…" in the application menu.
+     *
+     * The client should present its preferences/settings window.
+     */
+    CZSignal<> onSettings;
+
+    /**
+     * @brief Emitted when the user selects "Quit" in the application menu.
+     *
+     * The client should quit.
+     */
+    CZSignal<> onQuit;
 
 private:
     friend class HNObject;

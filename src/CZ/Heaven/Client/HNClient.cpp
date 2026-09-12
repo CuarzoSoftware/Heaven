@@ -119,6 +119,37 @@ struct CZ::HNClientAPI::HNIface
         return 0;
     }
 
+    /* Application-menu actions sent by the bar (from the default app-title menu). */
+    static int About(sd_bus_message *m, void *, sd_bus_error *)
+    {
+        auto cli { s_client.lock() };
+        if (strcmp(sd_bus_message_get_sender(m), cli->m_barId.c_str()) != 0)
+            return 0;
+        HNLog(CZDebug, CZLN, "DBus <- About from bar");
+        cli->onAbout.notify();
+        return 0;
+    }
+
+    static int Settings(sd_bus_message *m, void *, sd_bus_error *)
+    {
+        auto cli { s_client.lock() };
+        if (strcmp(sd_bus_message_get_sender(m), cli->m_barId.c_str()) != 0)
+            return 0;
+        HNLog(CZDebug, CZLN, "DBus <- Settings from bar");
+        cli->onSettings.notify();
+        return 0;
+    }
+
+    static int Quit(sd_bus_message *m, void *, sd_bus_error *)
+    {
+        auto cli { s_client.lock() };
+        if (strcmp(sd_bus_message_get_sender(m), cli->m_barId.c_str()) != 0)
+            return 0;
+        HNLog(CZDebug, CZLN, "DBus <- Quit from bar");
+        cli->onQuit.notify();
+        return 0;
+    }
+
     /* Reply callback of an asynchronous DestroyObject call. */
     static int DestroyObjectACK(sd_bus_message *m, void *, sd_bus_error *)
     {
@@ -147,6 +178,27 @@ static const sd_bus_vtable VTable[]
         "u",    /* object id */
         "",
         HNIface::ObjectClicked,
+        SD_BUS_VTABLE_UNPRIVILEGED
+    ),
+    SD_BUS_METHOD(
+        "About",
+        "",
+        "",
+        HNIface::About,
+        SD_BUS_VTABLE_UNPRIVILEGED
+    ),
+    SD_BUS_METHOD(
+        "Settings",
+        "",
+        "",
+        HNIface::Settings,
+        SD_BUS_VTABLE_UNPRIVILEGED
+    ),
+    SD_BUS_METHOD(
+        "Quit",
+        "",
+        "",
+        HNIface::Quit,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
     SD_BUS_VTABLE_END

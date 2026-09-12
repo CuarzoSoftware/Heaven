@@ -42,6 +42,42 @@ public:
     HNTopbar *activeTopbar() const noexcept { return m_activeTopbar.lock().get(); }
 
     /**
+     * @brief Returns the process id of the underlying Wayland client.
+     *
+     * Optionally provided by the compositor via setActiveClient(). 0 means unset.
+     */
+    UInt32 pid() const noexcept { return m_pid; }
+
+    /**
+     * @brief Returns the user id of the underlying Wayland client.
+     *
+     * Optionally provided by the compositor via setActiveClient(). 0 means unset.
+     */
+    UInt32 uid() const noexcept { return m_uid; }
+
+    /**
+     * @brief Returns the group id of the underlying Wayland client.
+     *
+     * Optionally provided by the compositor via setActiveClient(). 0 means unset.
+     */
+    UInt32 gid() const noexcept { return m_gid; }
+
+    /**
+     * @brief Asks the client to show its About window (default app-title menu "About <App>").
+     */
+    void about() noexcept;
+
+    /**
+     * @brief Asks the client to show its Settings/Preferences window (default app-title menu).
+     */
+    void settings() noexcept;
+
+    /**
+     * @brief Asks the client to quit (default app-title menu "Quit <App>").
+     */
+    void quit() noexcept;
+
+    /**
      * @brief Destructor.
      */
     ~HNClient() noexcept;
@@ -54,6 +90,9 @@ private:
     void dispatch() noexcept;
     std::string m_id;
     std::string m_name;
+    UInt32 m_pid { 0 };
+    UInt32 m_uid { 0 };
+    UInt32 m_gid { 0 };
     std::weak_ptr<HNTopbar> m_activeTopbar;
     std::unordered_map<UInt32, std::shared_ptr<HNObject>> m_objects;
     std::queue<std::unique_ptr<HNEvent>> m_events;

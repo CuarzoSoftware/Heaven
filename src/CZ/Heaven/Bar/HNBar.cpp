@@ -107,17 +107,31 @@ struct CZ::HNBarAPI::HNIface
         {
             success = true;
             const char *id;
-            sd_bus_message_read(m, "s", &id);
+            UInt32 pid, uid, gid;
+            sd_bus_message_read(m, "suuu", &id, &pid, &uid, &gid);
 
-            HNLog(CZDebug, CZLN, "DBus <- SetActiveClient(id={}) from compositor", id);
+            HNLog(CZDebug, CZLN, "DBus <- SetActiveClient(id={}, pid={}, uid={}, gid={}) from compositor", id, pid, uid, gid);
+
+            // Cache the credentials so they can be applied when the client registers (if it hasn't yet),
+            // and so a native (non-Heaven) active client can still be identified by pid.
+            const UInt32 oldActivePid { bar->m_activePid };
+            bar->m_activePid = pid;
+            bar->m_activeUid = uid;
+            bar->m_activeGid = gid;
 
             if (strcmp(id, "") == 0)
             {
-                if (bar->m_activeClient)
+                // No Heaven client id: either nothing is active, or a native (pid-only) app is.
+                const bool changed { bar->m_activeClient != nullptr
+                                     || !bar->m_activeClientId.empty()
+                                     || oldActivePid != pid };
+                bar->m_activeClientId = "";
+                bar->m_activeClient = nullptr;
+
+                if (changed)
                 {
-                    bar->m_activeClientId = "";
-                    bar->m_activeClient = nullptr;
-                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: no active client");
+                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: {}",
+                          pid != 0 ? "native (pid-only) client" : "no active client");
                     bar->onActiveClientChanged.notify(bar.get());
                 }
             }
@@ -127,6 +141,10 @@ struct CZ::HNBarAPI::HNIface
 
                 if (client)
                 {
+                    client->m_pid = pid;
+                    client->m_uid = uid;
+                    client->m_gid = gid;
+
                     if (client != bar->m_activeClient)
                     {
                         bar->m_activeClientId = id;
@@ -168,6 +186,11 @@ struct CZ::HNBarAPI::HNIface
 
             if (client->id() == bar->m_activeClientId)
             {
+                // Apply the credentials the compositor sent with SetActiveClient before this
+                // client had registered.
+                client->m_pid = bar->m_activePid;
+                client->m_uid = bar->m_activeUid;
+                client->m_gid = bar->m_activeGid;
                 bar->m_activeClient = client.get();
                 HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client = {} (registered)", client->id());
                 bar->onActiveClientChanged.notify(bar.get());
@@ -419,7 +442,7 @@ static const sd_bus_vtable VTable[]
 
     SD_BUS_METHOD(
         "SetActiveClient",
-        "s",    /* in client id */
+        "suuu", /* in: client id, pid, uid, gid (pid/uid/gid optional, 0 = unset) */
         "b",
         HNIface::SetActiveClient,
         SD_BUS_VTABLE_UNPRIVILEGED
@@ -672,3 +695,51 @@ void HNBar::sendObjectClicked(const std::string &clientId, UInt32 objectId) noex
         "u",
         objectId);
 }
+
+void HNBar::sendAppMenuAction(const std::string &clientId, const char *method) noexcept
+{
+    sd_bus_slot *slot { NULL };
+
+    HNLog(CZDebug, CZLN, "DBus -> {} to {}", method, clientId);
+
+    sd_bus_call_method_async(
+        m_bus->bus(),
+        &slot,
+        clientId.c_str(),
+        "/org/cuarzo/HeavenClient",
+        "org.cuarzo.HeavenClient",
+        method,
+        IgnoreClickReply,
+        NULL,
+        "");
+}
+
+void HNBar::sendWindowAction(const char *method) noexcept
+{
+    if (!m_compositor)
+        return;
+
+    sd_bus_slot *slot { NULL };
+
+    HNLog(CZDebug, CZLN, "DBus -> {} to compositor", method);
+
+    sd_bus_call_method_async(
+        m_bus->bus(),
+        &slot,
+        m_compositor->id().c_str(),
+        "/org/cuarzo/HeavenCompositor",
+        "org.cuarzo.HeavenCompositor",
+        method,
+        IgnoreClickReply,
+        NULL,
+        "");
+}
+
+void HNBar::hideActiveClient() noexcept  { sendWindowAction("HideActiveClient"); }
+void HNBar::hideOtherClients() noexcept  { sendWindowAction("HideOtherClients"); }
+void HNBar::showAllClients() noexcept    { sendWindowAction("ShowAllClients"); }
+
+void HNBar::toggleActiveClientMinimized() noexcept  { sendWindowAction("ToggleActiveClientMinimized"); }
+void HNBar::toggleActiveClientMaximized() noexcept  { sendWindowAction("ToggleActiveClientMaximized"); }
+void HNBar::toggleActiveClientFullscreen() noexcept { sendWindowAction("ToggleActiveClientFullscreen"); }
+void HNBar::closeActiveClient() noexcept            { sendWindowAction("CloseActiveClient"); }

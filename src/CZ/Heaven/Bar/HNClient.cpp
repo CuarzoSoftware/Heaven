@@ -12,6 +12,24 @@ using namespace CZ::HNBarAPI;
 
 CZ::HNBarAPI::HNClient::~HNClient() noexcept = default;
 
+void HNClient::about() noexcept
+{
+    if (auto bar { HNBar::Get() })
+        bar->sendAppMenuAction(m_id, "About");
+}
+
+void HNClient::settings() noexcept
+{
+    if (auto bar { HNBar::Get() })
+        bar->sendAppMenuAction(m_id, "Settings");
+}
+
+void HNClient::quit() noexcept
+{
+    if (auto bar { HNBar::Get() })
+        bar->sendAppMenuAction(m_id, "Quit");
+}
+
 static bool IsObjectOrSubchildOf(HNObject *obj, HNObject *possibleParent) noexcept
 {
     if (!obj) return false;
