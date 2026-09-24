@@ -297,6 +297,26 @@ void HNCompositor::setActiveClient(const std::string &dbusId, UInt32 pid, UInt32
         gid);
 }
 
+void HNCompositor::setActiveClientName(const std::string &name) noexcept
+{
+    if (name == m_activeClientName)
+        return;
+
+    m_activeClientName = name;
+    HNLog(CZDebug, CZLN, "DBus -> SetActiveClientName({}) to bar", name);
+
+    sd_bus_call_method(
+        m_bus->bus(),
+        "org.cuarzo.HeavenBar",
+        "/org/cuarzo/HeavenBar",
+        "org.cuarzo.HeavenBar",
+        "SetActiveClientName",
+        NULL,
+        NULL,
+        "s",
+        name.c_str());
+}
+
 HNCompositor::HNCompositor(std::shared_ptr<CZBus> bus) noexcept : m_bus(bus) {}
 
 bool HNCompositor::checkBarState() noexcept

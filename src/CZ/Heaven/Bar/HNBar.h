@@ -65,6 +65,16 @@ public:
     UInt32 activeClientGid() const noexcept { return m_activeGid; }
 
     /**
+     * @brief Name of the active client, as reported by the compositor.
+     *
+     * Set when the compositor can name a client its pid doesn't identify, e.g. X11 apps, which all belong to the
+     * Xwayland bridge process. Empty if unset.
+     *
+     * @see HNCompositor::setActiveClientName()
+     */
+    const std::string &activeClientName() const noexcept { return m_activeName; }
+
+    /**
      * @brief Retrieves a client by its DBus identifier.
      *
      * @param id Null-terminated DBus identifier string.
@@ -235,6 +245,7 @@ private:
     UInt32 m_activePid { 0 };
     UInt32 m_activeUid { 0 };
     UInt32 m_activeGid { 0 };
+    std::string m_activeName;
     std::unordered_map<std::string, std::shared_ptr<HNClient>> m_clients;
 };
 

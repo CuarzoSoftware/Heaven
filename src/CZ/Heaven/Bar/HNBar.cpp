@@ -97,6 +97,27 @@ struct CZ::HNBarAPI::HNIface
         return 0;
     }
 
+    static int SetActiveClientName(sd_bus_message *m, void *, sd_bus_error *)
+    {
+        auto bar { s_bar.lock() };
+        auto *sender { sd_bus_message_get_sender(m) };
+
+        if (!bar || !bar->compositor() || strcmp(sender, bar->compositor()->id().c_str()) != 0)
+            return sd_bus_reply_method_return(m, "b", false);
+
+        const char *name {};
+        sd_bus_message_read(m, "s", &name);
+        HNLog(CZDebug, CZLN, "DBus <- SetActiveClientName({}) from compositor", name ? name : "");
+
+        if (bar->m_activeName != (name ? name : ""))
+        {
+            bar->m_activeName = name ? name : "";
+            bar->onActiveClientChanged.notify(bar.get());
+        }
+
+        return sd_bus_reply_method_return(m, "b", true);
+    }
+
     static int SetActiveClient(sd_bus_message *m, void *, sd_bus_error *)
     {
         bool success { false };
@@ -445,6 +466,14 @@ static const sd_bus_vtable VTable[]
         "suuu", /* in: client id, pid, uid, gid (pid/uid/gid optional, 0 = unset) */
         "b",
         HNIface::SetActiveClient,
+        SD_BUS_VTABLE_UNPRIVILEGED
+    ),
+
+    SD_BUS_METHOD(
+        "SetActiveClientName",
+        "s", /* in: name ("" = unset) */
+        "b",
+        HNIface::SetActiveClientName,
         SD_BUS_VTABLE_UNPRIVILEGED
     ),
 

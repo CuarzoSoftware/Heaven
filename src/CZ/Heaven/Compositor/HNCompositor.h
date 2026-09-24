@@ -45,6 +45,16 @@ public:
     void setActiveClient(const std::string &dbusId, UInt32 pid = 0, UInt32 uid = 0, UInt32 gid = 0) noexcept;
 
     /**
+     * @brief Sets the name of the active client.
+     *
+     * For clients their pid doesn't identify, e.g. X11 apps, which all belong to the Xwayland bridge process.
+     * Bars that don't support it ignore it.
+     *
+     * @param name The name to display, or an empty string to identify the client by its pid again.
+     */
+    void setActiveClientName(const std::string &name) noexcept;
+
+    /**
      * @brief Emitted when a Wayland client is registered.
      *
      * This signal provides the association between:
@@ -104,6 +114,7 @@ private:
     bool checkBarState() noexcept;
     std::shared_ptr<CZBus> m_bus;
     std::string m_activeClientId;
+    std::string m_activeClientName;
     std::string m_barId;
     UInt32 m_activePid { 0 };
     UInt32 m_activeUid { 0 };
