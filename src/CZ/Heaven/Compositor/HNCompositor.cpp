@@ -40,8 +40,7 @@ struct CZ::HNCompositorAPI::HNIface
             HNLog(CZInfo, CZLN, "org.cuarzo.HeavenBar appeared");
             compositor->m_isBarAvailable = true;
             compositor->m_barId = new_owner;
-            const auto activeClient { std::move(compositor->m_activeClientId) };
-            compositor->setActiveClient(activeClient, compositor->m_activePid, compositor->m_activeUid, compositor->m_activeGid);
+            compositor->sendActiveClient();
         } else if (old_owner[0] != '\0' && new_owner[0] == '\0')
         {
             compositor->m_isBarAvailable = false;
@@ -51,8 +50,7 @@ struct CZ::HNCompositorAPI::HNIface
         {
             HNLog(CZInfo, CZLN, "org.cuarzo.HeavenBar owner changed");
             compositor->m_barId = new_owner;
-            const auto activeClient { std::move(compositor->m_activeClientId) };
-            compositor->setActiveClient(activeClient, compositor->m_activePid, compositor->m_activeUid, compositor->m_activeGid);
+            compositor->sendActiveClient();
         }
 
         return 0;
@@ -269,18 +267,26 @@ std::shared_ptr<CZ::HNCompositorAPI::HNCompositor> CZ::HNCompositorAPI::HNCompos
     return compositor;
 }
 
-void HNCompositor::setActiveClient(const std::string &dbusId, UInt32 pid, UInt32 uid, UInt32 gid) noexcept
+void HNCompositor::setActiveClient(const std::string &dbusId, UInt32 pid, UInt32 uid, UInt32 gid,
+                                   const std::string &appId, const std::string &appName) noexcept
 {
-    if (dbusId == m_activeClientId && pid == m_activePid && uid == m_activeUid && gid == m_activeGid)
+    if (dbusId == m_activeClientId && pid == m_activePid && uid == m_activeUid && gid == m_activeGid &&
+        appId == m_activeAppId && appName == m_activeAppName)
         return;
 
     m_activeClientId = dbusId;
     m_activePid = pid;
     m_activeUid = uid;
     m_activeGid = gid;
-    HNLog(CZDebug, CZLN, "DBus -> SetActiveClient(id={}, pid={}, uid={}, gid={}) to bar", dbusId, pid, uid, gid);
+    m_activeAppId = appId;
+    m_activeAppName = appName;
+    sendActiveClient();
+}
 
-    sd_bus_message *reply {};
+void HNCompositor::sendActiveClient() noexcept
+{
+    HNLog(CZDebug, CZLN, "DBus -> SetActiveClient(id={}, pid={}, uid={}, gid={}, appId={}, appName={}) to bar",
+          m_activeClientId, m_activePid, m_activeUid, m_activeGid, m_activeAppId, m_activeAppName);
 
     sd_bus_call_method(
         m_bus->bus(),
@@ -289,12 +295,14 @@ void HNCompositor::setActiveClient(const std::string &dbusId, UInt32 pid, UInt32
         "org.cuarzo.HeavenBar",
         "SetActiveClient",
         NULL,
-        &reply,
-        "suuu",
-        dbusId.c_str(),
-        pid,
-        uid,
-        gid);
+        NULL,
+        "suuuss",
+        m_activeClientId.c_str(),
+        m_activePid,
+        m_activeUid,
+        m_activeGid,
+        m_activeAppId.c_str(),
+        m_activeAppName.c_str());
 }
 
 HNCompositor::HNCompositor(std::shared_ptr<CZBus> bus) noexcept : m_bus(bus) {}

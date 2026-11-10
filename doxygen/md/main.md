@@ -114,7 +114,7 @@ All names are on the session bus.
 
 | Method                                                   | Signature                         | Caller     |
 | -------------------------------------------------------- | --------------------------------- | ---------- |
-| `SetActiveClient`                                        | `s → b`                           | compositor |
+| `SetActiveClient`                                        | `suuuss → b`                      | compositor |
 | `RegisterClient`                                         | `→ b`                             | client     |
 | `SetClientName`                                          | `s`                               | client     |
 | `SetClientTopbar`                                        | `u`                               | client     |

@@ -41,8 +41,14 @@ public:
      * @param pid Optional process id of the underlying Wayland client (0 = unset).
      * @param uid Optional user id of the underlying Wayland client (0 = unset).
      * @param gid Optional group id of the underlying Wayland client (0 = unset).
+     * @param appId Optional application id of the active window, e.g. the xdg_toplevel app id
+     *              ("" = unset). The bar may use it to find the app's .desktop entry and the actions
+     *              it exports over D-Bus when the client isn't a registered Heaven client.
+     * @param appName Optional human-readable application name ("" = unset). Useful when the name
+     *                can't be derived from the pid, e.g. X11 apps bridged by xwayland-satellite.
      */
-    void setActiveClient(const std::string &dbusId, UInt32 pid = 0, UInt32 uid = 0, UInt32 gid = 0) noexcept;
+    void setActiveClient(const std::string &dbusId, UInt32 pid = 0, UInt32 uid = 0, UInt32 gid = 0,
+                         const std::string &appId = {}, const std::string &appName = {}) noexcept;
 
     /**
      * @brief Emitted when a Wayland client is registered.
@@ -102,12 +108,16 @@ private:
     friend struct HNIface;
     HNCompositor(std::shared_ptr<CZBus> bus) noexcept;
     bool checkBarState() noexcept;
+    /// Sends the cached active client state to the bar (also used to resync when the bar (re)appears).
+    void sendActiveClient() noexcept;
     std::shared_ptr<CZBus> m_bus;
     std::string m_activeClientId;
     std::string m_barId;
     UInt32 m_activePid { 0 };
     UInt32 m_activeUid { 0 };
     UInt32 m_activeGid { 0 };
+    std::string m_activeAppId;
+    std::string m_activeAppName;
     bool m_isBarAvailable {};
 };
 

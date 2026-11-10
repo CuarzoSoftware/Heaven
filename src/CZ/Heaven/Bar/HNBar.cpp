@@ -31,6 +31,8 @@ struct CZ::HNBarAPI::HNIface
 
             if (client == bar->m_activeClient)
             {
+                // Keep the compositor-provided identity (pid, app id, name): the window may still be
+                // mapped, and the bar can keep presenting it as an unregistered client.
                 bar->m_activeClient = nullptr;
                 bar->m_activeClientId = "";
                 HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client cleared (disconnected)");
@@ -101,63 +103,67 @@ struct CZ::HNBarAPI::HNIface
     {
         bool success { false };
         auto bar { s_bar.lock() };
-        auto *id { sd_bus_message_get_sender(m) };
+        auto *sender { sd_bus_message_get_sender(m) };
 
-        if (bar->compositor() && strcmp(id, bar->compositor()->id().c_str()) == 0)
+        if (bar->compositor() && strcmp(sender, bar->compositor()->id().c_str()) == 0)
         {
+            const char *id { "" };
+            const char *appId { "" };
+            const char *appName { "" };
+            UInt32 pid { 0 }, uid { 0 }, gid { 0 };
+
+            if (sd_bus_message_read(m, "suuuss", &id, &pid, &uid, &gid, &appId, &appName) < 0)
+            {
+                HNLog(CZWarning, CZLN, "DBus <- SetActiveClient: invalid arguments from compositor");
+                return sd_bus_reply_method_return(m, "b", false);
+            }
+
             success = true;
-            const char *id;
-            UInt32 pid, uid, gid;
-            sd_bus_message_read(m, "suuu", &id, &pid, &uid, &gid);
 
-            HNLog(CZDebug, CZLN, "DBus <- SetActiveClient(id={}, pid={}, uid={}, gid={}) from compositor", id, pid, uid, gid);
+            HNLog(CZDebug, CZLN, "DBus <- SetActiveClient(id={}, pid={}, uid={}, gid={}, appId={}, appName={}) from compositor",
+                  id, pid, uid, gid, appId, appName);
 
-            // Cache the credentials so they can be applied when the client registers (if it hasn't yet),
-            // and so a native (non-Heaven) active client can still be identified by pid.
-            const UInt32 oldActivePid { bar->m_activePid };
+            // Cache the credentials/identity so they can be applied when the client registers (if it hasn't yet),
+            // and so a native (non-Heaven) active client can still be identified.
+            const bool identityChanged {
+                bar->m_activePid != pid ||
+                bar->m_activeUid != uid ||
+                bar->m_activeGid != gid ||
+                bar->m_activeAppId != appId ||
+                bar->m_activeAppName != appName };
+
             bar->m_activePid = pid;
             bar->m_activeUid = uid;
             bar->m_activeGid = gid;
+            bar->m_activeAppId = appId;
+            bar->m_activeAppName = appName;
 
-            if (strcmp(id, "") == 0)
+            HNClient *client { id[0] != '\0' ? bar->getClientById(id) : nullptr };
+
+            if (client)
             {
-                // No Heaven client id: either nothing is active, or a native (pid-only) app is.
-                const bool changed { bar->m_activeClient != nullptr
-                                     || !bar->m_activeClientId.empty()
-                                     || oldActivePid != pid };
-                bar->m_activeClientId = "";
-                bar->m_activeClient = nullptr;
-
-                if (changed)
-                {
-                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: {}",
-                          pid != 0 ? "native (pid-only) client" : "no active client");
-                    bar->onActiveClientChanged.notify(bar.get());
-                }
+                client->m_pid = pid;
+                client->m_uid = uid;
+                client->m_gid = gid;
             }
-            else
+
+            // A Heaven client id that hasn't registered yet is treated as a native client until it
+            // registers (see RegisterClient).
+            const bool changed { client != bar->m_activeClient || bar->m_activeClientId != id || identityChanged };
+            bar->m_activeClientId = id;
+            bar->m_activeClient = client;
+
+            if (id[0] != '\0' && !client)
+                HNLog(CZDebug, CZLN, "Client {} set active but still not registered", id);
+
+            if (changed)
             {
-                auto *client { bar->getClientById(id) };
-
                 if (client)
-                {
-                    client->m_pid = pid;
-                    client->m_uid = uid;
-                    client->m_gid = gid;
-
-                    if (client != bar->m_activeClient)
-                    {
-                        bar->m_activeClientId = id;
-                        bar->m_activeClient = client;
-                        HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client = {}", id);
-                        bar->onActiveClientChanged.notify(bar.get());
-                    }
-                }
+                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: active client = {}", id);
                 else
-                {
-                    bar->m_activeClientId = id;
-                    HNLog(CZDebug, CZLN, "Client {} set active but still not registered", id);
-                }
+                    HNLog(CZDebug, CZLN, "Event onActiveClientChanged: {}",
+                          (pid != 0 || appId[0] != '\0' || appName[0] != '\0') ? "unregistered client" : "no active client");
+                bar->onActiveClientChanged.notify(bar.get());
             }
         }
 
@@ -442,7 +448,8 @@ static const sd_bus_vtable VTable[]
 
     SD_BUS_METHOD(
         "SetActiveClient",
-        "suuu", /* in: client id, pid, uid, gid (pid/uid/gid optional, 0 = unset) */
+        "suuuss", /* in: client id, pid, uid, gid, app id, app name
+                     (pid/uid/gid optional: 0 = unset; app id/name optional: "" = unset) */
         "b",
         HNIface::SetActiveClient,
         SD_BUS_VTABLE_UNPRIVILEGED

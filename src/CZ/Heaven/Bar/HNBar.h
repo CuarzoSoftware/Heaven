@@ -65,6 +65,24 @@ public:
     UInt32 activeClientGid() const noexcept { return m_activeGid; }
 
     /**
+     * @brief Application id of the active client, as reported by the compositor.
+     *
+     * Typically the xdg_toplevel app id of the active window (e.g. "org.gnome.TextEditor"), which
+     * usually matches the basename of the app's .desktop file and, for D-Bus activatable apps, its
+     * well-known bus name. Empty if unknown. Like the credentials, it remains valid when
+     * activeClient() is nullptr.
+     */
+    const std::string &activeClientAppId() const noexcept { return m_activeAppId; }
+
+    /**
+     * @brief Human-readable application name of the active client, as reported by the compositor.
+     *
+     * Useful when the name can't be derived from the pid, e.g. X11 apps bridged through
+     * xwayland-satellite, where every window belongs to the satellite process. Empty if unknown.
+     */
+    const std::string &activeClientAppName() const noexcept { return m_activeAppName; }
+
+    /**
      * @brief Retrieves a client by its DBus identifier.
      *
      * @param id Null-terminated DBus identifier string.
@@ -235,6 +253,8 @@ private:
     UInt32 m_activePid { 0 };
     UInt32 m_activeUid { 0 };
     UInt32 m_activeGid { 0 };
+    std::string m_activeAppId;
+    std::string m_activeAppName;
     std::unordered_map<std::string, std::shared_ptr<HNClient>> m_clients;
 };
 
