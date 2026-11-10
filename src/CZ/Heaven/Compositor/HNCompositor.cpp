@@ -288,13 +288,16 @@ void HNCompositor::sendActiveClient() noexcept
     HNLog(CZDebug, CZLN, "DBus -> SetActiveClient(id={}, pid={}, uid={}, gid={}, appId={}, appName={}) to bar",
           m_activeClientId, m_activePid, m_activeUid, m_activeGid, m_activeAppId, m_activeAppName);
 
-    sd_bus_call_method(
+    // Async: the compositor must never block on the bar (and a blocking call would leave clients'
+    // RegisterClient calls arriving meanwhile queued, unprocessed).
+    sd_bus_call_method_async(
         m_bus->bus(),
+        NULL,
         "org.cuarzo.HeavenBar",
         "/org/cuarzo/HeavenBar",
         "org.cuarzo.HeavenBar",
         "SetActiveClient",
-        NULL,
+        [](sd_bus_message *, void *, sd_bus_error *) -> int { return 0; },
         NULL,
         "suuuss",
         m_activeClientId.c_str(),
